@@ -95,21 +95,21 @@
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm">
 
-                <div class="py-20 flex flex-col items-center">
+                <div class="py-14 md:py-20 px-4 flex flex-col items-center text-center">
 
-                    <div class="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center">
+                    <div class="w-16 h-16 md:w-24 md:h-24 rounded-full bg-slate-100 flex items-center justify-center">
 
-                        <i class="fa-solid fa-box-open text-4xl text-slate-400"></i>
+                        <i class="fa-solid fa-box-open text-2xl md:text-4xl text-slate-400"></i>
 
                     </div>
 
-                    <h2 class="mt-6 text-2xl font-bold text-slate-700">
+                    <h2 class="mt-6 text-base md:text-2xl font-bold text-slate-700">
 
                         Belum Ada Inventaris
 
                     </h2>
 
-                    <p class="mt-3 text-slate-500 text-center max-w-md">
+                    <p class="mt-1 md:mt-3 text-slate-500 text-center max-w-md text-xs md:text-sm">
 
                         Data inventaris masih kosong.
                         Silakan tambahkan inventaris pertama
@@ -118,7 +118,7 @@
                     </p>
 
                     <button onclick="tambahInventaris()"
-                        class="mt-8 bg-primary hover:bg-primary_hover text-white px-6 py-3 rounded-xl">
+                        class="text-xs md:text-base mt-8 bg-primary hover:bg-primary_hover text-white px-6 py-3 rounded-xl">
 
                         <i class="fa-solid fa-plus mr-2"></i>
 

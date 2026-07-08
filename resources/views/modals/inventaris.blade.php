@@ -55,17 +55,18 @@
 
                         <label for="foto"
                             class="group cursor-pointer flex flex-col items-center justify-center
-    w-40 h-40 rounded-2xl border-2 border-dashed border-slate-300
+    w-36 h-36 md:w-40 md:h-40 rounded-2xl border-2 border-dashed border-slate-300
     hover:border-primary hover:bg-slate-50 transition overflow-hidden p-2">
 
                             <img id="previewFoto" src="{{ asset('images/no-image.png') }}"
-                                class="hidden w-full h-full object-cover rounded-xl">
+                                class="hidden w-full h-full object-cover rounded-lg md:rounded-xl">
 
                             <div id="placeholderFoto">
 
-                                <i class="fa-solid fa-camera text-4xl text-slate-400 group-hover:text-primary"></i>
+                                <i
+                                    class="fa-solid fa-camera text-2xl md:text-4xl text-slate-400 group-hover:text-primary"></i>
 
-                                <p class="mt-3 text-sm text-slate-500">
+                                <p class="mt-3 text-xs md:text-sm text-slate-500">
                                     Klik untuk menambah foto
                                 </p>
 
@@ -80,7 +81,7 @@
 
                 </div>
 
-                <div class="grid grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
                     {{-- Kode --}}
                     <div>
@@ -93,7 +94,7 @@
                         </label>
 
                         <input type="text" name="kode_inventaris" placeholder="Masukkan kode inventaris"
-                            class="w-full rounded-xl border-slate-300">
+                            class="w-full rounded-lg md:rounded-xl border-slate-300 text-xs md:text-base">
 
                     </div>
 
@@ -108,7 +109,7 @@
                         </label>
 
                         <input type="text" name="nama" placeholder="Masukkan nama inventaris"
-                            class="w-full rounded-xl border-slate-300">
+                            class="w-full rounded-lg md:rounded-xl border-slate-300 text-xs md:text-base">
 
                     </div>
 
@@ -123,7 +124,8 @@
                         </label>
 
                         <input type="text" id="harga" name="harga" placeholder="Contoh: 50.000"
-                            autocomplete="off" class="w-full rounded-xl border-slate-300">
+                            autocomplete="off"
+                            class="w-full rounded-lg md:rounded-xl border-slate-300 text-xs md:text-base">
 
                     </div>
 
@@ -137,7 +139,8 @@
 
                         </label>
 
-                        <input type="date" name="tanggal_perolehan" class="w-full rounded-xl border-slate-300">
+                        <input type="date" name="tanggal_perolehan"
+                            class="w-full rounded-lg md:rounded-xl border-slate-300 text-xs md:text-base">
 
                     </div>
 
@@ -165,7 +168,7 @@
                             </label>
 
                             <input type="number" name="kondisi[Baik]" value="0" min="0"
-                                class="w-full rounded-xl border-slate-300">
+                                class="w-full rounded-lg md:rounded-xl border-slate-300 text-xs md:text-base">
 
                         </div>
 
@@ -179,7 +182,7 @@
                             </label>
 
                             <input type="number" name="kondisi[Kurang Baik]" value="0" min="0"
-                                class="w-full rounded-xl border-slate-300">
+                                class="w-full rounded-lg md:rounded-xl border-slate-300 text-xs md:text-base">
 
                         </div>
 
@@ -193,7 +196,7 @@
                             </label>
 
                             <input type="number" name="kondisi[Rusak]" value="0" min="0"
-                                class="w-full rounded-xl border-slate-300">
+                                class="w-full rounded-lg md:rounded-xl border-slate-300 text-xs md:text-base">
 
                         </div>
 
@@ -207,7 +210,7 @@
                             </label>
 
                             <input type="number" name="kondisi[Hilang]" value="0" min="0"
-                                class="w-full rounded-xl border-slate-300">
+                                class="w-full rounded-lg md:rounded-xl border-slate-300 text-xs md:text-base">
 
                         </div>
 
@@ -220,14 +223,15 @@
             {{-- Footer --}}
             <div class="flex justify-end gap-3 border-t px-6 py-4">
 
-                <button type="button" onclick="closeModal('modalInventaris')"
-                    class="rounded-xl border border-slate-300 px-5 py-2">
+                <button type="button" onclick="closeModal('modalInventaris')" class=rounded-lg"md:rounded-xl border
+                    border-slate-300 px-5 py-2 text-xs md:text-base">
 
                     Batal
 
                 </button>
 
-                <button type="submit" class="rounded-xl bg-primary px-5 py-2 text-white hover:bg-primary_hover">
+                <button type="submit" class=rounded-lg"md:rounded-xl bg-primary px-5 py-2 text-white
+                    hover:bg-primary_hover text-xs md:text-base">
 
                     <i class="fa-solid fa-floppy-disk mr-2"></i>
 
