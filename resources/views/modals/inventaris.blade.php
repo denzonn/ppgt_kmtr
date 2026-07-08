@@ -224,7 +224,7 @@
             <div class="flex justify-end gap-3 border-t px-6 py-4">
 
                 <button type="button" onclick="closeModal('modalInventaris')"
-                    class="rounded-lgmd:rounded-xl border
+                    class="rounded-lg md:rounded-xl border
                     border-slate-300 px-5 py-2 text-xs md:text-base">
 
                     Batal
