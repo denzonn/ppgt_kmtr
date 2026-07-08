@@ -6,11 +6,11 @@
     window.showModal = function(id) {
 
         const modal = document.getElementById(id);
-
         if (!modal) return;
 
         modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        modal.classList.add('flex', 'justify-center');
+        modal.classList.remove('items-center');
 
         requestAnimationFrame(() => {
 
@@ -25,7 +25,6 @@
         });
 
         document.body.classList.add('overflow-hidden');
-
     }
 
     window.closeModal = function(id) {
@@ -44,7 +43,7 @@
 
         setTimeout(() => {
 
-            modal.classList.remove('flex');
+            modal.classList.remove('block');
             modal.classList.add('hidden');
 
             document.body.classList.remove('overflow-hidden');
