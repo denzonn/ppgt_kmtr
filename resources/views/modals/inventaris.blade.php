@@ -223,14 +223,16 @@
             {{-- Footer --}}
             <div class="flex justify-end gap-3 border-t px-6 py-4">
 
-                <button type="button" onclick="closeModal('modalInventaris')" class=rounded-lg"md:rounded-xl border
+                <button type="button" onclick="closeModal('modalInventaris')"
+                    class="rounded-lgmd:rounded-xl border
                     border-slate-300 px-5 py-2 text-xs md:text-base">
 
                     Batal
 
                 </button>
 
-                <button type="submit" class=rounded-lg"md:rounded-xl bg-primary px-5 py-2 text-white
+                <button type="submit"
+                    class="rounded-lg md:rounded-xl bg-primary px-5 py-2 text-white
                     hover:bg-primary_hover text-xs md:text-base">
 
                     <i class="fa-solid fa-floppy-disk mr-2"></i>
