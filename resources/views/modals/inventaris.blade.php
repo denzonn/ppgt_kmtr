@@ -7,7 +7,7 @@
     <div
         class="modal-content
                relative
-               my-[20vh]
+               my-[5vh]
                mx-auto
                w-[95%] md:w-full
                max-w-3xl
@@ -15,13 +15,14 @@
                bg-white
                shadow-2xl
                scale-95
+               h-fit
                -translate-y-6
                transition-all duration-300">
 
         {{-- Header --}}
         <div class="flex items-center justify-between border-b px-6 py-4">
 
-            <h2 id="modalTitle" class="text-xl font-bold text-slate-800">
+            <h2 id="modalTitle" class="text-lg md:text-xl font-bold text-slate-800">
                 Tambah Inventaris
             </h2>
 
@@ -45,7 +46,7 @@
 
                     <div class="text-center">
 
-                        <label class="block text-sm font-semibold text-slate-700 mb-3">
+                        <label class="block text-xs md:text-sm font-semibold text-slate-700 mb-3">
 
                             Foto Inventaris
                             <span class="text-red-500">*</span>
@@ -84,7 +85,7 @@
                     {{-- Kode --}}
                     <div>
 
-                        <label class="mb-2 block text-sm font-semibold">
+                        <label class="mb-2 block text-xs md:text-sm font-semibold">
 
                             Kode Inventaris
                             <span class="text-red-500">*</span>
@@ -99,7 +100,7 @@
                     {{-- Nama --}}
                     <div>
 
-                        <label class="mb-2 block text-sm font-semibold">
+                        <label class="mb-2 block text-xs md:text-sm font-semibold">
 
                             Nama Inventaris
                             <span class="text-red-500">*</span>
@@ -114,7 +115,7 @@
                     {{-- Harga --}}
                     <div>
 
-                        <label class="mb-2 block text-sm font-semibold">
+                        <label class="mb-2 block text-xs md:text-sm font-semibold">
 
                             Harga
                             <span class="text-red-500">*</span>
@@ -129,7 +130,7 @@
                     {{-- Tanggal --}}
                     <div>
 
-                        <label class="mb-2 block text-sm font-semibold">
+                        <label class="mb-2 block text-xs md:text-sm font-semibold">
 
                             Tanggal Perolehan
                             <span class="text-red-500">*</span>
@@ -145,7 +146,7 @@
                 {{-- KONDISI --}}
                 <div>
 
-                    <h3 class="font-semibold text-slate-700 mb-4">
+                    <h3 class="font-semibold text-xs md:text-base text-slate-700 mb-4">
 
                         Jumlah Berdasarkan Kondisi
                         <span class="text-red-500">*</span>
@@ -156,7 +157,7 @@
 
                         <div>
 
-                            <label class="block text-sm mb-2">
+                            <label class="block text-xs md:text-sm mb-2">
 
                                 Baik
                                 <span class="text-red-500">*</span>
@@ -170,7 +171,7 @@
 
                         <div>
 
-                            <label class="block text-sm mb-2">
+                            <label class="block text-xs md:text-sm mb-2">
 
                                 Kurang Baik
                                 <span class="text-red-500">*</span>
@@ -184,7 +185,7 @@
 
                         <div>
 
-                            <label class="block text-sm mb-2">
+                            <label class="block text-xs md:text-sm mb-2">
 
                                 Rusak
                                 <span class="text-red-500">*</span>
@@ -198,7 +199,7 @@
 
                         <div>
 
-                            <label class="block text-sm mb-2">
+                            <label class="block text-xs md:text-sm mb-2">
 
                                 Hilang
                                 <span class="text-red-500">*</span>

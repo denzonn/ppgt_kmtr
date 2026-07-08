@@ -111,49 +111,57 @@
         {{-- ===================== --}}
         {{-- RIGHT SIDE --}}
         {{-- ===================== --}}
-        <div class="flex items-center justify-center p-8">
+        <div class="flex items-center justify-center min-h-screen lg:min-h-0 px-5 py-8 sm:px-8 bg-slate-100">
 
             <div class="w-full max-w-md">
 
                 {{-- Mobile Logo --}}
-                <div class="lg:hidden text-center mb-8">
+                <div class="lg:hidden text-center mb-4 md:mb-8">
 
-                    <img src="{{ asset('images/logo.png') }}" class="w-16 h-16 mx-auto mb-4">
+                    <img src="{{ asset('images/logo.png') }}" class="w-14 h-14 md:w-20 md:h-20 mx-auto mb-4 object-contain">
 
-                    <h2 class="text-2xl font-bold text-gray-800">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800">
                         PPGT KMTr
                     </h2>
 
+                    <p class="text-slate-500 text-xs md:text-sm mt-2">
+                        Persekutuan Pemuda Gereja Toraja
+                    </p>
+
+                    <p class="text-slate-400 text-xs">
+                        Klasis Makassar Timur
+                    </p>
+
                 </div>
 
-                <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-10">
+                <div class="bg-white rounded-2xl lg:rounded-3xl shadow-xl border border-slate-200 p-6 sm:p-8 lg:p-10">
 
-                    <h2 class="text-3xl font-bold text-gray-800">
+                    <h2 class="text-xl lg:text-3xl font-bold text-gray-800">
                         Selamat Datang
                     </h2>
 
-                    <p class="text-gray-500 mt-2">
+                    <p class="text-xs lg:text-base text-gray-500 md:mt-2">
                         Silakan login untuk melanjutkan.
                     </p>
 
-                    <form method="POST" action="{{ route('login') }}" class="mt-8">
+                    <form method="POST" action="{{ route('login') }}" class="mt-6 lg:mt-8">
 
                         @csrf
 
                         {{-- Email --}}
                         <div class="mb-5">
 
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
                                 Email
                             </label>
 
-                            <input type="email" name="email" id="email" placeholder="Masukkan email"
-                                value="{{ old('email') }}"
-                                class="w-full h-12 rounded-xl border border-gray-300 px-4
-                            focus:border-primary
-                            focus:ring-2
-                            focus:ring-primary/20
-                            outline-none transition">
+                            <input type="email" name="email" id="email" value="{{ old('email') }}"
+                                placeholder="Masukkan email"
+                                class="w-full h-12 rounded-xl border border-gray-300 px-4  text-sm md:text-base
+                        focus:border-primary
+                        focus:ring-2
+                        focus:ring-primary/20
+                        outline-none transition">
 
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
 
@@ -162,25 +170,24 @@
                         {{-- Password --}}
                         <div>
 
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
                                 Password
                             </label>
 
                             <input type="password" name="password" id="password" placeholder="Masukkan password"
-                                class="w-full h-12 rounded-xl border border-gray-300 px-4
-                            focus:border-primary
-                            focus:ring-2
-                            focus:ring-primary/20
-                            outline-none transition">
+                                class="w-full h-12 rounded-xl border border-gray-300 px-4 text-sm md:text-base
+                        focus:border-primary
+                        focus:ring-2
+                        focus:ring-primary/20
+                        outline-none transition">
 
                             <x-input-error :messages="$errors->get('password')" class="mt-2" />
 
                         </div>
 
-                        {{-- Remember --}}
-                        <div class="flex items-center justify-between mt-6">
+                        <div class="flex items-center mt-6">
 
-                            <label class="flex items-center gap-2 text-sm text-gray-600">
+                            <label class="flex items-center gap-2 text-xs md:text-sm text-gray-600">
 
                                 <input type="checkbox" name="remember"
                                     class="rounded border-gray-300 text-primary focus:ring-primary">
@@ -191,10 +198,8 @@
 
                         </div>
 
-                        {{-- Button --}}
                         <button type="submit"
-                            class="mt-8 w-full h-12 rounded-xl bg-primary text-white font-semibold
-                        hover:brightness-95 transition">
+                            class="mt-7 lg:mt-8 w-full h-12 rounded-xl bg-primary text-white text-sm md:text-base font-semibold hover:brightness-95 transition">
 
                             Login
 
@@ -204,7 +209,7 @@
 
                 </div>
 
-                <p class="text-center text-sm text-gray-500 mt-8">
+                <p class="text-center text-[10px] md:text-sm text-gray-500 mt-6 lg:mt-8">
                     © {{ date('Y') }} PPGT KMTr. All Rights Reserved.
                 </p>
 

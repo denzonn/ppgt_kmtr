@@ -1,15 +1,28 @@
 <div id="modalPeminjaman"
-    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm
-    opacity-0 transition-opacity duration-300">
+    class="modal-overlay fixed inset-0 z-50 hidden
+           overflow-y-auto
+           bg-black/40 backdrop-blur-sm
+           opacity-0 transition-opacity duration-300">
 
     <div
-        class="modal-content w-full max-w-3xl rounded-2xl bg-white shadow-2xl
-        scale-95 -translate-y-6 transition-all duration-300">
+        class="modal-content
+               relative
+               my-[5vh]
+               mx-auto
+               w-[95%] md:w-full
+               max-w-3xl
+               rounded-2xl
+               bg-white
+               shadow-2xl
+               scale-95
+               h-fit
+               -translate-y-6
+               transition-all duration-300">
 
         {{-- Header --}}
         <div class="flex items-center justify-between border-b px-6 py-4">
 
-            <h2 id="modalTitle" class="text-xl font-bold text-slate-800">
+            <h2 id="modalTitle" class="text-lg md:text-xl font-bold text-slate-800">
                 Detail Peminjaman
             </h2>
 
@@ -19,7 +32,7 @@
 
         </div>
 
-        <div id="modalBody" class="p-6 max-h-[75vh] overflow-y-auto">
+        <div id="modalBody" class="p-6 overflow-y-auto">
 
         </div>
 

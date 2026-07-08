@@ -17,11 +17,11 @@
     {{-- Logo --}}
     <div class="h-20 border-b border-slate-200 flex items-center px-6">
 
-        <img src="{{ asset('images/logo.png') }}" class="w-12 h-12 object-contain">
+        <img src="{{ asset('images/logo.png') }}" class="w-10 h-10 md:w-12 md:h-12 object-contain">
 
         <div class="ml-3">
 
-            <h1 class="font-bold text-lg text-slate-800">
+            <h1 class="font-bold text-base md:text-lg text-slate-800">
                 PPGT KMTr
             </h1>
 
@@ -34,7 +34,7 @@
         {{-- Close Mobile --}}
         <button id="btnCloseSidebar" class="ml-auto lg:hidden text-slate-500">
 
-            <i class="fa-solid fa-xmark text-xl"></i>
+            <i class="fa-solid fa-xmark text-base md:text-xl"></i>
 
         </button>
 
@@ -43,7 +43,7 @@
     {{-- Menu --}}
     <div class="flex-1 overflow-y-auto px-4 py-6">
 
-        <p class="text-xs font-semibold text-slate-400 uppercase mb-3 px-3">
+        <p class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-3 px-3">
             Menu
         </p>
 
@@ -51,7 +51,7 @@
 
             {{-- Dashboard --}}
             <a href="{{ route('dashboard') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition
+                class="flex items-center gap-3 rounded-xl px-4 py-3 transition text-sm md:text-base
                 {{ $page == 'dashboard' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
 
                 <i class="fa-solid fa-house w-5 text-center"></i>
@@ -64,7 +64,7 @@
 
             {{-- Inventaris --}}
             <a href="{{ route('inventaris') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition
+                class="flex items-center gap-3 rounded-xl px-4 py-3 transition  text-sm md:text-base
                 {{ $page == 'inventaris' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
 
                 <i class="fa-solid fa-box-archive w-5 text-center"></i>
@@ -82,7 +82,7 @@
             @endphp
 
             <a href="{{ route('peminjaman-admin') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition
+                class="flex items-center gap-3 rounded-xl px-4 py-3 transition  text-sm md:text-base
                 {{ $page == 'peminjaman' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
 
                 <i class="fa-solid fa-handshake w-5 text-center"></i>
@@ -93,7 +93,7 @@
 
             {{-- Anggota --}}
             <a href="#"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition
+                class="flex items-center gap-3 rounded-xl px-4 py-3 transition  text-sm md:text-base
                 {{ $page == 'anggota' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
 
                 <i class="fa-solid fa-users w-5 text-center"></i>
@@ -106,7 +106,7 @@
 
             {{-- Pengaturan --}}
             <a href="#"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition
+                class="flex items-center gap-3 rounded-xl px-4 py-3 transition  text-sm md:text-base
                 {{ $page == 'pengaturan' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
 
                 <i class="fa-solid fa-gear w-5 text-center"></i>
@@ -126,7 +126,7 @@
 
         <div class="flex items-center">
 
-            <div class="w-11 h-11 rounded-full bg-slate-200 overflow-hidden">
+            <div class="w-9 h-9 md:w-11 md:h-11 rounded-full bg-slate-200 overflow-hidden">
 
                 @if (auth()->user()->foto)
                     <img src="{{ asset('storage/user/' . auth()->user()->foto) }}" class="w-full h-full object-cover">
@@ -142,11 +142,11 @@
 
             <div class="ml-3 flex-1">
 
-                <div class="font-semibold text-sm">
-                    {{ auth()->user()->nama_lengkap }}
+                <div class="font-semibold text-xs md:text-sm">
+                    {{ auth()->user()->name }}
                 </div>
 
-                <div class="text-xs text-slate-500">
+                <div class="text-[10px] md:text-xs text-slate-500">
                     Administrator
                 </div>
 
@@ -160,7 +160,7 @@
 
             <button
                 class="w-full rounded-xl border border-red-200
-                text-red-600 py-3
+                text-red-600 py-3 text-xs md:text-base
                 hover:bg-red-50
                 transition">
 

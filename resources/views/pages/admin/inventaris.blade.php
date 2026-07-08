@@ -14,18 +14,24 @@
 
             <div>
 
-                <h2 class="text-2xl font-bold">
+                <h2 class="text-lg md:text-2xl font-bold">
                     Data Inventaris
                 </h2>
 
-                <p class="text-slate-500 mt-1">
+                <p class="text-slate-500 md:mt-1 text-xs md:text-base">
                     Kelola seluruh inventaris organisasi.
                 </p>
 
             </div>
 
             <button onclick="tambahInventaris()"
-                class="bg-primary text-white rounded-xl px-5 py-3 hover:bg-primary_hover transition">
+                class="bg-primary text-white rounded-xl absolute bottom-3 right-3 w-10 h-10 flex justify-center items-center hover:bg-primary_hover transition md:hidden">
+
+                <i class="fa-solid fa-plus"></i>
+            </button>
+
+            <button onclick="tambahInventaris()"
+                class="bg-primary text-white rounded-xl px-5 py-3 hover:bg-primary_hover transition hidden md:block">
 
                 <i class="fa-solid fa-plus mr-2"></i>
 
@@ -36,7 +42,7 @@
         </div>
 
         {{-- Search --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-200 p-3 md:p-5">
 
             <div class="relative">
 
@@ -44,35 +50,32 @@
                 </i>
 
                 <input id="search" type="text" placeholder="Cari inventaris..."
-                    class="w-full rounded-xl border border-slate-300 pl-11 pr-4 py-3 focus:border-primary focus:ring-primary">
-
+                    class="w-full rounded-xl border border-slate-300 pl-11 pr-4 py-3 focus:border-primary focus:ring-primary text-xs md:text-base">
             </div>
 
         </div>
 
         {{-- Table --}}
         <div id="tableContainer">
+            <div
+                class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden max-w-[87vw] hidden md:block">
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="w-full overflow-x-auto">
 
-                <div class="overflow-x-auto">
-
-                    <table class="w-full">
+                    <table class="w-full min-w-[900px]">
 
                         <thead class="bg-slate-50">
-
-                            <tr class="text-left text-sm text-slate-600">
-                                <th class="px-6 py-4">Foto</th>
-                                <th class="px-6 py-4">Kode</th>
-                                <th class="px-6 py-4">Nama</th>
-                                <th class="px-6 py-4">Harga</th>
-                                <th class="px-6 py-4">Tanggal</th>
-                                <th class="px-6 py-4 text-center">Aksi</th>
+                            <tr class="text-left text-xs md:text-sm text-slate-600 whitespace-nowrap">
+                                <th class="px-4 py-2 md:px-6 md:py-4 min-w-[90px]">Foto</th>
+                                <th class="px-4 py-2 md:px-6 md:py-4 min-w-[100px]">Kode</th>
+                                <th class="px-4 py-2 md:px-6 md:py-4 min-w-[220px]">Nama</th>
+                                <th class="px-4 py-2 md:px-6 md:py-4 min-w-[150px]">Harga</th>
+                                <th class="px-4 py-2 md:px-6 md:py-4 min-w-[180px]">Tanggal Perolehan</th>
+                                <th class="px-4 py-2 md:px-6 md:py-4 min-w-[140px] text-center">Aksi</th>
                             </tr>
-
                         </thead>
 
-                        <tbody id="tableData">
+                        <tbody id="tableData" class="text-xs md:text-base">
 
                         </tbody>
 
@@ -82,7 +85,9 @@
 
             </div>
 
-            <div id="pagination" class="mt-5"></div>
+            <div id="mobileContainer" class="space-y-4 md:hidden"></div>
+
+            <div id="paginationMobile" class="mt-5 md:hidden"></div>
 
         </div>
 
@@ -236,6 +241,8 @@
     <script>
         let page = 1;
         let searchTimer;
+        let html = '';
+        let mobileHtml = '';
 
         loadData();
 
@@ -265,135 +272,197 @@
         </tr>
     `);
 
+            $('#mobileContainer').html(`
+        <div class="bg-white rounded-2xl p-10 text-center">
+            <i class="fa-solid fa-spinner fa-spin text-primary text-2xl"></i>
+            <p class="mt-3 text-slate-500">Memuat data...</p>
+        </div>
+    `);
+
             $.get("{{ route('inventaris.getData') }}", {
                 page: page,
                 search: $('#search').val()
             }, function(res) {
-                console.log(res);
-
 
                 const isSearch = $('#search').val().trim() !== '';
 
                 // ==========================
                 // DATABASE MASIH KOSONG
                 // ==========================
-
                 if (res.total === 0 && !isSearch) {
 
                     $('#tableContainer').addClass('hidden');
+                    $('#mobileContainer').addClass('hidden');
+                    $('#pagination').html('');
+                    $('#paginationMobile').html('');
                     $('#emptyState').removeClass('hidden');
 
                     return;
-
                 }
 
                 $('#emptyState').addClass('hidden');
                 $('#tableContainer').removeClass('hidden');
+                $('#mobileContainer').removeClass('hidden');
 
                 let html = '';
+                let mobileHtml = '';
 
                 // ==========================
                 // HASIL PENCARIAN KOSONG
                 // ==========================
-
                 if (res.data.length === 0) {
 
                     html = `
                 <tr>
-
                     <td colspan="6" class="py-16 text-center">
-
                         <div class="flex flex-col items-center">
-
                             <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center">
-
                                 <i class="fa-solid fa-magnifying-glass text-2xl text-slate-400"></i>
-
                             </div>
 
                             <h3 class="mt-4 text-lg font-semibold text-slate-700">
-
                                 Data tidak ditemukan
-
                             </h3>
 
                             <p class="mt-2 text-sm text-slate-500">
-
                                 Coba gunakan kata kunci lain.
-
                             </p>
-
                         </div>
-
                     </td>
-
                 </tr>
+            `;
+
+                    mobileHtml = `
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-10 text-center">
+
+                    <div class="w-16 h-16 mx-auto rounded-full bg-slate-100 flex items-center justify-center">
+                        <i class="fa-solid fa-magnifying-glass text-2xl text-slate-400"></i>
+                    </div>
+
+                    <h3 class="mt-4 font-semibold text-slate-700">
+                        Data tidak ditemukan
+                    </h3>
+
+                    <p class="text-sm text-slate-500 mt-2">
+                        Coba gunakan kata kunci lain.
+                    </p>
+
+                </div>
             `;
 
                 } else {
 
                     $.each(res.data, function(i, item) {
 
+                        // ==========================
+                        // DESKTOP TABLE
+                        // ==========================
                         html += `
+                    <tr class="border-t hover:bg-slate-50 transition">
 
-                <tr class="border-t hover:bg-slate-50 transition">
+                        <td class="px-4 py-2 md:px-6 md:py-4">
+                            <img
+                                src="/images/inventaris/${item.foto}"
+                                class="w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover border">
+                        </td>
 
-                    <td class="px-6 py-4">
+                        <td class="px-4 py-2 md:px-6 md:py-4">
+                            ${item.kode_inventaris}
+                        </td>
 
-                        <img
-                            src="/images/inventaris/${item.foto}"
-                            class="w-14 h-14 rounded-xl object-cover border">
+                        <td class="px-4 py-2 md:px-6 md:py-4 font-medium">
+                            ${item.nama}
+                        </td>
 
-                    </td>
+                        <td class="px-4 py-2 md:px-6 md:py-4">
+                            Rp ${Number(item.harga).toLocaleString('id-ID')}
+                        </td>
 
-                    <td class="px-6 py-4">
+                        <td class="px-4 py-2 md:px-6 md:py-4">
+                            ${formatTanggal(item.tanggal_perolehan)}
+                        </td>
 
-                        ${item.kode_inventaris}
+                        <td class="px-4 py-2 md:px-6 md:py-4">
 
-                    </td>
+                            <div class="flex justify-center gap-2">
 
-                    <td class="px-6 py-4 font-medium">
+                                <button
+                                    onclick="editInventaris(${item.id})"
+                                    class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100">
 
-                        ${item.nama}
+                                    <i class="fa-solid fa-pen"></i>
 
-                    </td>
+                                </button>
 
-                    <td class="px-6 py-4">
+                                <button
+                                    onclick="hapusInventaris(${item.id})"
+                                    class="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100">
 
-                        Rp ${Number(item.harga).toLocaleString('id-ID')}
+                                    <i class="fa-solid fa-trash"></i>
 
-                    </td>
+                                </button>
 
-                    <td class="px-6 py-4">
+                            </div>
 
-                        ${formatTanggal(item.tanggal_perolehan)}
+                        </td>
 
-                    </td>
+                    </tr>
+                `;
 
-                    <td class="px-6 py-4">
+                        // ==========================
+                        // MOBILE CARD
+                        // ==========================
+                        mobileHtml += `
+                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
 
-                        <div class="flex justify-center gap-2">
+                        <div class="flex gap-4">
+
+                            <img
+                                src="/images/inventaris/${item.foto}"
+                                class="w-20 h-20 rounded-xl object-cover border">
+
+                            <div class="flex-1 min-w-0">
+
+                                <h3 class="font-semibold text-slate-800">
+                                    ${item.nama}
+                                </h3>
+
+                                <p class="text-xs text-slate-500 mt-1">
+                                    ${item.kode_inventaris}
+                                </p>
+
+                                <p class="text-primary font-bold mt-2">
+                                    Rp ${Number(item.harga).toLocaleString('id-ID')}
+                                </p>
+
+                                <p class="text-xs text-slate-500 mt-2">
+                                    <i class="fa-regular fa-calendar mr-1"></i>
+                                    ${formatTanggal(item.tanggal_perolehan)}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="flex justify-end gap-2 mt-4">
 
                             <button
-onclick="editInventaris(${item.id})"
-class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100">
+                                onclick="editInventaris(${item.id})"
+                                class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100">
 
-    <i class="fa-solid fa-pen"></i>
+                                <i class="fa-solid fa-pen text-sm"></i>
+                            </button>
 
-</button>
-                            <button onclick="hapusInventaris(${item.id})"
-                                class="w-9 h-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition">
+                            <button
+                                onclick="hapusInventaris(${item.id})"
+                                class="w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-100">
 
-                                <i class="fa-solid fa-trash"></i>
-
+                                <i class="fa-solid fa-trash text-sm"></i>
                             </button>
 
                         </div>
 
-                    </td>
-
-                </tr>
-
+                    </div>
                 `;
 
                     });
@@ -401,6 +470,7 @@ class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100">
                 }
 
                 $('#tableData').html(html);
+                $('#mobileContainer').html(mobileHtml);
 
                 renderPagination(res);
 
@@ -411,38 +481,108 @@ class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100">
         function renderPagination(res) {
 
             if (res.total === 0) {
-
                 $('#pagination').html('');
                 return;
+            }
+
+            let html = '<div class="flex justify-end items-center gap-2 flex-wrap">';
+
+            // Prev
+            html += `
+                <button
+                    ${res.current_page == 1 ? 'disabled' : `onclick="loadData(${res.current_page-1})"`}
+                    class="w-7 h-7 md:w-9 md:h-9 text-xs md:text-base rounded-lg border flex items-center justify-center
+                    ${res.current_page == 1
+                        ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                        : 'bg-white hover:bg-slate-100'}">
+
+                    <i class="fa-solid fa-chevron-left text-xs"></i>
+
+                </button>
+            `;
+
+            const total = res.last_page;
+            const current = res.current_page;
+
+            let pages = [];
+
+            if (total <= 7) {
+
+                for (let i = 1; i <= total; i++) {
+                    pages.push(i);
+                }
+
+            } else {
+
+                pages.push(1);
+
+                if (current > 3) {
+                    pages.push('...');
+                }
+
+                let start = Math.max(2, current - 1);
+                let end = Math.min(total - 1, current + 1);
+
+                for (let i = start; i <= end; i++) {
+                    pages.push(i);
+                }
+
+                if (current < total - 2) {
+                    pages.push('...');
+                }
+
+                pages.push(total);
 
             }
 
-            let html = '<div class="flex justify-end gap-2">';
+            pages.forEach(function(item) {
 
-            for (let i = 1; i <= res.last_page; i++) {
+                if (item === '...') {
 
-                html += `
-            <button
-                onclick="loadData(${i})"
-                class="w-10 h-10 rounded-lg border transition
+                    html += `
+                <span class="w-9 h-9 flex items-center justify-center text-slate-500">
+                    ...
+                </span>
+            `;
 
-                ${i == res.current_page
-                    ? 'bg-primary text-white border-primary'
-                    : 'bg-white hover:bg-slate-100'}
+                } else {
 
-                ">
+                    html += `
+                <button
+                    onclick="loadData(${item})"
+                    class="w-7 h-7 md:w-9 md:h-9 rounded-lg border transition text-xs md:text-base
 
-                ${i}
+                    ${item == current
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-white hover:bg-slate-100'}">
 
-            </button>
-        `;
+                    ${item}
 
-            }
+                </button>
+            `;
+
+                }
+
+            });
+
+            // Next
+            html += `
+        <button
+            ${res.current_page == total ? 'disabled' : `onclick="loadData(${res.current_page+1})"`}
+            class="w-7 h-7 md:w-9 md:h-9 text-xs md:text-base rounded-lg border flex items-center justify-center
+            ${res.current_page == total
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-white hover:bg-slate-100'}">
+
+            <i class="fa-solid fa-chevron-right text-xs"></i>
+
+        </button>
+    `;
 
             html += '</div>';
 
             $('#pagination').html(html);
-
+            $('#paginationMobile').html(html);
         }
 
         function editInventaris(id) {

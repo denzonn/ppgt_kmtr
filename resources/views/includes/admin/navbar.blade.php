@@ -1,13 +1,13 @@
 <header class="sticky top-0 z-30 bg-white border-b border-slate-200">
 
-    <div class="h-20 flex items-center justify-between px-6 lg:px-8">
+    <div class="h-16 sm:h-20 flex items-center justify-between px-4 sm:px-6 lg:px-8">
 
         {{-- Left --}}
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 sm:gap-4">
 
             {{-- Mobile --}}
             <button id="btnOpenSidebar"
-                class="lg:hidden w-11 h-11 rounded-xl border border-slate-200 hover:bg-slate-100 transition">
+                class="lg:hidden flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl border border-slate-200 hover:bg-slate-100 transition">
 
                 <i class="fa-solid fa-bars"></i>
 
@@ -16,7 +16,7 @@
         </div>
 
         {{-- Right --}}
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 sm:gap-4">
 
             {{-- Search --}}
             <div class="hidden md:flex relative">
@@ -36,7 +36,8 @@
             </div>
 
             {{-- Notification --}}
-            <button class="relative w-11 h-11 rounded-xl border border-slate-200 hover:bg-slate-100 transition">
+            <button
+                class="relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-xl hover:bg-slate-100 transition">
 
                 <i class="fa-regular fa-bell"></i>
 
@@ -49,9 +50,9 @@
             <div class="relative group">
 
                 <button
-                    class="flex items-center gap-3 rounded-xl border border-slate-200 px-3 py-2 hover:bg-slate-50 transition">
+                    class="flex items-center gap-2 sm:gap-3 rounded-xl px-2.5 sm:px-3 py-1.5 sm:py-2 hover:bg-slate-50 transition">
 
-                    <div class="w-10 h-10 rounded-full overflow-hidden bg-slate-200">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-slate-200 flex-shrink-0">
 
                         @if (auth()->user()->foto)
                             <img src="{{ asset('storage/user/' . auth()->user()->foto) }}"
@@ -66,26 +67,26 @@
 
                     </div>
 
-                    <div class="hidden lg:block text-left">
+                    <div class="hidden lg:block text-left max-w-[180px]">
 
-                        <div class="text-sm font-semibold">
+                        <div class="text-sm font-semibold truncate">
                             {{ auth()->user()->nama_lengkap }}
                         </div>
 
-                        <div class="text-xs text-slate-500">
+                        <div class="text-xs text-slate-500 truncate">
                             Administrator
                         </div>
 
                     </div>
 
-                    <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                    <i class="hidden lg:block fa-solid fa-chevron-down text-xs text-slate-400"></i>
 
                 </button>
 
                 {{-- Dropdown --}}
                 <div
-                    class="absolute right-0 mt-3 w-56 bg-white border border-slate-200 rounded-2xl shadow-lg
-                    opacity-0 invisible translate-y-2
+                    class="absolute right-0 mt-3 w-64 max-w-[calc(100vw-2rem)] bg-white border border-slate-200 rounded-2xl shadow-lg
+                    opacity-0 invisible translate-y-2 text-xs md:text-base
                     group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
                     transition-all duration-200">
 

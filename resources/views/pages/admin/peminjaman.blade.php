@@ -14,11 +14,11 @@
 
             <div>
 
-                <h2 class="text-2xl font-bold">
+                <h2 class="text-lg md:text-2xl font-bold">
                     Riwayat Peminjaman
                 </h2>
 
-                <p class="text-slate-500 mt-1">
+                <p class="text-slate-500 md:mt-1 text-xs md:text-base">
                     Kelola seluruh peminjaman barang organisasi.
                 </p>
 
@@ -26,7 +26,7 @@
         </div>
 
         {{-- Search --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="bg-white rounded-xl md:rounded-2xl shadow-sm border border-slate-200 p-3 md:p-5">
 
             <div class="relative">
 
@@ -34,8 +34,7 @@
                 </i>
 
                 <input id="search" type="text" placeholder="Cari inventaris..."
-                    class="w-full rounded-xl border border-slate-300 pl-11 pr-4 py-3 focus:border-primary focus:ring-primary">
-
+                    class="w-full rounded-xl border border-slate-300 pl-11 pr-4 py-3 focus:border-primary focus:ring-primary text-xs md:text-base">
             </div>
 
         </div>
@@ -43,7 +42,7 @@
         {{-- Table --}}
         <div id="tableContainer">
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hidden md:block">
 
                 <div class="overflow-x-auto">
 
@@ -70,9 +69,16 @@
 
             </div>
 
-            <div id="pagination" class="mt-5"></div>
+            <div id="mobileContainer" class="space-y-4 md:hidden">
+                {{-- Diisi Javascript --}}
+            </div>
+
+            <div id="pagination" class="mt-5 hidden md:block"></div>
+
+            <div id="paginationMobile" class="mt-5 md:hidden"></div>
 
         </div>
+
 
         <div id="emptyState" class="hidden">
 
@@ -136,13 +142,13 @@
             page = currentPage;
 
             $('#tableData').html(`
-        <tr>
-            <td colspan="6" class="py-10 text-center text-slate-500">
-                <i class="fa-solid fa-spinner fa-spin mr-2"></i>
-                Memuat data...
-            </td>
-        </tr>
-    `);
+                <tr>
+                    <td colspan="6" class="py-10 text-center text-slate-500">
+                        <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+                        Memuat data...
+                    </td>
+                </tr>
+            `);
 
             $.get("{{ route('peminjaman-admin.getData') }}", {
                 page: page,
@@ -168,6 +174,7 @@
                 $('#tableContainer').removeClass('hidden');
 
                 let html = '';
+                let mobileHtml = '';
 
                 // ==========================
                 // HASIL PENCARIAN KOSONG
@@ -216,102 +223,192 @@
                         item.details.forEach(function(detail) {
 
                             inventarisHtml += `
-            <div class="flex items-center justify-between py-2 border-b last:border-b-0">
+                                <div class="flex items-center justify-between py-2 border-b last:border-b-0">
 
-                <div>
+                                    <div>
 
-                    <div class="font-medium text-slate-700">
-                        ${detail.inventaris.nama}
-                    </div>
+                                        <div class="font-medium text-slate-700 text-sm md:text-base">
+                                            ${detail.inventaris.nama}
+                                        </div>
 
-                    <div class="text-xs text-slate-500">
-                        ${detail.inventaris.kode_inventaris}
-                    </div>
+                                        <div class="text-[10px] md:text-xs text-slate-500">
+                                            ${detail.inventaris.kode_inventaris}
+                                        </div>
 
-                </div>
+                                    </div>
 
-                <span class="px-2 py-1 rounded-lg bg-slate-100 text-xs font-semibold">
+                                    <span class="px-2 py-1 rounded-lg bg-slate-100 text-[10px] md:text-xs font-semibold">
 
-                    ${detail.jumlah} Unit
+                                        ${detail.jumlah} Unit
 
-                </span>
+                                    </span>
 
-            </div>
-        `;
+                                </div>
+                                `;
 
                         });
 
                         html += `
-    <tr class="border-t hover:bg-slate-50 transition">
+                            <tr class="border-t hover:bg-slate-50 transition">
 
-        <td class="px-6 py-4">
-            ${inventarisHtml}
-        </td>
+                                <td class="px-6 py-4">
+                                    ${inventarisHtml}
+                                </td>
 
-        <td class="px-6 py-4">
-           ${item.nama_peminjam}
-        </td>
+                                <td class="px-6 py-4">
+                                ${item.nama_peminjam}
+                                </td>
 
-        <td class="px-6 py-4">
+                                <td class="px-6 py-4">
 
-            ${formatTanggal(item.tanggal_peminjaman)}
+                                    ${formatTanggal(item.tanggal_peminjaman)}
 
-        </td>
+                                </td>
 
-        <td class="px-6 py-4">
+                                <td class="px-6 py-4">
 
-            ${
-                item.tanggal_pengembalian
-                ? formatTanggal(item.tanggal_pengembalian)
-                : '-'
-            }
+                                    ${
+                                        item.tanggal_pengembalian
+                                        ? formatTanggal(item.tanggal_pengembalian)
+                                        : '-'
+                                    }
 
-        </td>
+                                </td>
 
-        <td class="px-6 py-4">
+                                <td class="px-6 py-4">
 
-            ${
-                item.status == 'dipinjam'
+                                    ${
+                                        item.status == 'dipinjam'
 
-                ? `<span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
+                                        ? `<span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
 
-                                                                                        Dipinjam
+                                                                                                                                                                                                                                                                Dipinjam
 
-                                                                                   </span>`
+                                                                                                                                                                                                                                                        </span>`
 
-                : `<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                                        : `<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
 
-                                                                                        Dikembalikan
+                                                                                                                                                                                                                                                                Dikembalikan
 
-                                                                                   </span>`
-            }
+                                                                                                                                                                                                                                                        </span>`
+                                    }
 
-        </td>
+                                </td>
 
-        <td class="px-6 py-4">
+                                <td class="px-6 py-4">
 
-            <div class="flex justify-center">
+                                    <div class="flex justify-center">
 
-                <button
-                    data-id="${item.id}"
-                    class="btnDetail w-9 h-9 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600">
+                                        <button
+                                            data-id="${item.id}"
+                                            class="btnDetail w-9 h-9 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600">
 
-                    <i class="fa-solid fa-eye"></i>
+                                            <i class="fa-solid fa-eye"></i>
 
-                </button>
+                                        </button>
 
-            </div>
+                                    </div>
 
-        </td>
+                                </td>
 
-    </tr>
-    `;
+                            </tr>
+                            `;
 
+                        mobileHtml += `
+                                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+
+                                        <div class="flex items-start justify-between">
+
+                                            <div>
+
+                                                <h3 class="font-semibold text-sm text-slate-800">
+
+                                                    ${item.nama_peminjam}
+
+                                                </h3>
+
+                                                <p class="text-[10px] text-slate-500">
+
+                                                    ${formatTanggal(item.tanggal_peminjaman)}
+
+                                                </p>
+
+                                            </div>
+
+                                            ${
+                                                item.status == 'dipinjam'
+                                                    ? `<span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-semibold">
+                                                                                                                                                                                    Dipinjam
+                                                                                                                                                                            </span>`
+                                                    : `<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-semibold">
+                                                                                                                                                                                    Dikembalikan
+                                                                                                                                                                            </span>`
+                                            }
+
+                                        </div>
+
+                                        <div class="mt-4 space-y-2">
+
+                                            ${inventarisHtml}
+
+                                        </div>
+
+                                        <div class="grid grid-cols-2 gap-3 mt-4 text-[10px] md:text-sm">
+
+                                            <div>
+
+                                                <p class="text-slate-500">
+                                                    Tgl Pinjam
+                                                </p>
+
+                                                <p class="font-medium">
+
+                                                    ${formatTanggal(item.tanggal_peminjaman)}
+
+                                                </p>
+
+                                            </div>
+
+                                            <div>
+
+                                                <p class="text-slate-500">
+                                                    Tgl Kembali
+                                                </p>
+
+                                                <p class="font-medium">
+
+                                                    ${
+                                                        item.tanggal_pengembalian
+                                                            ? formatTanggal(item.tanggal_pengembalian)
+                                                            : '-'
+                                                    }
+
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="flex justify-center">
+                                            <button
+                                                data-id="${item.id}"
+                                                class="btnDetail mt-4 w-fit px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs ">
+
+                                                <i class="fa-solid fa-eye mr-2"></i>
+
+                                                Lihat Detail
+
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                    `;
                     });
 
                 }
 
                 $('#tableData').html(html);
+                $('#mobileContainer').html(mobileHtml);
 
                 renderPagination(res);
 
@@ -398,11 +495,11 @@
 
         <div class="space-y-6">
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4 text-xs md:text-base">
 
                 <div>
 
-                    <div class="text-sm text-slate-500">
+                    <div class="text-slate-500">
                         Nama Peminjam
                     </div>
 
@@ -414,11 +511,11 @@
 
                 <div>
 
-                    <div class="text-sm text-slate-500">
+                    <div class="text-slate-500">
                         Status
                     </div>
 
-                    <span class="inline-flex mt-1 px-3 py-1 rounded-full text-xs font-semibold
+                    <span class="inline-flex mt-1 px-3 py-1 rounded-full text-[10px] md:text-xs font-semibold
                         ${
                             data.status == 'dipinjam'
                             ? 'bg-amber-100 text-amber-700'
@@ -433,7 +530,7 @@
 
                 <div>
 
-                    <div class="text-sm text-slate-500">
+                    <div class="text-slate-500">
                         Tanggal Pinjam
                     </div>
 
@@ -445,7 +542,7 @@
 
                 <div>
 
-                    <div class="text-sm text-slate-500">
+                    <div class="text-slate-500">
                         Tanggal Kembali
                     </div>
 
@@ -461,7 +558,7 @@
 
             </div>
 
-            <div>
+            <div class="text-xs md:text-base">
 
                 <div class="font-semibold mb-3">
 
@@ -501,11 +598,11 @@
 
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4 text-xs md:text-base">
 
                 <div>
 
-                    <div class="text-sm text-slate-500 mb-2">
+                    <div class="text-slate-500 mb-2">
                         Foto Pengambilan
                     </div>
 
@@ -513,7 +610,7 @@
                         data.foto_pengambilan
 
                         ? `<img src="/images/peminjaman/${data.foto_pengambilan}"
-                                                    class="rounded-xl border h-48 w-full object-cover">`
+                                        class="rounded-xl border h-32 md:h-48 w-full object-cover">`
 
                         : '-'
                     }
@@ -522,7 +619,7 @@
 
                 <div>
 
-                    <div class="text-sm text-slate-500 mb-2">
+                    <div class="text-slate-500 mb-2">
                         Foto Pengembalian
                     </div>
 
@@ -530,13 +627,13 @@
                         data.foto_pengembalian
 
                         ? `<img src="/images/pengembalian/${data.foto_pengembalian}"
-                                                    class="rounded-xl border h-48 w-full object-cover">`
+                                                                                                                                                                                                    class="rounded-xl border h-32 md:h-48 w-full object-cover">`
 
-                        : `<div class="border rounded-xl h-48 flex items-center justify-center text-slate-400">
+                        : `<div class="border rounded-xl h-32 md:h-48 flex items-center justify-center text-slate-400 text-xs md:text-base">
 
-                                                    Belum dikembalikan
+                                                                                                                                                                                                    Belum dikembalikan
 
-                                                </div>`
+                                                                                                                                                                                                </div>`
                     }
 
                 </div>
@@ -546,64 +643,64 @@
             ${
     data.status == 'dipinjam'
     ? `
-            <div class="border-t pt-6">
+                                                                                                                                                            <div class="border-t pt-6 text-xs md:text-sm">
 
-                <h3 class="font-semibold text-lg mb-4">
+                                                                                                                                                                <h3 class="font-semibold text-base md:text-lg mb-4">
 
-                    Konfirmasi Pengembalian
+                                                                                                                                                                    Konfirmasi Pengembalian
 
-                </h3>
+                                                                                                                                                                </h3>
 
-                <div class="space-y-4">
+                                                                                                                                                                <div class="space-y-4">
 
-                    <label
-                        for="fotoPengembalian"
-                        class="cursor-pointer block">
+                                                                                                                                                                    <label
+                                                                                                                                                                        for="fotoPengembalian"
+                                                                                                                                                                        class="cursor-pointer block">
 
-                        <div
-                            class="border-2 border-dashed border-slate-300 rounded-2xl h-56 bg-slate-50 hover:bg-slate-100 flex items-center justify-center overflow-hidden">
+                                                                                                                                                                        <div
+                                                                                                                                                                            class="border-2 border-dashed border-slate-300 rounded-2xl h-40 md:h-56 bg-slate-50 hover:bg-slate-100 flex items-center justify-center overflow-hidden">
 
-                            <img
-                                id="previewPengembalian"
-                                class="hidden w-full h-full object-cover">
+                                                                                                                                                                            <img
+                                                                                                                                                                                id="previewPengembalian"
+                                                                                                                                                                                class="hidden w-full h-full object-cover">
 
-                            <div id="placeholderPengembalian" class="text-center">
+                                                                                                                                                                            <div id="placeholderPengembalian" class="text-center">
 
-                                <i class="fa-solid fa-camera text-4xl text-slate-400"></i>
+                                                                                                                                                                                <i class="fa-solid fa-camera text-4xl text-slate-400"></i>
 
-                                <p class="mt-3 text-sm text-slate-500">
+                                                                                                                                                                                <p class="mt-3 text-slate-500">
 
-                                    Tap untuk mengambil foto pengembalian
+                                                                                                                                                                                    Tap untuk mengambil foto pengembalian
 
-                                </p>
+                                                                                                                                                                                </p>
 
-                            </div>
+                                                                                                                                                                            </div>
 
-                        </div>
+                                                                                                                                                                        </div>
 
-                    </label>
+                                                                                                                                                                    </label>
 
-                    <input
-                        type="file"
-                        id="fotoPengembalian"
-                        accept="image/*"
-                        capture="environment"
-                        class="hidden">
+                                                                                                                                                                    <input
+                                                                                                                                                                        type="file"
+                                                                                                                                                                        id="fotoPengembalian"
+                                                                                                                                                                        accept="image/*"
+                                                                                                                                                                        capture="environment"
+                                                                                                                                                                        class="hidden">
 
-                    <button
-                        data-id="${data.id}"
-                        class="btnKonfirmasiPengembalian w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold">
+                                                                                                                                                                    <button
+                                                                                                                                                                        data-id="${data.id}"
+                                                                                                                                                                        class="btnKonfirmasiPengembalian w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold">
 
-                        <i class="fa-solid fa-check mr-2"></i>
+                                                                                                                                                                        <i class="fa-solid fa-check mr-2"></i>
 
-                        Selesaikan Pengembalian
+                                                                                                                                                                        Selesaikan Pengembalian
 
-                    </button>
+                                                                                                                                                                    </button>
 
-                </div>
+                                                                                                                                                                </div>
 
-            </div>
-            `
+                                                                                                                                                            </div>
+                                                                                                                                                            `
     : ''
 }
 
