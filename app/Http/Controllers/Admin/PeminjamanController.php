@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PeminjamanInventaris;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PeminjamanController extends Controller
 {
@@ -49,16 +50,18 @@ class PeminjamanController extends Controller
 
         $peminjaman = PeminjamanInventaris::findOrFail($request->id);
 
-        $foto = $request->file('foto_pengembalian');
+        // Hapus foto lama jika ada
+        if ($peminjaman->foto_pengembalian) {
+            Storage::disk('public')->delete($peminjaman->foto_pengembalian);
+        }
 
-        $filename = time() . '.' . $foto->getClientOriginalExtension();
-
-        $foto->move(public_path('images/pengembalian'), $filename);
+        $filename = $request->file('foto_pengembalian')
+            ->store('pengembalian', 'public');
 
         $peminjaman->update([
-            'foto_pengembalian' => $filename,
+            'foto_pengembalian'   => $filename,
             'tanggal_pengembalian' => now(),
-            'status' => 'dikembalikan'
+            'status'              => 'dikembalikan'
         ]);
 
         return response()->json($peminjaman);
