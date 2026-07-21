@@ -55,6 +55,7 @@ class PeminjamanController extends Controller
             Storage::disk('public')->delete($peminjaman->foto_pengembalian);
         }
 
+
         $filename = $request->file('foto_pengembalian')
             ->store('pengembalian', 'public');
 
