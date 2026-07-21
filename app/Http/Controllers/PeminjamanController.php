@@ -28,11 +28,8 @@ class PeminjamanController extends Controller
             'inventaris.*.jumlah' => 'required|integer|min:1',
         ]);
 
-        $foto = $request->file('foto_pengambilan');
-
-        $namaFoto = time() . '.' . $foto->getClientOriginalExtension();
-
-        $foto->move(public_path('images/peminjaman'), $namaFoto);
+        $namaFoto = $request->file('foto_pengambilan')
+            ->store('peminjaman', 'public');
 
         DB::transaction(function () use ($request, $namaFoto) {
 

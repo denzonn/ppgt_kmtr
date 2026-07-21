@@ -282,15 +282,15 @@
 
                                         ? `<span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold">
 
-                                                                                                                                                                                                                                                                                                    Dipinjam
+                                                                                                                                                                                                                                                                                                            Dipinjam
 
-                                                                                                                                                                                                                                                                                            </span>`
+                                                                                                                                                                                                                                                                                                    </span>`
 
                                         : `<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
 
-                                                                                                                                                                                                                                                                                                    Dikembalikan
+                                                                                                                                                                                                                                                                                                            Dikembalikan
 
-                                                                                                                                                                                                                                                                                            </span>`
+                                                                                                                                                                                                                                                                                                    </span>`
                                     }
 
                                 </td>
@@ -338,11 +338,11 @@
                                             ${
                                                 item.status == 'dipinjam'
                                                     ? `<span class="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-[10px] font-semibold">
-                                                                                                                                                                                                                        Dipinjam
-                                                                                                                                                                                                                </span>`
+                                                                                                                                                                                                                                Dipinjam
+                                                                                                                                                                                                                        </span>`
                                                     : `<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-[10px] font-semibold">
-                                                                                                                                                                                                                        Dikembalikan
-                                                                                                                                                                                                                </span>`
+                                                                                                                                                                                                                                Dikembalikan
+                                                                                                                                                                                                                        </span>`
                                             }
 
                                         </div>
@@ -610,7 +610,7 @@
                         data.foto_pengambilan
 
                         ? `<img src="/images/peminjaman/${data.foto_pengambilan}"
-                                                                            class="rounded-xl border h-32 md:h-48 w-full object-cover">`
+                                                                                    class="rounded-xl border h-32 md:h-48 w-full object-cover">`
 
                         : '-'
                     }
@@ -627,13 +627,13 @@
                         data.foto_pengembalian
 
                         ? `<img src="/images/pengembalian/${data.foto_pengembalian}"
-                                                                                                                                                                                                                                        class="rounded-xl border h-32 md:h-48 w-full object-cover">`
+                                                                                                                                                                                                                                                class="rounded-xl border h-32 md:h-48 w-full object-cover">`
 
                         : `<div class="border rounded-xl h-32 md:h-48 flex items-center justify-center text-slate-400 text-xs md:text-base">
 
-                                                                                                                                                                                                                                        Belum dikembalikan
+                                                                                                                                                                                                                                                Belum dikembalikan
 
-                                                                                                                                                                                                                                    </div>`
+                                                                                                                                                                                                                                            </div>`
                     }
 
                 </div>
@@ -643,64 +643,64 @@
             ${
     data.status == 'dipinjam'
     ? `
-                                                                                                                                                                                                <div class="border-t pt-6 text-xs md:text-sm">
+                                                                                                                                                                                                        <div class="border-t pt-6 text-xs md:text-sm">
 
-                                                                                                                                                                                                    <h3 class="font-semibold text-base md:text-lg mb-4">
+                                                                                                                                                                                                            <h3 class="font-semibold text-base md:text-lg mb-4">
 
-                                                                                                                                                                                                        Konfirmasi Pengembalian
+                                                                                                                                                                                                                Konfirmasi Pengembalian
 
-                                                                                                                                                                                                    </h3>
+                                                                                                                                                                                                            </h3>
 
-                                                                                                                                                                                                    <div class="space-y-4">
+                                                                                                                                                                                                            <div class="space-y-4">
 
-                                                                                                                                                                                                        <label
-                                                                                                                                                                                                            for="fotoPengembalian"
-                                                                                                                                                                                                            class="cursor-pointer block">
+                                                                                                                                                                                                                <label
+                                                                                                                                                                                                                    for="fotoPengembalian"
+                                                                                                                                                                                                                    class="cursor-pointer block">
 
-                                                                                                                                                                                                            <div
-                                                                                                                                                                                                                class="border-2 border-dashed border-slate-300 rounded-2xl h-40 md:h-56 bg-slate-50 hover:bg-slate-100 flex items-center justify-center overflow-hidden">
+                                                                                                                                                                                                                    <div
+                                                                                                                                                                                                                        class="border-2 border-dashed border-slate-300 rounded-2xl h-40 md:h-56 bg-slate-50 hover:bg-slate-100 flex items-center justify-center overflow-hidden">
 
-                                                                                                                                                                                                                <img
-                                                                                                                                                                                                                    id="previewPengembalian"
-                                                                                                                                                                                                                    class="hidden w-full h-full object-cover">
+                                                                                                                                                                                                                        <img
+                                                                                                                                                                                                                            id="previewPengembalian"
+                                                                                                                                                                                                                            class="hidden w-full h-full object-cover">
 
-                                                                                                                                                                                                                <div id="placeholderPengembalian" class="text-center">
+                                                                                                                                                                                                                        <div id="placeholderPengembalian" class="text-center">
 
-                                                                                                                                                                                                                    <i class="fa-solid fa-camera text-4xl text-slate-400"></i>
+                                                                                                                                                                                                                            <i class="fa-solid fa-camera text-4xl text-slate-400"></i>
 
-                                                                                                                                                                                                                    <p class="mt-3 text-slate-500">
+                                                                                                                                                                                                                            <p class="mt-3 text-slate-500">
 
-                                                                                                                                                                                                                        Tap untuk mengambil foto pengembalian
+                                                                                                                                                                                                                                Tap untuk mengambil foto pengembalian
 
-                                                                                                                                                                                                                    </p>
+                                                                                                                                                                                                                            </p>
 
-                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                        </div>
+
+                                                                                                                                                                                                                    </div>
+
+                                                                                                                                                                                                                </label>
+
+                                                                                                                                                                                                                <input
+                                                                                                                                                                                                                    type="file"
+                                                                                                                                                                                                                    id="fotoPengembalian"
+                                                                                                                                                                                                                    accept="image/*"
+                                                                                                                                                                                                                    capture="environment"
+                                                                                                                                                                                                                    class="hidden">
+
+                                                                                                                                                                                                                <button
+                                                                                                                                                                                                                    data-id="${data.id}"
+                                                                                                                                                                                                                    class="btnKonfirmasiPengembalian w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold">
+
+                                                                                                                                                                                                                    <i class="fa-solid fa-check mr-2"></i>
+
+                                                                                                                                                                                                                    Selesaikan Pengembalian
+
+                                                                                                                                                                                                                </button>
 
                                                                                                                                                                                                             </div>
 
-                                                                                                                                                                                                        </label>
-
-                                                                                                                                                                                                        <input
-                                                                                                                                                                                                            type="file"
-                                                                                                                                                                                                            id="fotoPengembalian"
-                                                                                                                                                                                                            accept="image/*"
-                                                                                                                                                                                                            capture="environment"
-                                                                                                                                                                                                            class="hidden">
-
-                                                                                                                                                                                                        <button
-                                                                                                                                                                                                            data-id="${data.id}"
-                                                                                                                                                                                                            class="btnKonfirmasiPengembalian w-full h-12 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold">
-
-                                                                                                                                                                                                            <i class="fa-solid fa-check mr-2"></i>
-
-                                                                                                                                                                                                            Selesaikan Pengembalian
-
-                                                                                                                                                                                                        </button>
-
-                                                                                                                                                                                                    </div>
-
-                                                                                                                                                                                                </div>
-                                                                                                                                                                                                `
+                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                        `
     : ''
 }
 
