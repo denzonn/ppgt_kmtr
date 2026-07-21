@@ -7,6 +7,7 @@ use App\Models\Inventaris;
 use App\Models\InventarisKondisi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 class InventarisController extends Controller
 {
@@ -39,11 +40,14 @@ class InventarisController extends Controller
         ]);
 
         if ($request->hasFile('foto')) {
-            $image = $request->file('foto');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/inventaris'), $imageName);
+            $imageName = $request->file('foto')
+                ->store('inventaris', 'public');
         } else {
-            return response()->json(['status' => false, 'message' => 'Foto is required.'], 400);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Foto is required.'
+            ], 400);
         }
 
         $data = [
@@ -98,15 +102,12 @@ class InventarisController extends Controller
 
         if ($request->hasFile('foto')) {
 
-            if ($inventaris->foto && file_exists(public_path('images/inventaris/' . $inventaris->foto))) {
-                unlink(public_path('images/inventaris/' . $inventaris->foto));
+            if ($inventaris->foto) {
+                Storage::disk('public')->delete($inventaris->foto);
             }
 
-            $namaFoto = time() . '.' . $request->foto->extension();
-
-            $request->foto->move(public_path('images/inventaris'), $namaFoto);
-
-            $data['foto'] = $namaFoto;
+            $data['foto'] = $request->file('foto')
+                ->store('inventaris', 'public');
         }
 
         $inventaris->update($data);
@@ -134,14 +135,8 @@ class InventarisController extends Controller
     {
         $inventaris = Inventaris::with('kondisi')->findOrFail($id);
 
-        // hapus foto
         if ($inventaris->foto) {
-
-            $path = public_path('images/inventaris/' . $inventaris->foto);
-
-            if (File::exists($path)) {
-                File::delete($path);
-            }
+            Storage::disk('public')->delete($inventaris->foto);
         }
 
         // hapus kondisi
