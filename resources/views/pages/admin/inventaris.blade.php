@@ -353,6 +353,7 @@
                 } else {
 
                     $.each(res.data, function(i, item) {
+                        const baseStorage = "{{ asset('storage') }}";
 
                         // ==========================
                         // DESKTOP TABLE
@@ -362,7 +363,7 @@
 
                         <td class="px-4 py-2 md:px-6 md:py-4">
                             <img
-                                src="/storage/${item.foto}"
+                                src="${baseStorage}/${item.foto}"
                                 class="w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover border">
                         </td>
 
