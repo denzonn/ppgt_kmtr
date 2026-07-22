@@ -52,7 +52,7 @@ class InventarisController extends Controller
         $lastInventaris = Inventaris::orderBy('kode_inventaris', 'desc')->first();
 
         if ($lastInventaris) {
-            $lastNumber = (int) substr($lastInventaris->kode_inventaris, 3); // Ambil angka setelah INV
+            $lastNumber = (int) substr($lastInventaris->kode_inventaris, 4); // Ambil angka setelah INV
             $nextNumber = $lastNumber + 1;
         } else {
             $nextNumber = 1;
