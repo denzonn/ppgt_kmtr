@@ -7,7 +7,7 @@ use App\Http\Controllers\PeminjamanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('peminjaman');
+    return view('pages.beranda');
 });
 
 Route::prefix('peminjaman')->group(

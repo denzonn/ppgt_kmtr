@@ -83,21 +83,6 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                    {{-- Kode --}}
-                    <div>
-
-                        <label class="mb-2 block text-xs md:text-sm font-semibold">
-
-                            Kode Inventaris
-                            <span class="text-red-500">*</span>
-
-                        </label>
-
-                        <input type="text" name="kode_inventaris" placeholder="Masukkan kode inventaris"
-                            class="w-full rounded-lg md:rounded-xl border-slate-300 text-xs md:text-base">
-
-                    </div>
-
                     {{-- Nama --}}
                     <div>
 

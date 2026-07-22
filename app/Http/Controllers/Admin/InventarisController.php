@@ -36,7 +36,6 @@ class InventarisController extends Controller
             'tanggal_perolehan' => 'required|date',
             'harga' => 'required|numeric',
             'foto' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'kode_inventaris' => 'unique:inventaris,kode_inventaris',
         ]);
 
         if ($request->hasFile('foto')) {
@@ -50,8 +49,19 @@ class InventarisController extends Controller
             ], 400);
         }
 
+        $lastInventaris = Inventaris::orderBy('kode_inventaris', 'desc')->first();
+
+        if ($lastInventaris) {
+            $lastNumber = (int) substr($lastInventaris->kode_inventaris, 3); // Ambil angka setelah INV
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+
+        $kodeInventaris = 'INV' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
         $data = [
-            'kode_inventaris' => $request->kode_inventaris,
+            'kode_inventaris' => $kodeInventaris,
             'nama' => $request->nama,
             'tanggal_perolehan' => $request->tanggal_perolehan,
             'harga' => $request->harga,
@@ -88,13 +98,11 @@ class InventarisController extends Controller
 
         $request->validate([
             'nama' => 'required',
-            'tanggal_perolehan' => 'required',
+            'tanggal_perolehan' => 'required|date',
             'harga' => 'required|numeric',
-            'kode_inventaris' => 'required|unique:inventaris,kode_inventaris,' . $id,
         ]);
 
         $data = [
-            'kode_inventaris' => $request->kode_inventaris,
             'nama' => $request->nama,
             'harga' => $request->harga,
             'tanggal_perolehan' => $request->tanggal_perolehan,
@@ -121,13 +129,13 @@ class InventarisController extends Controller
                 InventarisKondisi::create([
                     'id_inventaris' => $id,
                     'kondisi' => $kondisi,
-                    'jumlah' => $jumlah
+                    'jumlah' => $jumlah,
                 ]);
             }
         }
 
         return response()->json([
-            'status' => true
+            'status' => true,
         ]);
     }
 
