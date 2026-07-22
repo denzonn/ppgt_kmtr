@@ -58,7 +58,7 @@ class InventarisController extends Controller
             $nextNumber = 1;
         }
 
-        $kodeInventaris = 'INV' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        $kodeInventaris = 'INV-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
 
         $data = [
             'kode_inventaris' => $kodeInventaris,
