@@ -64,22 +64,20 @@ export default {
             fontFamily: {
                 poppins: ["Poppins", ...defaultTheme.fontFamily.sans],
             },
+
             colors: {
                 ...colors,
 
-                primary: "#2458D3",
-                primary_hover: "#1D4ED8",
+                primary: "#1E3A8A",
+                primary_hover: "#2563EB",
 
-                secondary: "#4FC3E8",
+                secondary: "#EFF6FF",
 
-                success: "#57C84D",
-
+                success: "#16A34A",
                 danger: "#DC2626",
 
                 background: "#F8FAFC",
-
                 card: "#FFFFFF",
-
                 border: "#E2E8F0",
 
                 text: "#1E293B",

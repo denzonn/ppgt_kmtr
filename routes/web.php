@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventarisController;
 use App\Http\Controllers\Admin\PeminjamanController as AdminPeminjamanController;
+use App\Http\Controllers\GenerateQRLinkController;
 use App\Http\Controllers\PeminjamanController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +18,7 @@ Route::prefix('peminjaman')->group(
     }
 );
 
-Route::prefix('admin')->middleware(['auth'])->group(
+Route::middleware(['auth'])->group(
     function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -39,6 +40,19 @@ Route::prefix('admin')->middleware(['auth'])->group(
                 Route::post('/pengembalian', [AdminPeminjamanController::class, 'pengembalian'])->name('peminjaman-admin.pengembalian');
             }
         );
+
+        Route::prefix('generator-qr-link')->name('generate_qr.')->group(function () {
+            Route::get('/', [GenerateQRLinkController::class, 'index'])->name('index');
+            Route::get('/data', [GenerateQRLinkController::class, 'getData'])->name('getData');
+            Route::post('/', [GenerateQRLinkController::class, 'store'])->name('store');
+
+            Route::get('/{id}/download', [GenerateQRLinkController::class, 'download'])
+                ->name('download');
+
+            Route::get('/{id}', [GenerateQRLinkController::class, 'show'])->name('show');
+            Route::put('/{id}', [GenerateQRLinkController::class, 'update'])->name('update');
+            Route::delete('/{id}', [GenerateQRLinkController::class, 'destroy'])->name('destroy');
+        });
     }
 );
 

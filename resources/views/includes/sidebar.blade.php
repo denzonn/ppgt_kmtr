@@ -1,41 +1,44 @@
 @php
     $page = trim($__env->yieldContent('page'));
+
+    $inventarisPeminjamanOpen = in_array($page, ['inventaris', 'peminjaman', 'pengembalian']);
 @endphp
 
 {{-- Overlay Mobile --}}
-<div id="overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 hidden lg:hidden">
+<div id="overlay"
+    class="fixed inset-0 z-40 hidden bg-black/40 backdrop-blur-sm
+    opacity-0 transition-opacity duration-300 lg:hidden">
 </div>
 
 {{-- Sidebar --}}
 <aside id="sidebar"
-    class="fixed lg:fixed top-0 left-0 z-50 h-screen w-72
-    bg-white border-r border-slate-200
-    flex flex-col
-    transition-transform duration-300
-    -translate-x-full lg:translate-x-0">
+    class="fixed left-0 top-0 z-50 flex h-screen w-72
+    -translate-x-full flex-col border-r border-slate-200
+    bg-white shadow-xl transition-transform duration-300 ease-in-out
+    lg:translate-x-0 lg:shadow-none">
 
     {{-- Logo --}}
-    <div class="h-20 border-b border-slate-200 flex items-center px-6">
+    <div class="flex h-20 shrink-0 items-center border-b border-slate-200 px-6">
 
-        <img src="{{ asset('images/logo.png') }}" class="w-10 h-10 md:w-12 md:h-12 object-contain">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo PPGT KMTr" class="h-10 w-10 object-contain md:h-12 md:w-12">
 
         <div class="ml-3">
-
-            <h1 class="font-bold text-base md:text-lg text-slate-800">
+            <h1 class="text-base font-bold text-slate-800 md:text-lg">
                 PPGT KMTr
             </h1>
 
             <p class="text-xs text-slate-500">
                 Sistem Informasi
             </p>
-
         </div>
 
         {{-- Close Mobile --}}
-        <button id="btnCloseSidebar" class="ml-auto lg:hidden text-slate-500">
+        <button type="button" id="btnCloseSidebar" aria-label="Tutup sidebar"
+            class="ml-auto rounded-lg p-2 text-slate-500
+            transition duration-200 hover:bg-slate-100 hover:text-slate-800
+            lg:hidden">
 
             <i class="fa-solid fa-xmark text-base md:text-xl"></i>
-
         </button>
 
     </div>
@@ -43,7 +46,8 @@
     {{-- Menu --}}
     <div class="flex-1 overflow-y-auto px-4 py-6">
 
-        <p class="text-[10px] md:text-xs font-semibold text-slate-400 uppercase mb-3 px-3">
+        <p class="mb-3 px-3 text-[10px] font-semibold uppercase
+            tracking-wider text-slate-400 md:text-xs">
             Menu
         </p>
 
@@ -51,8 +55,11 @@
 
             {{-- Dashboard --}}
             <a href="{{ route('dashboard') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition text-sm md:text-base
-                {{ $page == 'dashboard' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
+                class="flex items-center gap-3 rounded-xl px-4 py-3
+                text-sm transition-all duration-200 ease-in-out md:text-base
+                {{ $page == 'dashboard'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
 
                 <i class="fa-solid fa-house w-5 text-center"></i>
 
@@ -62,39 +69,89 @@
 
             </a>
 
-            {{-- Inventaris --}}
-            <a href="{{ route('inventaris') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition  text-sm md:text-base
-                {{ $page == 'inventaris' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
+            {{-- Inventaris & Peminjaman --}}
+            <div class="space-y-1">
 
-                <i class="fa-solid fa-box-archive w-5 text-center"></i>
+                {{-- Menu Utama --}}
+                <button type="button" id="btnInventarisPeminjaman" aria-controls="submenuInventarisPeminjaman"
+                    aria-expanded="{{ $inventarisPeminjamanOpen ? 'true' : 'false' }}"
+                    class="group flex w-full items-center gap-3 rounded-xl px-4 py-3
+                    text-sm transition-all duration-200 ease-in-out md:text-base
+                    {{ $inventarisPeminjamanOpen ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-100' }}">
 
-                <span class="font-medium">
-                    Inventaris
-                </span>
+                    <i
+                        class="fa-solid fa-boxes-stacked w-5 text-center
+                        transition-transform duration-200 group-hover:scale-110"></i>
 
-            </a>
+                    <span class="flex-1 text-left font-medium">
+                        Inventaris & Peminjaman
+                    </span>
 
-            @php
-                $page = trim($__env->yieldContent('page'));
+                    <i id="iconInventarisPeminjaman"
+                        class="fa-solid fa-chevron-down text-xs
+                        transition-transform duration-300 ease-in-out
+                        {{ $inventarisPeminjamanOpen ? 'rotate-180' : '' }}">
+                    </i>
 
-                $transaksiOpen = in_array($page, ['peminjaman', 'pengembalian']);
-            @endphp
+                </button>
 
-            <a href="{{ route('peminjaman-admin') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition  text-sm md:text-base
-                {{ $page == 'peminjaman' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
+                {{-- Submenu dengan animasi smooth --}}
+                <div id="submenuInventarisPeminjaman"
+                    class="grid transition-[grid-template-rows,opacity]
+                    duration-300 ease-in-out
+                    {{ $inventarisPeminjamanOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0' }}">
 
-                <i class="fa-solid fa-handshake w-5 text-center"></i>
+                    <div class="overflow-hidden">
 
-                Peminjaman
+                        <div class="ml-5 space-y-1 border-l-2 border-slate-200 py-1 pl-4">
 
-            </a>
+                            {{-- Submenu Inventaris --}}
+                            <a href="{{ route('inventaris') }}"
+                                class="flex items-center gap-3 rounded-xl px-4 py-2.5
+                                text-sm transition-all duration-200 ease-in-out
+                                {{ $page == 'inventaris'
+                                    ? 'bg-primary text-white shadow-md'
+                                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
+
+                                <i class="fa-solid fa-box-archive w-5 text-center"></i>
+
+                                <span class="font-medium">
+                                    Inventaris
+                                </span>
+
+                            </a>
+
+                            {{-- Submenu Peminjaman --}}
+                            <a href="{{ route('peminjaman-admin') }}"
+                                class="flex items-center gap-3 rounded-xl px-4 py-2.5
+                                text-sm transition-all duration-200 ease-in-out
+                                {{ in_array($page, ['peminjaman', 'pengembalian'])
+                                    ? 'bg-primary text-white shadow-md'
+                                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
+
+                                <i class="fa-solid fa-handshake w-5 text-center"></i>
+
+                                <span class="font-medium">
+                                    Peminjaman
+                                </span>
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
             {{-- Anggota --}}
             <a href="#"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition  text-sm md:text-base
-                {{ $page == 'anggota' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
+                class="flex items-center gap-3 rounded-xl px-4 py-3
+                text-sm transition-all duration-200 ease-in-out md:text-base
+                {{ $page == 'anggota'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
 
                 <i class="fa-solid fa-users w-5 text-center"></i>
 
@@ -104,12 +161,33 @@
 
             </a>
 
+            {{-- Generator QR Code --}}
+            <a href="{{ route('generate_qr.index') }}"
+                class="flex items-center gap-3 rounded-xl px-4 py-3
+    text-sm transition-all duration-200 ease-in-out md:text-base
+    {{ $page == 'generator_qr'
+        ? 'bg-primary text-white shadow-md'
+        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
+
+                <i class="fa-solid fa-qrcode w-5 text-center"></i>
+
+                <span class="font-medium">
+                    Generator QR Code
+                </span>
+            </a>
+
             {{-- Pengaturan --}}
             <a href="#"
-                class="flex items-center gap-3 rounded-xl px-4 py-3 transition  text-sm md:text-base
-                {{ $page == 'pengaturan' ? 'bg-primary text-white shadow' : 'text-slate-600 hover:bg-slate-100' }}">
+                class="flex items-center gap-3 rounded-xl px-4 py-3
+                text-sm transition-all duration-200 ease-in-out md:text-base
+                {{ $page == 'pengaturan'
+                    ? 'bg-primary text-white shadow-md'
+                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
 
-                <i class="fa-solid fa-gear w-5 text-center"></i>
+                <i
+                    class="fa-solid fa-gear w-5 text-center
+                    transition-transform duration-300
+                    group-hover:rotate-45"></i>
 
                 <span class="font-medium">
                     Pengaturan
@@ -122,31 +200,31 @@
     </div>
 
     {{-- Footer --}}
-    <div class="border-t border-slate-200 p-5">
+    <div class="shrink-0 border-t border-slate-200 p-5">
 
         <div class="flex items-center">
 
-            <div class="w-9 h-9 md:w-11 md:h-11 rounded-full bg-slate-200 overflow-hidden">
+            <div class="h-9 w-9 shrink-0 overflow-hidden rounded-full
+                bg-slate-200 md:h-11 md:w-11">
 
                 @if (auth()->user()->foto)
-                    <img src="{{ asset('storage/user/' . auth()->user()->foto) }}" class="w-full h-full object-cover">
+                    <img src="{{ asset('storage/user/' . auth()->user()->foto) }}" alt="Foto profil"
+                        class="h-full w-full object-cover">
                 @else
-                    <div class="w-full h-full flex items-center justify-center">
-
+                    <div class="flex h-full w-full items-center justify-center">
                         <i class="fa-regular fa-user text-slate-500"></i>
-
                     </div>
                 @endif
 
             </div>
 
-            <div class="ml-3 flex-1">
+            <div class="ml-3 min-w-0 flex-1">
 
-                <div class="font-semibold text-xs md:text-sm">
+                <div class="truncate text-xs font-semibold md:text-sm">
                     {{ auth()->user()->name }}
                 </div>
 
-                <div class="text-[10px] md:text-xs text-slate-500">
+                <div class="text-[10px] text-slate-500 md:text-xs">
                     Administrator
                 </div>
 
@@ -154,15 +232,17 @@
 
         </div>
 
+        {{-- Logout --}}
         <form method="POST" action="{{ route('logout') }}" class="mt-5">
 
             @csrf
 
-            <button
+            <button type="submit"
                 class="w-full rounded-xl border border-red-200
-                text-red-600 py-3 text-xs md:text-base
-                hover:bg-red-50
-                transition">
+                py-3 text-xs text-red-600
+                transition-all duration-200 ease-in-out
+                hover:border-red-300 hover:bg-red-50
+                active:scale-[0.98] md:text-base">
 
                 <i class="fa-solid fa-right-from-bracket mr-2"></i>
 
@@ -175,3 +255,86 @@
     </div>
 
 </aside>
+
+{{-- JavaScript Sidebar --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnMenu = document.getElementById('btnInventarisPeminjaman');
+        const submenu = document.getElementById('submenuInventarisPeminjaman');
+        const iconMenu = document.getElementById('iconInventarisPeminjaman');
+
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const btnCloseSidebar = document.getElementById('btnCloseSidebar');
+
+        // Toggle submenu Inventaris & Peminjaman
+        if (btnMenu && submenu && iconMenu) {
+            btnMenu.addEventListener('click', function() {
+                const isOpen = btnMenu.getAttribute('aria-expanded') === 'true';
+
+                btnMenu.setAttribute('aria-expanded', String(!isOpen));
+
+                submenu.classList.toggle('grid-rows-[1fr]', !isOpen);
+                submenu.classList.toggle('grid-rows-[0fr]', isOpen);
+
+                submenu.classList.toggle('opacity-100', !isOpen);
+                submenu.classList.toggle('opacity-0', isOpen);
+
+                iconMenu.classList.toggle('rotate-180', !isOpen);
+            });
+        }
+
+        // Buka sidebar mobile
+        window.openSidebar = function() {
+            if (!sidebar || !overlay) return;
+
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+
+            requestAnimationFrame(() => {
+                overlay.classList.remove('opacity-0');
+                overlay.classList.add('opacity-100');
+            });
+
+            document.body.classList.add('overflow-hidden');
+        };
+
+        // Tutup sidebar mobile
+        window.closeSidebar = function() {
+            if (!sidebar || !overlay) return;
+
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0');
+
+            document.body.classList.remove('overflow-hidden');
+
+            setTimeout(() => {
+                if (window.innerWidth < 1024) {
+                    overlay.classList.add('hidden');
+                }
+            }, 300);
+        };
+
+        if (btnCloseSidebar) {
+            btnCloseSidebar.addEventListener('click', window.closeSidebar);
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', window.closeSidebar);
+        }
+
+        // Menutup sidebar ketika berpindah ke desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 1024) {
+                sidebar?.classList.remove('-translate-x-full');
+                overlay?.classList.add('hidden');
+                overlay?.classList.remove('opacity-100');
+                overlay?.classList.add('opacity-0');
+                document.body.classList.remove('overflow-hidden');
+            } else {
+                sidebar?.classList.add('-translate-x-full');
+            }
+        });
+    });
+</script>
