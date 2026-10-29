@@ -10,6 +10,7 @@ class Inventaris extends Model
 
     protected $fillable = [
         'kode_inventaris',
+        'jenis',
         'foto',
         'nama',
         'tanggal_perolehan',

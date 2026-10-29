@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('inventaris', function (Blueprint $table) {
             $table->id();
             $table->string('kode_inventaris')->unique();
+            $table->string('jenis');
             $table->string('foto')->nullable();
             $table->string('nama');
             $table->date('tanggal_perolehan');

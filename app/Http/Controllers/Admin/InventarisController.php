@@ -8,6 +8,7 @@ use App\Models\InventarisKondisi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class InventarisController extends Controller
 {
@@ -29,60 +30,85 @@ class InventarisController extends Controller
         return response()->json($data);
     }
 
+    private function generateKodeInventaris(string $jenis): string
+    {
+        $lastInventaris = Inventaris::where('jenis', $jenis)
+            ->orderByDesc('id')
+            ->first();
+
+        $nextNumber = 1;
+
+        if ($lastInventaris) {
+            $parts = explode('/', $lastInventaris->kode_inventaris);
+
+            if (isset($parts[0]) && ctype_digit($parts[0])) {
+                $nextNumber = (int) $parts[0] + 1;
+            }
+        }
+
+        do {
+            $randomNumber = random_int(1000, 9999);
+
+            $kode = str_pad($nextNumber, 3, '0', STR_PAD_LEFT)
+                . '/' . $jenis
+                . '/' . $randomNumber;
+        } while (
+            Inventaris::where('kode_inventaris', $kode)->exists()
+        );
+
+        return $kode;
+    }
+
     public function store(Request $request)
     {
         $request->validate([
+            'jenis' => [
+                'required',
+                Rule::in(['PAK', 'PDP', 'PPL']),
+            ],
             'nama' => 'required|string|max:255',
             'tanggal_perolehan' => 'required|date',
-            'harga' => 'required|numeric',
+            'harga' => 'required|numeric|min:0',
             'foto' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'kondisi' => 'required|array',
+            'kondisi.*' => 'required|integer|min:0',
         ]);
 
-        if ($request->hasFile('foto')) {
-            $imageName = $request->file('foto')
-                ->store('inventaris', 'public');
-        } else {
-
+        if (!$request->hasFile('foto')) {
             return response()->json([
                 'status' => false,
-                'message' => 'Foto is required.'
-            ], 400);
+                'message' => 'Foto inventaris wajib diunggah.',
+            ], 422);
         }
 
-        $lastInventaris = Inventaris::orderBy('kode_inventaris', 'desc')->first();
+        $imageName = $request->file('foto')
+            ->store('inventaris', 'public');
 
-        if ($lastInventaris) {
-            $lastNumber = (int) substr($lastInventaris->kode_inventaris, 4); // Ambil angka setelah INV
-            $nextNumber = $lastNumber + 1;
-        } else {
-            $nextNumber = 1;
-        }
-
-        $kodeInventaris = 'INV-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-
-        $data = [
-            'kode_inventaris' => $kodeInventaris,
+        $inventaris = Inventaris::create([
+            'kode_inventaris' => $this->generateKodeInventaris(
+                $request->jenis
+            ),
+            'jenis' => $request->jenis,
             'nama' => $request->nama,
             'tanggal_perolehan' => $request->tanggal_perolehan,
             'harga' => $request->harga,
             'foto' => $imageName,
-        ];
-
-        $inventaris = Inventaris::create($data);
+        ]);
 
         foreach ($request->kondisi as $kondisi => $jumlah) {
-
             if ($jumlah > 0) {
-
                 InventarisKondisi::create([
                     'id_inventaris' => $inventaris->id,
-                    'kondisi'       => $kondisi,
-                    'jumlah'        => $jumlah,
+                    'kondisi' => $kondisi,
+                    'jumlah' => $jumlah,
                 ]);
             }
         }
 
-        return response()->json(['status' => true]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Inventaris berhasil ditambahkan.',
+        ]);
     }
 
     public function show($id)
@@ -97,19 +123,26 @@ class InventarisController extends Controller
         $inventaris = Inventaris::findOrFail($id);
 
         $request->validate([
-            'nama' => 'required',
+            'jenis' => [
+                'required',
+                Rule::in(['PAK', 'PDP', 'PPL']),
+            ],
+            'nama' => 'required|string|max:255',
             'tanggal_perolehan' => 'required|date',
-            'harga' => 'required|numeric',
+            'harga' => 'required|numeric|min:0',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'kondisi' => 'required|array',
+            'kondisi.*' => 'required|integer|min:0',
         ]);
 
         $data = [
+            'jenis' => $request->jenis,
             'nama' => $request->nama,
             'harga' => $request->harga,
             'tanggal_perolehan' => $request->tanggal_perolehan,
         ];
 
         if ($request->hasFile('foto')) {
-
             if ($inventaris->foto) {
                 Storage::disk('public')->delete($inventaris->foto);
             }
@@ -123,9 +156,7 @@ class InventarisController extends Controller
         InventarisKondisi::where('id_inventaris', $id)->delete();
 
         foreach ($request->kondisi as $kondisi => $jumlah) {
-
             if ($jumlah > 0) {
-
                 InventarisKondisi::create([
                     'id_inventaris' => $id,
                     'kondisi' => $kondisi,
@@ -136,6 +167,7 @@ class InventarisController extends Controller
 
         return response()->json([
             'status' => true,
+            'message' => 'Inventaris berhasil diperbarui.',
         ]);
     }
 
