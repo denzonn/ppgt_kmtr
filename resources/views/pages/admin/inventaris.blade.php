@@ -126,7 +126,7 @@
 
 @push('addon-script')
     <script>
-        const inventarisUrl = @json(route('inventaris'));
+        const inventarisUrl = @json(route('inventaris.index'));
         const inventarisStoreUrl = @json(route('inventaris.store'));
         const inventarisDataUrl = @json(route('inventaris.getData'));
         const csrfToken = @json(csrf_token());

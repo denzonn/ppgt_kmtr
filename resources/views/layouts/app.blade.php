@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title')</title>
 
@@ -22,15 +23,7 @@
 
     <div class="flex min-h-screen">
 
-        {{-- ========================= --}}
-        {{-- Sidebar --}}
-        {{-- ========================= --}}
-
         @include('includes.sidebar')
-
-        {{-- ========================= --}}
-        {{-- Main --}}
-        {{-- ========================= --}}
 
         <div class="flex-1 lg:ml-72">
 
@@ -48,8 +41,10 @@
 
     </div>
 
-    @stack('prepend-script')
     @include('includes.script')
+    <script>
+        App.submitLoading();
+    </script>
     @stack('addon-script')
 
     <script>

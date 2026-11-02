@@ -106,7 +106,7 @@
                         <div class="ml-5 space-y-1 border-l-2 border-slate-200 py-1 pl-4">
 
                             {{-- Submenu Inventaris --}}
-                            <a href="{{ route('inventaris') }}"
+                            <a href="{{ route('inventaris.index') }}"
                                 class="flex items-center gap-3 rounded-xl px-4 py-2.5
                                 text-sm transition-all duration-200 ease-in-out
                                 {{ $page == 'inventaris'
@@ -146,19 +146,16 @@
             </div>
 
             {{-- Anggota --}}
-            <a href="#"
+            <a href="{{ route('data_anggota.index') }}"
                 class="flex items-center gap-3 rounded-xl px-4 py-3
-                text-sm transition-all duration-200 ease-in-out md:text-base
-                {{ $page == 'anggota'
-                    ? 'bg-primary text-white shadow-md'
-                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
+    text-sm transition-all duration-200 ease-in-out md:text-base
+    {{ $page == 'anggota'
+        ? 'bg-primary text-white shadow-md'
+        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
 
                 <i class="fa-solid fa-users w-5 text-center"></i>
 
-                <span class="font-medium">
-                    Anggota
-                </span>
-
+                <span class="font-medium">Data Anggota</span>
             </a>
 
             {{-- Generator QR Code --}}

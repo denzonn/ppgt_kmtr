@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventarisController;
 use App\Http\Controllers\Admin\PeminjamanController as AdminPeminjamanController;
+use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\GenerateQRLinkController;
 use App\Http\Controllers\PeminjamanController;
 use Illuminate\Support\Facades\Route;
@@ -22,16 +23,27 @@ Route::middleware(['auth'])->group(
     function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::prefix('inventaris')->group(
+        Route::prefix('inventaris')->name('inventaris.')->group(
             function () {
-                Route::get('/', [InventarisController::class, 'index'])->name('inventaris');
-                Route::get('/data', [InventarisController::class, 'getData'])->name('inventaris.getData');
-                Route::post('/', [InventarisController::class, 'store'])->name('inventaris.store');
-                Route::get('/{id}', [InventarisController::class, 'show'])->name('inventaris.show');
-                Route::put('/{id}', [InventarisController::class, 'update'])->name('inventaris.update');
-                Route::delete('/{id}', [InventarisController::class, 'destroy'])->name('inventaris.destroy');
+                Route::get('/', [InventarisController::class, 'index'])->name('index');
+                Route::get('/data', [InventarisController::class, 'getData'])->name('getData');
+                Route::post('/', [InventarisController::class, 'store'])->name('store');
+                Route::get('/{id}', [InventarisController::class, 'show'])->name('show');
+                Route::put('/{id}', [InventarisController::class, 'update'])->name('update');
+                Route::delete('/{id}', [InventarisController::class, 'destroy'])->name('destroy');
             }
         );
+
+        Route::prefix('data-anggota')->name('data_anggota.')->group(function () {
+            Route::get('/', [AnggotaController::class, 'index'])->name('index');
+            Route::get('/data', [AnggotaController::class, 'getData'])->name('getData');
+            Route::post('/import', [AnggotaController::class, 'import'])->name('import');
+            Route::post('/', [AnggotaController::class, 'store'])->name('store');
+            Route::get('/{id}/edit', [AnggotaController::class, 'edit'])->name('edit');
+            Route::get('/{id}', [AnggotaController::class, 'show'])->name('show');
+            Route::put('/{id}', [AnggotaController::class, 'update'])->name('update');
+            Route::delete('/{id}', [AnggotaController::class, 'destroy'])->name('destroy');
+        });
 
         Route::prefix('peminjaman')->group(
             function () {

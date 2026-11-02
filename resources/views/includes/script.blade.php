@@ -1,171 +1,208 @@
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    /* ===========================
-|  Modal Helper
-=========================== */
-
-    window.showModal = function(id) {
-
-        const modal = document.getElementById(id);
-        if (!modal) return;
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex', 'justify-center');
-        modal.classList.remove('items-center');
-
-        requestAnimationFrame(() => {
-
-            modal.classList.remove('opacity-0');
-            modal.classList.add('opacity-100');
-
-            const content = modal.querySelector('.modal-content');
-
-            content.classList.remove('scale-95', '-translate-y-6');
-            content.classList.add('scale-100', 'translate-y-0');
-
+    document.addEventListener('DOMContentLoaded', function() {
+        // Konfigurasi global SweetAlert2
+        window.SwalGlobal = Swal.mixin({
+            customClass: {
+                popup: 'rounded-2xl',
+                title: 'text-lg font-bold text-slate-900',
+                htmlContainer: 'text-sm text-slate-600',
+                confirmButton: 'rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700',
+                cancelButton: 'rounded-lg bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-200',
+            },
+            buttonsStyling: false,
+            reverseButtons: true,
+            focusCancel: true,
         });
 
-        document.body.classList.add('overflow-hidden');
-    }
+        document.addEventListener('submit', async function(event) {
+            const form = event.target.closest('form[data-confirm-delete]');
 
-    window.closeModal = function(id) {
+            if (!form) return;
 
-        const modal = document.getElementById(id);
+            // Izinkan submit kedua setelah konfirmasi berhasil.
+            if (form.dataset.confirmed === 'true') {
+                delete form.dataset.confirmed;
+                return;
+            }
 
-        if (!modal) return;
+            // Cegah submit pertama sampai pengguna mengonfirmasi.
+            event.preventDefault();
 
-        const content = modal.querySelector('.modal-content');
+            const result = await window.SwalGlobal.fire({
+                icon: 'warning',
+                title: 'Hapus berita?',
+                text: form.dataset.confirmMessage ||
+                    'Data yang dihapus tidak dapat dikembalikan.',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal',
+                allowOutsideClick: false,
+                allowEscapeKey: true,
+            });
 
-        modal.classList.remove('opacity-100');
-        modal.classList.add('opacity-0');
-
-        content.classList.remove('scale-100', 'translate-y-0');
-        content.classList.add('scale-95', '-translate-y-6');
-
-        setTimeout(() => {
-
-            modal.classList.remove('block');
-            modal.classList.add('hidden');
-
-            document.body.classList.remove('overflow-hidden');
-
-        }, 300);
-
-    }
-
-    window.formatTanggal = function(tanggal) {
-        if (!tanggal) return '-';
-
-        return new Date(tanggal).toLocaleDateString('id-ID', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
+            if (result.isConfirmed) {
+                form.dataset.confirmed = 'true';
+                form.requestSubmit();
+            }
         });
-    }
 
-    /* ===========================
-    |  Close Modal
-    |  - Klik Overlay
-    |  - Tombol ESC
-    =========================== */
+    });
+</script>
 
-    document.addEventListener('click', function(e) {
+{{-- ================= SWEET ALERT ================= --}}
+@if (session('success') || session('error') || session('warning') || session('info') || $errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-        if (e.target.classList.contains('modal-overlay')) {
+            @if (session('success'))
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: @json(session('success')),
+                    showConfirmButton: false,
+                    timer: 2500,
+                    timerProgressBar: true,
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    customClass: {
+                        popup: 'rounded-2xl shadow-xl'
+                    }
+                });
+            @endif
 
-            closeModal(e.target.id);
+            @if (session('error'))
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'error',
+                    title: @json(session('error')),
+                    showConfirmButton: false,
+                    timer: 3500,
+                    timerProgressBar: true,
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    customClass: {
+                        popup: 'rounded-2xl shadow-xl'
+                    }
+                });
+            @endif
 
+            @if (session('warning'))
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'warning',
+                    title: @json(session('warning')),
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    customClass: {
+                        popup: 'rounded-2xl shadow-xl'
+                    }
+                });
+            @endif
+
+            @if (session('info'))
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: @json(session('info')),
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    customClass: {
+                        popup: 'rounded-2xl shadow-xl'
+                    }
+                });
+            @endif
+
+            @if ($errors->any())
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Terjadi Kesalahan',
+                    html: `{!! collect($errors->all())->map(fn($e) => '• ' . $e)->implode('<br>') !!}`,
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#2563eb',
+                    customClass: {
+                        popup: 'rounded-2xl'
+                    }
+                });
+            @endif
+
+        });
+    </script>
+@endif
+
+<script>
+    window.App = window.App || {};
+
+    App.loading = {
+
+        show(message = 'Sedang memproses...') {
+
+            Swal.fire({
+                html: `
+                <div class="flex flex-col items-center py-4">
+
+                    <div class="relative w-14 h-14">
+
+                        <div class="absolute inset-0 rounded-full border-4 border-slate-200"></div>
+
+                        <div class="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+
+                    </div>
+
+                    <h3 class="mt-5 text-lg font-semibold text-slate-800">
+                        Mohon Tunggu
+                    </h3>
+
+                    <p class="mt-1 text-sm text-slate-500">
+                        ${message}
+                    </p>
+
+                </div>
+            `,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                background: '#fff',
+                width: 380,
+                customClass: {
+                    popup: 'rounded-3xl shadow-2xl'
+                }
+            });
+
+        },
+
+        hide() {
+            Swal.close();
         }
 
-    });
+    };
 
-    document.addEventListener('keydown', function(e) {
+    App.submitLoading = function(formSelector = 'form', buttonSelector = 'button[type="submit"]') {
 
-        if (e.key !== 'Escape') return;
+        $(document).on('submit', formSelector, function() {
 
-        document.querySelectorAll('.modal-overlay').forEach(function(modal) {
-
-            if (!modal.classList.contains('hidden')) {
-
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-
-            }
+            App.loading.show('Sedang menyimpan data...');
 
         });
 
-        document.body.classList.remove('overflow-hidden');
-
-    });
-
-    window.swalSuccess = function(message = 'Berhasil disimpan.') {
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil',
-            text: message,
-            timer: 1800,
-            showConfirmButton: false
-        });
-
-    }
-
-    window.swalError = function(message = 'Terjadi kesalahan.') {
-
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: message,
-            confirmButtonText: 'OK'
-        });
-
-    }
-
-    window.swalWarning = function(message = 'Periksa kembali data.') {
-
-        Swal.fire({
-            icon: 'warning',
-            title: 'Perhatian',
-            text: message,
-            confirmButtonText: 'OK'
-        });
-
-    }
-
-    window.swalConfirm = function(
-        title = 'Yakin?',
-        text = 'Data akan dihapus.',
-        callback = null
-    ) {
-
-        Swal.fire({
-
-            icon: 'warning',
-
-            title: title,
-
-            text: text,
-
-            showCancelButton: true,
-
-            confirmButtonColor: '#DC2626',
-
-            cancelButtonColor: '#94A3B8',
-
-            confirmButtonText: 'Ya',
-
-            cancelButtonText: 'Batal',
-
-            reverseButtons: true
-
-        }).then((result) => {
-
-            if (result.isConfirmed && callback) {
-
-                callback();
-
-            }
-
-        });
-
-    }
+    };
 </script>
