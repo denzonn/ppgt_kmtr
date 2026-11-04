@@ -84,6 +84,13 @@ class PeriodeController extends Controller
             ], 422);
         }
 
+        if ($periode->bidangs()->exists() || $periode->jabatans()->exists()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Periode masih memiliki bidang atau jabatan dan belum dapat dihapus.',
+            ], 422);
+        }
+
         $periode->delete();
 
         return response()->json(['status' => true, 'message' => 'Periode berhasil dihapus.']);

@@ -18,4 +18,14 @@ class Periode extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function bidangs()
+    {
+        return $this->hasMany(Bidang::class);
+    }
+
+    public function jabatans()
+    {
+        return $this->hasMany(Jabatan::class);
+    }
 }

@@ -174,6 +174,24 @@
 
             @endif
 
+            @if ($periodeAktif)
+                @foreach (['bidang' => ['Bidang', 'fa-sitemap'], 'jabatan' => ['Jabatan', 'fa-id-badge']] as $kunci => [$label, $ikon])
+                    @if (auth()->user()->bisaMenu($kunci))
+                        <a href="{{ route('kepengurusan.' . $kunci . '.index', $periodeAktif) }}"
+                            class="flex items-center gap-3 rounded-xl px-4 py-3
+    text-sm transition-all duration-200 ease-in-out md:text-base
+    {{ $page == $kunci
+        ? 'bg-primary text-white shadow-md'
+        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
+
+                            <i class="fa-solid {{ $ikon }} w-5 text-center"></i>
+
+                            <span class="font-medium">{{ $label }}</span>
+                        </a>
+                    @endif
+                @endforeach
+            @endif
+
             @if (auth()->user()->bisaMenu('generator_qr'))
             {{-- Generator QR Code --}}
             <a href="{{ route('generate_qr.index') }}"

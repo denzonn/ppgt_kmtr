@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\PeriodeController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\GenerateQRLinkController;
+use App\Http\Controllers\Kepengurusan\BidangController;
+use App\Http\Controllers\Kepengurusan\JabatanController;
 use App\Http\Controllers\PeminjamanController;
 use App\Models\Periode;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +35,19 @@ Route::middleware(['auth'])->group(
         Route::get('/kepengurusan/{periode}/program-kerja', fn (Periode $periode) => response(''))
             ->middleware(['periode', 'menu:program_kerja'])
             ->name('kepengurusan.program_kerja.index');
+
+        foreach (['bidang' => BidangController::class, 'jabatan' => JabatanController::class] as $nama => $controller) {
+            Route::prefix("kepengurusan/{periode}/{$nama}")->name("kepengurusan.{$nama}.")->middleware(['periode', "menu:{$nama}"])->group(
+                function () use ($controller) {
+                    Route::get('/', [$controller, 'index'])->name('index');
+                    Route::get('/data', [$controller, 'getData'])->name('getData');
+                    Route::post('/', [$controller, 'store'])->name('store');
+                    Route::get('/{id}', [$controller, 'show'])->name('show');
+                    Route::put('/{id}', [$controller, 'update'])->name('update');
+                    Route::delete('/{id}', [$controller, 'destroy'])->name('destroy');
+                }
+            );
+        }
 
         Route::prefix('role')->name('role.')->middleware('admin')->group(
             function () {
