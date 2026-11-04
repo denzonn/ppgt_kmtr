@@ -2,134 +2,148 @@
 
 @section('title', 'Peminjaman Inventaris')
 
-@push('addon-style')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-@endpush
-
 @section('content')
-    <div class="min-h-screen bg-slate-100 py-8">
-        <div class="max-w-lg mx-auto px-4">
+    <div class="min-h-screen bg-slate-100 pb-10">
+        <div class="mx-auto w-full max-w-lg px-4 py-6 sm:py-10">
+
+            {{-- Brand / Kembali --}}
+            <div class="mb-6 flex items-center justify-between gap-3">
+                <a href="{{ url('/') }}" class="inline-flex items-center gap-2.5">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo PPGT"
+                        class="h-9 w-9 rounded-xl object-contain shadow-sm">
+
+                    <span class="text-sm font-bold text-slate-800 sm:text-base">
+                        PPGT KMTr
+                    </span>
+                </a>
+
+                <a href="{{ url('/') }}"
+                    class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-primary/30 hover:text-primary sm:text-sm">
+                    <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                    Beranda
+                </a>
+            </div>
 
             {{-- Header --}}
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 mx-auto rounded-3xl bg-primary/10 flex items-center justify-center shadow-sm">
-                    <i class="fa-solid fa-box-open text-primary text-3xl"></i>
+            <div class="mb-6 text-center sm:mb-8">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 shadow-sm sm:h-20 sm:w-20">
+                    <i class="fa-solid fa-box-open text-primary text-2xl sm:text-3xl"></i>
                 </div>
 
-                <h1 class="mt-5 text-3xl font-bold text-slate-800">
+                <h1 class="mt-4 text-2xl font-bold text-slate-800 sm:mt-5 sm:text-3xl">
                     Peminjaman Inventaris
                 </h1>
 
-                <p class="mt-2 text-slate-500 leading-relaxed">
-                    Silakan pilih inventaris yang ingin dipinjam kemudian unggah foto
-                    pengambilan sebagai bukti.
+                <p class="mt-2 text-sm leading-relaxed text-slate-500 sm:text-base">
+                    Pilih inventaris yang ingin dipinjam, tentukan jumlahnya, lalu
+                    unggah foto pengambilan sebagai bukti.
                 </p>
             </div>
 
             {{-- Card --}}
-            <div class="bg-white rounded-[28px] shadow-xl border border-slate-200 overflow-hidden">
+            <div class="rounded-[28px] border border-slate-200 bg-white shadow-xl">
 
-                <form id="formPeminjaman">
+                <form id="formPeminjaman" novalidate>
                     @csrf
 
-                    <div class="p-6 space-y-7">
+                    <div class="space-y-7 p-5 sm:p-6">
 
                         {{-- Nama Peminjam --}}
                         <div>
-
-                            <label class="block font-semibold text-slate-800 mb-3">
+                            <label for="nama_peminjam" class="mb-3 block font-semibold text-slate-800">
                                 Nama Peminjam
                                 <span class="text-red-500">*</span>
                             </label>
 
-                            <input type="text" name="nama_peminjam" id="nama_peminjam"
-                                class="bg-white border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-slate-400 text-slate-800 placeholder:text-sm w-full rounded-2xl py-3 px-4"
-                                placeholder="Masukkan nama peminjam">
+                            <input type="text" name="nama_peminjam" id="nama_peminjam" maxlength="255"
+                                autocomplete="name"
+                                class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-800 placeholder:text-sm placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/30">
 
+                            <p id="errorNama" class="mt-2 hidden text-xs font-medium text-red-500">
+                                Nama peminjam wajib diisi.
+                            </p>
                         </div>
 
                         {{-- Inventaris --}}
                         <div>
-
-                            <label class="block font-semibold text-slate-800 mb-3">
+                            <label for="inventaris_select" class="mb-3 block font-semibold text-slate-800">
                                 Inventaris
                                 <span class="text-red-500">*</span>
                             </label>
 
                             <div class="flex gap-2">
 
-                                <div class="flex-1">
-
+                                <div class="min-w-0 flex-1">
                                     <select id="inventaris_select" class="p-0">
-
                                         <option value=""></option>
 
                                         @foreach ($inventaris as $item)
-                                            <option value="{{ $item->id }}" data-nama="{{ $item->nama }}">
-                                                {{ $item->nama }}
+                                            @php
+                                                $sisa = $tersedia[$item->id] ?? null;
+                                                $label = $item->nama . ($sisa !== null ? ' — sisa ' . $sisa . ' unit' : '');
+                                            @endphp
+
+                                            <option value="{{ $item->id }}"
+                                                data-nama="{{ $item->nama }}"
+                                                data-kode="{{ $item->kode_inventaris }}"
+                                                data-tersedia="{{ $sisa === null ? '' : $sisa }}"
+                                                @if ($sisa === 0) disabled @endif>
+                                                {{ $label }}
                                             </option>
                                         @endforeach
-
                                     </select>
-
                                 </div>
 
-                                <button type="button" id="btnTambahInventaris"
-                                    class=" px-6 rounded-2xl bg-primary hover:bg-primary_hover text-white font-semibold shadow transition">
-
-                                    <i class="fa fa-plus mr-1"></i>
-
+                                <button type="button" id="btnTambahInventaris" title="Tambah inventaris"
+                                    class="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-2xl bg-primary text-white shadow transition hover:bg-primary_hover active:scale-95">
+                                    <i class="fa fa-plus"></i>
                                 </button>
-
                             </div>
 
+                            <p class="mt-2 text-xs text-slate-400">
+                                Inventaris yang sedang dipinjam tidak dapat dipilih lagi.
+                            </p>
                         </div>
 
                         {{-- List Inventaris --}}
                         <div>
-
-                            <div class="flex items-center justify-between mb-3">
-
+                            <div class="mb-3 flex items-center justify-between gap-2">
                                 <h4 class="font-semibold text-slate-800">
                                     Inventaris Dipilih
+                                    <span id="jumlahDipilih"
+                                        class="ml-1 rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">0</span>
                                 </h4>
 
                                 <span class="text-xs text-slate-500">
                                     Bisa memilih lebih dari satu
                                 </span>
-
                             </div>
 
                             <div id="listInventaris" class="space-y-3">
 
                                 <div id="emptyInventaris"
-                                    class="border-2 border-dashed border-slate-300 rounded-2xl py-10 px-5 text-center bg-slate-50">
+                                    class="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center">
 
-                                    <div
-                                        class="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center mx-auto">
-
-                                        <i class="fa-solid fa-box-open text-slate-500 text-2xl"></i>
-
+                                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-200">
+                                        <i class="fa-solid fa-box-open text-2xl text-slate-500"></i>
                                     </div>
 
-                                    <h5 class="font-semibold text-slate-700 mt-4">
+                                    <h5 class="mt-4 font-semibold text-slate-700">
                                         Belum ada inventaris dipilih
                                     </h5>
 
-                                    <p class="text-sm text-slate-500 mt-1">
-                                        Tekan tombol <b>Tambah</b> untuk memasukkan inventaris.
+                                    <p class="mt-1 text-sm text-slate-500">
+                                        Tekan tombol <b>+</b> untuk menambahkan inventaris.
                                     </p>
 
                                 </div>
 
                             </div>
-
                         </div>
 
                         {{-- Foto --}}
                         <div>
-
-                            <label class="block font-semibold mb-3">
+                            <label for="foto_pengambilan" class="mb-3 block font-semibold text-slate-800">
                                 Foto Pengambilan
                                 <span class="text-red-500">*</span>
                             </label>
@@ -137,45 +151,51 @@
                             <label for="foto_pengambilan" class="block cursor-pointer">
 
                                 <div
-                                    class="h-72 rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50 hover:border-primary hover:bg-blue-50 transition overflow-hidden flex flex-col items-center justify-center">
+                                    class="relative flex h-64 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:border-primary hover:bg-primary/5 sm:h-72">
 
-                                    <img id="previewFoto" class="hidden w-full h-full object-cover">
+                                    <img id="previewFoto" alt="Preview foto pengambilan"
+                                        class="hidden h-full w-full object-cover">
 
                                     <div id="placeholderFoto" class="text-center">
 
-                                        <div
-                                            class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-
-                                            <i class="fa-solid fa-camera text-primary text-3xl"></i>
-
+                                        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 sm:h-20 sm:w-20">
+                                            <i class="fa-solid fa-camera text-2xl text-primary sm:text-3xl"></i>
                                         </div>
 
-                                        <p class="mt-5 font-semibold text-lg">
+                                        <p class="mt-4 text-base font-semibold sm:mt-5 sm:text-lg">
                                             Tap untuk mengambil foto
                                         </p>
 
-                                        <p class="text-slate-500 text-sm">
+                                        <p class="mt-1 text-sm text-slate-500">
                                             Kamera akan langsung dibuka
                                         </p>
-
                                     </div>
+
+                                    {{-- Tombol ganti / hapus foto --}}
+                                    <button type="button" id="btnHapusFoto"
+                                        class="absolute right-3 top-3 hidden h-9 w-9 items-center justify-center rounded-xl bg-white/90 text-slate-600 shadow-sm backdrop-blur transition hover:bg-white hover:text-red-600">
+                                        <i class="fa-solid fa-trash text-xs"></i>
+                                    </button>
 
                                 </div>
 
                             </label>
 
-                            <input id="foto_pengambilan" name="foto_pengambilan" type="file" accept="image/*"
-                                capture="environment" class="hidden">
+                            <input id="foto_pengambilan" name="foto_pengambilan" type="file"
+                                accept="image/*" capture="environment" class="hidden">
 
+                            <p id="errorFoto" class="mt-2 hidden text-xs font-medium text-red-500">
+                                Foto pengambilan wajib diunggah.
+                            </p>
                         </div>
 
                     </div>
 
                     {{-- Footer --}}
-                    <div class="border-t border-slate-200 p-6 bg-slate-50">
+                    <div class="sticky bottom-0 rounded-b-[28px] border-t border-slate-200 bg-white/95 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] backdrop-blur sm:p-6 sm:pb-6">
 
-                        <button id="btnSubmit"
-                            class="w-full h-14 rounded-2xl bg-primary hover:bg-primary_hover text-white font-semibold text-lg shadow-md transition">
+                        <button type="submit" id="btnSubmit"
+                            class="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-lg font-semibold text-white shadow-md transition hover:bg-primary_hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70">
 
                             <i class="fa-solid fa-paper-plane mr-2"></i>
 
@@ -183,34 +203,101 @@
 
                         </button>
 
+                        <p class="mt-3 text-center text-xs text-slate-400">
+                            Pengajuan akan diverifikasi oleh admin.
+                        </p>
+
                     </div>
 
                 </form>
 
             </div>
 
+            <p class="mt-6 text-center text-xs text-slate-400">
+                PPGT KMTr &middot; Formulir Peminjaman Inventaris
+            </p>
         </div>
     </div>
 @endsection
 
 @push('addon-script')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        const maksUkuranFoto = 4 * 1024 * 1024;
+
         let inventarisIndex = 0;
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, function(char) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                } [char];
+            });
+        }
+
+        function tampilkanPesan(text, icon = 'warning') {
+            Swal.fire({
+                icon: icon,
+                text: text
+            });
+        }
+
+        // ==========================================
+        // SELECT2
+        // ==========================================
 
         $('#inventaris_select').select2({
             placeholder: 'Cari inventaris...',
-            width: '100%'
+            width: '100%',
+            templateResult: function(item) {
+                if (!item.id) return item.text;
+
+                const kode = $(item.element).data('kode');
+                const sisa = $(item.element).data('tersedia');
+
+                let detail = '';
+
+                if (kode) {
+                    detail += '<span class="block text-[11px] text-slate-400">' + escapeHtml(kode) + '</span>';
+                }
+
+                if (sisa !== '' && sisa !== undefined) {
+                    detail += '<span class="block text-[11px] font-semibold ' +
+                        (Number(sisa) > 0 ? 'text-emerald-600' : 'text-red-500') + '">Sisa ' +
+                        escapeHtml(sisa) + ' unit</span>';
+                }
+
+                return $('<div>').html(
+                    '<span class="block truncate text-sm font-medium text-slate-700">' +
+                    escapeHtml(item.text.split(' — ')[0]) + '</span>' + detail
+                );
+            }
         });
 
-        // Preview Foto
+        // ==========================================
+        // FOTO
+        // ==========================================
+
         $('#foto_pengambilan').on('change', function() {
 
             const file = this.files[0];
 
             if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                $(this).val('');
+                tampilkanPesan('Format foto tidak didukung.');
+                return;
+            }
+
+            if (file.size > maksUkuranFoto) {
+                $(this).val('');
+                tampilkanPesan('Ukuran foto maksimal 4 MB.');
+                return;
+            }
 
             const reader = new FileReader();
 
@@ -220,94 +307,112 @@
                     .removeClass('hidden');
 
                 $('#placeholderFoto').addClass('hidden');
-            }
+                $('#btnHapusFoto').removeClass('hidden').addClass('flex');
+                $('#errorFoto').addClass('hidden');
+            };
 
             reader.readAsDataURL(file);
 
         });
 
-        $(document).ready(function() {
-            // Tambah Inventaris
-            $('#btnTambahInventaris').click(function() {
-                let option = $('#inventaris_select option:selected');
+        $('#btnHapusFoto').on('click', function(e) {
 
-                let id = option.val();
+            e.preventDefault();
+            e.stopPropagation();
+
+            $('#foto_pengambilan').val('');
+            $('#previewFoto').attr('src', '').addClass('hidden');
+            $('#placeholderFoto').removeClass('hidden');
+            $('#btnHapusFoto').addClass('hidden').removeClass('flex');
+
+        });
+
+        // ==========================================
+        // TAMBAH / HAPUS INVENTARIS
+        // ==========================================
+
+        $(document).ready(function() {
+
+            $('#btnTambahInventaris').click(function() {
+
+                const option = $('#inventaris_select option:selected');
+                const id = option.val();
 
                 if (!id) {
-
-                    Swal.fire({
-                        icon: 'warning',
-                        text: 'Silakan pilih inventaris terlebih dahulu.'
-                    });
-
+                    tampilkanPesan('Silakan pilih inventaris terlebih dahulu.');
                     return;
-
                 }
 
                 if ($('#inventaris_' + id).length) {
-
-                    Swal.fire({
-                        icon: 'warning',
-                        text: 'Inventaris sudah dipilih.'
-                    });
-
+                    tampilkanPesan('Inventaris sudah dipilih.');
                     return;
-
                 }
 
-                let nama = option.data('nama');
+                const nama = option.data('nama') || '-';
+                const kode = option.data('kode') || '';
+                const sisa = option.data('tersedia');
+                const maks = (sisa === '' || sisa === undefined || sisa === null) ? '' : Number(sisa);
 
                 $('#emptyInventaris').hide();
 
-                let index = inventarisIndex++;
+                const index = inventarisIndex++;
 
-                let html = `
-<div id="inventaris_${id}"
-    class="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+                const html = `
+                    <div id="inventaris_${id}" data-id="${id}"
+                        class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
 
-    <input
-        type="hidden"
-        name="inventaris[${index}][id]"
-        value="${id}">
+                        <input type="hidden" name="inventaris[${index}][id]" value="${escapeHtml(id)}">
 
-    <div class="flex justify-between items-start">
+                        <div class="flex items-start justify-between gap-3">
 
-        <div class="flex-1 pr-3">
+                            <div class="min-w-0 flex-1">
+                                <p class="break-words font-semibold text-slate-800">
+                                    ${escapeHtml(nama)}
+                                </p>
 
-            <div class="font-semibold text-slate-800">
-                ${nama}
-            </div>
+                                <p class="mt-0.5 break-all text-xs text-slate-500">
+                                    ${escapeHtml(kode)}
+                                </p>
+                            </div>
 
-            <div class="text-sm text-slate-500 mt-1">
-                Jumlah yang dipinjam
-            </div>
+                            <button type="button" title="Hapus dari daftar"
+                                class="hapusInventaris flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 transition hover:bg-red-100">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
 
-        </div>
+                        <div class="mt-4">
+                            <label class="mb-1.5 block text-xs font-semibold text-slate-600">
+                                Jumlah yang dipinjam
+                            </label>
 
-        <button
-            type="button"
-            class="hapusInventaris w-10 h-10 rounded-xl bg-red-50 hover:bg-red-100 text-red-600">
+                            <div class="flex items-center gap-2">
 
-            <i class="fa fa-trash"></i>
+                                <button type="button" class="kurangiInventaris flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95">
+                                    <i class="fa-solid fa-minus text-xs"></i>
+                                </button>
 
-        </button>
+                                <input type="number" inputmode="numeric" min="1"
+                                    ${maks > 0 ? `max="${maks}"` : ''}
+                                    value="1"
+                                    name="inventaris[${index}][jumlah]"
+                                    class="h-12 w-full min-w-0 rounded-xl border border-slate-300 px-4 text-center font-semibold"
+                                    required>
 
-    </div>
+                                <button type="button" class="tambahJumlahInventaris flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95">
+                                    <i class="fa-solid fa-plus text-xs"></i>
+                                </button>
+                            </div>
 
-    <div class="mt-4">
+                            ${maks > 0 ? `
+                                <p class="mt-2 text-xs text-slate-400">
+                                    Maksimal <span class="font-semibold text-slate-500">${maks}</span> unit.
+                                </p>
+                            ` : ''}
+                        </div>
 
-        <input
-            type="number"
-            min="1"
-            value="1"
-            name="inventaris[${index}][jumlah]"
-            class="w-full h-12 rounded-xl border border-slate-300 px-4"
-            required>
-
-    </div>
-
-</div>
-`;
+                    </div>
+                `;
 
                 $('#listInventaris').append(html);
 
@@ -315,59 +420,143 @@
                     .val('')
                     .trigger('change');
 
+                reindexInventaris();
+                perbaruiJumlahDipilih();
+
+            });
+
+            // Hapus inventaris
+            $(document).on('click', '.hapusInventaris', function() {
+
+                $(this)
+                    .closest('[id^="inventaris_"]')
+                    .remove();
+
+                if ($('#listInventaris > [id^="inventaris_"]').length === 0) {
+                    $('#emptyInventaris').show();
+                }
+
+                reindexInventaris();
+                perbaruiJumlahDipilih();
+
+            });
+
+            // Jumlah: naik / turun
+            $(document).on('click', '.kurangiInventaris', function() {
+
+                const input = $(this).siblings('input');
+                const nilai = Math.max(1, (parseInt(input.val(), 10) || 1) - 1);
+
+                input.val(nilai).trigger('input');
+
+            });
+
+            $(document).on('click', '.tambahJumlahInventaris', function() {
+
+                const input = $(this).siblings('input');
+                const maks = parseInt(input.attr('max'), 10);
+                let nilai = (parseInt(input.val(), 10) || 0) + 1;
+
+                if (!isNaN(maks) && nilai > maks) {
+                    nilai = maks;
+                    tampilkanPesan('Jumlah melebihi unit yang tersedia.');
+                }
+
+                input.val(nilai).trigger('input');
+
             });
 
         });
 
-        // Hapus Inventaris
-        $(document).on('click', '.hapusInventaris', function() {
+        function perbaruiJumlahDipilih() {
+            $('#jumlahDipilih').text($('#listInventaris > [id^="inventaris_"]').length);
+        }
 
-            $(this)
-                .closest('[id^="inventaris_"]')
-                .remove();
+        // Jaga indeks input tetap berurutan (0,1,2...) agar data terkirim
+        // sebagai array list utuh ke server.
+        function reindexInventaris() {
+            $('#listInventaris > [id^="inventaris_"]').each(function(index) {
 
-            if ($('#listInventaris > [id^="inventaris_"]').length == 0) {
+                $(this).find('input[name$="[id]"]')
+                    .attr('name', 'inventaris[' + index + '][id]');
 
-                $('#emptyInventaris').show();
+                $(this).find('input[name$="[jumlah]"]')
+                    .attr('name', 'inventaris[' + index + '][jumlah]');
 
-            }
+            });
+        }
 
-        });
+        // ==========================================
+        // SUBMIT
+        // ==========================================
 
-        // Submit
         $('#formPeminjaman').submit(function(e) {
 
             e.preventDefault();
 
-            if ($('#listInventaris > [id^="inventaris_"]').length == 0) {
+            let valid = true;
 
-                Swal.fire({
-                    icon: 'warning',
-                    text: 'Silakan pilih minimal satu inventaris.'
-                });
-
-                return;
-
+            // Nama peminjam
+            if (!$('#nama_peminjam').val().trim()) {
+                $('#errorNama').removeClass('hidden');
+                $('#nama_peminjam').addClass('border-red-400 focus:border-red-400 focus:ring-red-200');
+                valid = false;
+            } else {
+                $('#errorNama').addClass('hidden');
+                $('#nama_peminjam').removeClass('border-red-400 focus:border-red-400 focus:ring-red-200');
             }
 
-            if ($('#foto_pengambilan')[0].files.length == 0) {
-
-                Swal.fire({
-                    icon: 'warning',
-                    text: 'Foto pengambilan wajib diunggah.'
-                });
-
-                return;
-
+            // Minimal satu inventaris
+            if ($('#listInventaris > [id^="inventaris_"]').length === 0) {
+                tampilkanPesan('Silakan pilih minimal satu inventaris.');
+                valid = false;
             }
 
-            let btn = $('#btnSubmit');
+            // Jumlah minimal 1 unit
+            let jumlahTidakValid = false;
+
+            $('#listInventaris input[name$="[jumlah]"]').each(function() {
+
+                const nilai = parseInt($(this).val(), 10);
+
+                if (!nilai || nilai < 1) {
+                    jumlahTidakValid = true;
+                    $(this).addClass('border-red-400');
+                } else {
+                    $(this).removeClass('border-red-400');
+                }
+
+            });
+
+            if (jumlahTidakValid) {
+                tampilkanPesan('Jumlah peminjaman minimal 1 unit.');
+                valid = false;
+            }
+
+            // Foto
+            if ($('#foto_pengambilan')[0].files.length === 0) {
+                $('#errorFoto').removeClass('hidden');
+                valid = false;
+            } else {
+                $('#errorFoto').addClass('hidden');
+            }
+
+            if (!valid) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data belum lengkap',
+                    text: 'Periksa kembali isian yang masih kosong.'
+                });
+                return;
+            }
+
+            const btn = $('#btnSubmit');
 
             btn
                 .prop('disabled', true)
                 .html('<i class="fa fa-spinner fa-spin mr-2"></i>Mengirim...');
 
-            let formData = new FormData(this);
+            const formData = new FormData(this);
 
             $.ajax({
 
@@ -386,10 +575,10 @@
                     Swal.fire({
                         icon: 'success',
                         title: 'Berhasil',
-                        text: 'Pengajuan peminjaman berhasil.'
+                        text: 'Pengajuan peminjaman berhasil dikirim.'
                     });
 
-                    // Reset Form
+                    // Reset form
                     $('#formPeminjaman')[0].reset();
 
                     $('#inventaris_select')
@@ -409,15 +598,38 @@
                     $('#placeholderFoto')
                         .removeClass('hidden');
 
+                    $('#btnHapusFoto')
+                        .addClass('hidden')
+                        .removeClass('flex');
+
+                    $('#errorNama, #errorFoto').addClass('hidden');
+
+                    inventarisIndex = 0;
+
+                    perbaruiJumlahDipilih();
+
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
                 },
 
                 error: function(xhr) {
 
+                    const errors = xhr.responseJSON?.errors || {};
+                    let message = xhr.responseJSON?.message || 'Terjadi kesalahan.';
+
+                    if (xhr.status === 422 && Object.keys(errors).length > 0) {
+                        message = Object.values(errors)
+                            .flat()
+                            .map(function(item) {
+                                return item;
+                            })
+                            .join('<br>');
+                    }
+
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal',
-                        text: xhr.responseJSON?.message ??
-                            'Terjadi kesalahan.'
+                        html: message
                     });
 
                 },

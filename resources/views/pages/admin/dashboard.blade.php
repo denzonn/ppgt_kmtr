@@ -12,7 +12,7 @@
 
         {{-- Welcome --}}
         <div
-            class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-blue-600 to-blue-500 p-5 sm p-5:md:p-6 md:p-8 shadow-xl">
+            class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-blue-600 to-blue-500 p-5 md:p-8 shadow-xl">
 
             {{-- Decoration --}}
             <div class="absolute -top-10 -right-10 w-36 h-36 sm:w-52 sm:h-52 rounded-full bg-white/10"></div>
@@ -51,9 +51,7 @@
 
                 <div class="hidden lg:block text-right">
 
-                    <img src="" class="w-28 opacity-20 ml-auto">
-
-                    <p class="text-white/70 mt-4">
+                    <p class="text-white/70">
 
                         {{ now()->translatedFormat('l') }}
 
@@ -133,13 +131,13 @@
 
                         <h2 class="mt-4 text-3xl md:text-5xl font-black">
 
-                            {{ $peminjamanCount }}
+                            {{ $dipinjamCount }}
 
                         </h2>
 
                         <p class="mt-2 text-sm text-amber-600">
 
-                            {{ $menungguKembaliPinjamanCount }} menunggu kembali
+                            {{ $dikembalikanCount }} sudah dikembalikan
 
                         </p>
 
@@ -173,7 +171,7 @@
 
                         <h2 class="mt-4 text-3xl md:text-5xl font-black">
 
-                            247
+                            {{ $anggotaAktifCount }}
 
                         </h2>
 
@@ -207,19 +205,19 @@
 
                         <p class="text-sm text-slate-500">
 
-                            Agenda
+                            Jemaat
 
                         </p>
 
                         <h2 class="mt-4 text-3xl md:text-5xl font-black">
 
-                            5
+                            {{ $jemaatCount }}
 
                         </h2>
 
                         <p class="mt-2 text-sm text-emerald-600">
 
-                            Minggu ini
+                            Terdaftar
 
                         </p>
 
@@ -228,7 +226,7 @@
                     <div
                         class="flex h-9 w-9 md:h-12 md:w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-emerald-100 text-emerald-600">
 
-                        <i class="fa-solid fa-calendar-days text-base md:text-xl"></i>
+                        <i class="fa-solid fa-church text-base md:text-xl"></i>
 
                     </div>
 

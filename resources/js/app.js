@@ -8,6 +8,7 @@ import "./helpers/emptyTable";
 import "./helpers/tableError";
 import "./helpers/ajax";
 import "./helpers/flatPicker";
+import "./helpers/swal";
 
 window.formatAngka = function (value) {
     if (value === null || value === undefined || value === "") {

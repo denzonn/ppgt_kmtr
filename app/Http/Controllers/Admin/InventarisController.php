@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Inventaris;
 use App\Models\InventarisKondisi;
+use App\Models\PeminjamanDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -19,20 +20,72 @@ class InventarisController extends Controller
 
     public function getData(Request $request)
     {
-        $inventaris = Inventaris::query();
+        $search = trim((string) $request->input('search', ''));
+        $jenis = trim((string) $request->input('jenis', ''));
 
-        if ($request->has('search') && !empty($request->search)) {
-            $inventaris->where('nama', 'like', '%' . $request->search . '%');
+        $query = Inventaris::query()->with('kondisi');
+
+        // Pencarian mencakup nama, kode inventaris, dan jenis.
+        if ($search !== '') {
+            $like = '%' . $search . '%';
+
+            $query->where(function ($q) use ($like) {
+                $q->where('nama', 'like', $like)
+                    ->orWhere('kode_inventaris', 'like', $like)
+                    ->orWhere('jenis', 'like', $like);
+            });
         }
 
-        $data = $inventaris->orderBy('created_at', 'desc')->paginate(10);
+        if (in_array($jenis, ['PAK', 'PDP', 'PPL'], true)) {
+            $query->where('jenis', $jenis);
+        }
 
-        return response()->json($data);
+        $paginator = $query->orderByDesc('created_at')->paginate(10);
+
+        return response()->json([
+            'data' => $paginator->items(),
+            'total' => $paginator->total(),
+            'from' => $paginator->firstItem(),
+            'to' => $paginator->lastItem(),
+            'current_page' => $paginator->currentPage(),
+            'last_page' => $paginator->lastPage(),
+            'per_page' => $paginator->perPage(),
+            'stats' => $this->getStats(),
+        ]);
     }
 
-    private function generateKodeInventaris(string $jenis): string
+    /**
+     * Ringkasan aset untuk kartu statistik.
+     */
+    private function getStats(): array
+    {
+        $totalNilai = Inventaris::pluck('harga')
+            ->map(fn($harga) => (float) preg_replace('/\D/', '', (string) $harga))
+            ->sum();
+
+        $kondisi = [
+            'Baik' => 0,
+            'Kurang Baik' => 0,
+            'Rusak' => 0,
+            'Hilang' => 0,
+        ];
+
+        InventarisKondisi::get(['kondisi', 'jumlah'])->each(function ($row) use (&$kondisi) {
+            $kondisi[$row->kondisi] = ($kondisi[$row->kondisi] ?? 0) + (int) $row->jumlah;
+        });
+
+        return [
+            'total_inventaris' => Inventaris::count(),
+            'total_nilai' => $totalNilai,
+            'total_barang' => array_sum($kondisi),
+            'kondisi' => $kondisi,
+        ];
+    }
+
+    public function generateKodeInventaris(string $jenis, ?int $ignoreId = null): string
     {
         $lastInventaris = Inventaris::where('jenis', $jenis)
+            ->when($ignoreId, fn($q) => $q->where('id', '!=', $ignoreId))
             ->orderByDesc('id')
             ->first();
 
@@ -69,20 +122,12 @@ class InventarisController extends Controller
             'nama' => 'required|string|max:255',
             'tanggal_perolehan' => 'required|date',
             'harga' => 'required|numeric|min:0',
-            'foto' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'kondisi' => 'required|array',
             'kondisi.*' => 'required|integer|min:0',
         ]);
 
-        if (!$request->hasFile('foto')) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Foto inventaris wajib diunggah.',
-            ], 422);
-        }
-
-        $imageName = $request->file('foto')
-            ->store('inventaris', 'public');
+        $imageName = $request->file('foto')?->store('inventaris', 'public');
 
         $inventaris = Inventaris::create([
             'kode_inventaris' => $this->generateKodeInventaris(
@@ -130,7 +175,7 @@ class InventarisController extends Controller
             'nama' => 'required|string|max:255',
             'tanggal_perolehan' => 'required|date',
             'harga' => 'required|numeric|min:0',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'kondisi' => 'required|array',
             'kondisi.*' => 'required|integer|min:0',
         ]);
@@ -141,6 +186,14 @@ class InventarisController extends Controller
             'harga' => $request->harga,
             'tanggal_perolehan' => $request->tanggal_perolehan,
         ];
+
+        // Kode inventaris memuat jenis, jadi dibuat ulang saat jenis berubah.
+        if ($request->jenis !== $inventaris->jenis) {
+            $data['kode_inventaris'] = $this->generateKodeInventaris(
+                $request->jenis,
+                $inventaris->id
+            );
+        }
 
         if ($request->hasFile('foto')) {
             if ($inventaris->foto) {
@@ -174,6 +227,19 @@ class InventarisController extends Controller
     public function destroy($id)
     {
         $inventaris = Inventaris::with('kondisi')->findOrFail($id);
+
+        // Inventaris yang sedang dipinjam tidak boleh dihapus karena
+        // riwayat peminjaman ikut terhapus (cascade).
+        $sedangDipinjam = PeminjamanDetail::where('id_inventaris', $id)
+            ->whereHas('peminjaman', fn($q) => $q->where('status', 'dipinjam'))
+            ->exists();
+
+        if ($sedangDipinjam) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Inventaris masih dipinjam dan belum dapat dihapus.',
+            ], 422);
+        }
 
         if ($inventaris->foto) {
             Storage::disk('public')->delete($inventaris->foto);

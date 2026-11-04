@@ -5,114 +5,189 @@
 @section('page_title', 'Inventaris')
 
 @section('content')
-    <div class="relative flex w-full min-w-0 max-w-full flex-1 flex-col gap-6 pb-10">
+    <div class="space-y-6">
 
         {{-- Header --}}
-        <div class="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="text-lg font-bold text-slate-800 md:text-2xl">
-                    Data Inventaris
-                </h2>
-                <p class="mt-1 text-xs text-slate-500 md:text-base">
-                    Kelola seluruh inventaris organisasi.
+                <h2 class="text-xl font-bold text-slate-800">Data Inventaris</h2>
+                <p class="mt-1 text-sm text-slate-500">
+                    Kelola seluruh aset, kondisi, dan nilai perolehan inventaris organisasi.
                 </p>
             </div>
 
-            <button type="button" onclick="tambahInventaris()"
-                class="absolute bottom-0 right-0 flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white hover:bg-primary_hover md:hidden">
-                <i class="fa-solid fa-plus"></i>
-            </button>
-
-            <button type="button" onclick="tambahInventaris()"
-                class="hidden shrink-0 rounded-xl bg-primary px-5 py-3 text-white transition hover:bg-primary_hover md:block">
-                <i class="fa-solid fa-plus mr-2"></i>
-                Tambah Inventaris
-            </button>
-        </div>
-
-        {{-- Pencarian --}}
-        <div class="w-full min-w-0 rounded-xl border border-slate-200 bg-white p-3 shadow-sm md:rounded-2xl md:p-5">
-            <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input id="search" type="text" placeholder="Cari kode, nama, atau jenis inventaris..."
-                    class="w-full min-w-0 rounded-xl border border-slate-300 py-3 pl-11 pr-4 text-xs focus:border-primary focus:ring-primary md:text-base">
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" id="btnTambahInventaris"
+                    class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
+                    <i class="fas fa-plus"></i>
+                    Tambah Inventaris
+                </button>
             </div>
         </div>
 
-        {{-- Container Data --}}
-        <div id="tableContainer" class="w-full min-w-0 max-w-full">
+        {{-- Statistik --}}
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Total Inventaris</p>
+                        <h3 id="totalInventaris" class="mt-2 text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <i class="fas fa-boxes-stacked text-xl"></i>
+                    </div>
+                </div>
+                <p class="mt-3 text-xs text-slate-400">Jenis aset terdaftar</p>
+            </div>
 
-            {{-- Card Tabel Desktop --}}
-            <div
-                class="hidden w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm md:block">
+            <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Total Nilai Perolehan</p>
+                        <h3 id="totalNilai" class="mt-2 text-2xl font-bold text-slate-800">Rp 0</h3>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <i class="fas fa-wallet text-xl"></i>
+                    </div>
+                </div>
+                <p class="mt-3 text-xs text-slate-400">Akumulasi harga perolehan</p>
+            </div>
 
-                {{-- Scroll horizontal hanya pada pembungkus tabel ini --}}
+            <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Barang Baik</p>
+                        <h3 id="totalBaik" class="mt-2 text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <i class="fas fa-circle-check text-xl"></i>
+                    </div>
+                </div>
+                <p class="mt-3 text-xs text-slate-400">Kondisi siap digunakan</p>
+            </div>
+
+            <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Rusak & Hilang</p>
+                        <h3 id="totalRusak" class="mt-2 text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                        <i class="fas fa-triangle-exclamation text-xl"></i>
+                    </div>
+                </div>
+                <p class="mt-3 text-xs text-slate-400">Perlu perbaikan atau pemulihan</p>
+            </div>
+        </div>
+
+        {{-- Panel Data --}}
+        <div id="panelData" class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            {{-- Toolbar --}}
+            <div class="border-b border-slate-100 bg-white p-5">
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                            <i class="fas fa-box-archive"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">Daftar Inventaris</h3>
+                            <p class="mt-0.5 text-xs text-slate-500">
+                                Data inventaris yang telah terdaftar.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:flex xl:items-center">
+                        <div class="relative sm:col-span-2 xl:col-span-1">
+                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+                            <input type="text" id="search" placeholder="Cari kode, nama, atau jenis..."
+                                class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 xl:w-72">
+                        </div>
+
+                        <select id="filterJenis"
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                            <option value="">Semua Jenis</option>
+                            <option value="PAK">PAK - Kesekretariatan</option>
+                            <option value="PDP">PDP - Dapur Perkakas</option>
+                            <option value="PPL">PPL - Penunjang Lainnya</option>
+                        </select>
+
+                        <button type="button" id="btnReset"
+                            class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary">
+                            <i class="fas fa-rotate-left text-xs"></i>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Tabel Desktop --}}
+            <div id="tableContainer" class="hidden w-full min-w-0 max-w-full md:block">
                 <div class="table-scrollbar w-full min-w-0 max-w-full overflow-x-auto overscroll-x-contain">
-                    <table class="w-full min-w-[900px] border-collapse text-left text-sm">
+                    <table class="w-full min-w-[960px] border-collapse text-left">
 
-                        <thead class="bg-slate-50">
-                            <tr class="whitespace-nowrap text-xs text-slate-600 md:text-sm">
-                                <th class="min-w-[90px] px-4 py-4 md:px-6">Foto</th>
-                                <th class="min-w-[160px] px-4 py-4 md:px-6">Kode Inventaris</th>
-                                <th class="min-w-[280px] px-4 py-4 md:px-6">Informasi Inventaris</th>
-                                <th class="min-w-[190px] px-4 py-4 md:px-6">Harga & Perolehan</th>
-                                <th class="min-w-[110px] px-4 py-4 text-center md:px-6">Aksi</th>
+                        <thead>
+                            <tr class="border-b border-slate-100 bg-slate-50/80">
+                                <th
+                                    class="w-20 px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                    Foto</th>
+                                <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                    Kode Inventaris</th>
+                                <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                    Informasi Inventaris</th>
+                                <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                    Kondisi</th>
+                                <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                    Harga & Perolehan</th>
+                                <th
+                                    class="w-28 px-5 py-4 text-center text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                    Aksi</th>
                             </tr>
                         </thead>
 
-                        <tbody id="tableData" class="text-xs md:text-sm">
+                        <tbody id="tableData" class="divide-y divide-slate-100">
                             <tr>
-                                <td colspan="5" class="py-10 text-center text-slate-500">
-                                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>
-                                    Memuat data...
+                                <td colspan="6" class="px-6 py-16 text-center text-sm text-slate-400">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                                    Memuat data inventaris...
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
-                {{-- Footer tabel --}}
-                <div class="flex items-center justify-between gap-3 border-t border-slate-100 bg-slate-50/50 px-5 py-3">
-                    <p class="text-xs text-slate-400">
-                        <i class="fa-solid fa-arrows-left-right mr-1"></i>
-                        Geser tabel ke samping untuk melihat kolom lainnya.
-                    </p>
-                    <p class="shrink-0 text-xs text-slate-400">
-                        Data Inventaris
-                    </p>
-                </div>
             </div>
 
             {{-- Pagination Desktop --}}
-            <div id="pagination" class="mt-5 hidden md:block"></div>
-
-            {{-- Card Mobile --}}
-            <div id="mobileContainer" class="min-w-0 space-y-4 md:hidden"></div>
-
-            {{-- Pagination Mobile --}}
-            <div id="paginationMobile" class="mt-5 md:hidden"></div>
+            <div id="pagination" class="hidden border-t border-slate-100 bg-white px-5 py-4 md:block"></div>
         </div>
+
+        {{-- Card Mobile --}}
+        <div id="mobileContainer" class="min-w-0 space-y-4 md:hidden"></div>
+
+        {{-- Pagination Mobile --}}
+        <div id="paginationMobile" class="md:hidden"></div>
 
         {{-- Data Kosong --}}
         <div id="emptyState" class="hidden w-full min-w-0">
             <div class="rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div class="flex flex-col items-center px-4 py-14 text-center md:py-20">
-                    <div class="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 md:h-24 md:w-24">
-                        <i class="fa-solid fa-box-open text-2xl text-slate-400 md:text-4xl"></i>
+                    <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-slate-100">
+                        <i class="fa-solid fa-box-open text-3xl text-slate-400"></i>
                     </div>
 
-                    <h3 class="mt-6 text-base font-bold text-slate-700 md:text-2xl">
+                    <h3 class="mt-6 text-lg font-bold text-slate-700 md:text-2xl">
                         Belum Ada Inventaris
                     </h3>
 
-                    <p class="mt-2 max-w-md text-xs text-slate-500 md:text-sm">
-                        Data inventaris masih kosong. Silakan tambahkan inventaris pertama untuk mulai mengelola aset
-                        organisasi.
+                    <p class="mt-2 max-w-md text-sm text-slate-500">
+                        Data inventaris masih kosong. Silakan tambahkan inventaris pertama untuk mulai
+                        mengelola aset organisasi.
                     </p>
 
-                    <button type="button" onclick="tambahInventaris()"
-                        class="mt-8 rounded-xl bg-primary px-6 py-3 text-xs text-white transition hover:bg-primary_hover md:text-base">
-                        <i class="fa-solid fa-plus mr-2"></i>
+                    <button type="button" id="btnTambahInventarisKosong"
+                        class="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90">
+                        <i class="fa-solid fa-plus"></i>
                         Tambah Inventaris
                     </button>
                 </div>
@@ -126,94 +201,159 @@
 
 @push('addon-script')
     <script>
-        const inventarisUrl = @json(route('inventaris.index'));
-        const inventarisStoreUrl = @json(route('inventaris.store'));
-        const inventarisDataUrl = @json(route('inventaris.getData'));
-        const csrfToken = @json(csrf_token());
-        const noImageUrl = @json(asset('images/no-image.png'));
+        // Fungsi halaman dibuat lokal agar tidak tertimpa helper global dari app.js
+        // (formatRupiah, renderPagination, formatTanggal).
+        $(document).ready(function() {
+            const inventarisUrl = @json(route('inventaris.index'));
+            const inventarisStoreUrl = @json(route('inventaris.store'));
+            const inventarisDataUrl = @json(route('inventaris.getData'));
+            const csrfToken = @json(csrf_token());
+            const noImageUrl = @json(asset('images/no-image.svg'));
+            const storageUrl = @json(asset('storage'));
 
-        const jenisInventaris = {
-            PAK: 'Perlengkapan Administrasi Kesekretariatan',
-            PDP: 'Perlengkapan Dapur Perkakas',
-            PPL: 'Perlengkapan Penunjang Lainnya'
-        };
-
-        let page = 1;
-        let searchTimer;
-        let requestInventaris = null;
-
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': csrfToken
-            }
-        });
-
-        // ==========================================
-        // FORMAT DATA
-        // ==========================================
-
-        function escapeHtml(value) {
-            return String(value ?? '').replace(/[&<>"']/g, function(char) {
-                return {
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    '"': '&quot;',
-                    "'": '&#039;'
-                } [char];
-            });
-        }
-
-        function formatTanggal(tanggal) {
-            if (!tanggal) return '-';
-
-            const parts = String(tanggal).substring(0, 10).split('-');
-
-            if (parts.length !== 3) return tanggal;
-
-            return `${parts[2]}/${parts[1]}/${parts[0]}`;
-        }
-
-        function formatRupiah(angka) {
-            return Number(angka || 0).toLocaleString('id-ID');
-        }
-
-        function fotoUrl(foto) {
-            if (!foto) return noImageUrl;
-
-            return @json(asset('storage')) + '/' + String(foto)
-                .split('/')
-                .map(encodeURIComponent)
-                .join('/');
-        }
-
-        function renderJenis(jenis) {
-            const kode = String(jenis || '').toUpperCase();
-            const nama = jenisInventaris[kode] || jenis || '-';
-
-            const warna = {
-                PAK: 'bg-blue-50 text-blue-700 ring-blue-200',
-                PDP: 'bg-amber-50 text-amber-700 ring-amber-200',
-                PPL: 'bg-emerald-50 text-emerald-700 ring-emerald-200'
+            const jenisInventaris = {
+                PAK: 'Perlengkapan Administrasi Kesekretariatan',
+                PDP: 'Perlengkapan Dapur Perkakas',
+                PPL: 'Perlengkapan Penunjang Lainnya'
             };
 
-            return `
-                <div class="mt-1.5 flex min-w-0 items-start gap-2">
-                    <span class="inline-flex shrink-0 items-center rounded-md px-2 py-1 text-[10px] font-bold ring-1 ring-inset ${warna[kode] || 'bg-slate-50 text-slate-600 ring-slate-200'}">
-                        ${escapeHtml(kode || '-')}
-                    </span>
-                    <span class="min-w-0 whitespace-normal break-words text-xs leading-5 text-slate-500">
-                        ${escapeHtml(nama)}
-                    </span>
-                </div>
-            `;
-        }
+            const jenisStyle = {
+                PAK: {
+                    badge: 'bg-blue-50 text-blue-700 ring-blue-100',
+                    icon: 'fa-folder-open'
+                },
+                PDP: {
+                    badge: 'bg-amber-50 text-amber-700 ring-amber-100',
+                    icon: 'fa-utensils'
+                },
+                PPL: {
+                    badge: 'bg-emerald-50 text-emerald-700 ring-emerald-100',
+                    icon: 'fa-boxes-stacked'
+                }
+            };
 
-        // ==========================================
-        // LOAD DATA
-        // ==========================================
+            const kondisiStyle = {
+                'Baik': {
+                    badge: 'bg-emerald-50 text-emerald-700',
+                    icon: 'fa-solid fa-circle-check'
+                },
+                'Kurang Baik': {
+                    badge: 'bg-amber-50 text-amber-700',
+                    icon: 'fa-solid fa-circle-exclamation'
+                },
+                'Rusak': {
+                    badge: 'bg-red-50 text-red-700',
+                    icon: 'fa-solid fa-circle-xmark'
+                },
+                'Hilang': {
+                    badge: 'bg-slate-100 text-slate-600',
+                    icon: 'fa-solid fa-box-open'
+                }
+            };
 
-        $(document).ready(function() {
+            let page = 1;
+            let searchTimer = null;
+            let requestInventaris = null;
+
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            });
+
+            // ==========================================
+            // FORMAT DATA
+            // ==========================================
+
+            function escapeHtml(value) {
+                return String(value ?? '').replace(/[&<>"']/g, function(char) {
+                    return {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#039;'
+                    } [char];
+                });
+            }
+
+            function formatTanggal(tanggal) {
+                if (!tanggal) return '-';
+
+                const parts = String(tanggal).substring(0, 10).split('-');
+
+                if (parts.length !== 3) return tanggal;
+
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+
+            // Harga disimpan sebagai angka polos, konversi aman untuk data lama.
+            function formatRupiah(angka) {
+                const nilai = Number(String(angka ?? '0').replace(/[^\d-]/g, '')) || 0;
+
+                return nilai.toLocaleString('id-ID');
+            }
+
+            function fotoUrl(foto) {
+                if (!foto) return noImageUrl;
+
+                return storageUrl + '/' + String(foto)
+                    .split('/')
+                    .map(encodeURIComponent)
+                    .join('/');
+            }
+
+            function renderJenis(jenis) {
+                const kode = String(jenis || '').toUpperCase();
+                const nama = jenisInventaris[kode] || jenis || '-';
+                const style = jenisStyle[kode] || {
+                    badge: 'bg-slate-50 text-slate-600 ring-slate-200',
+                    icon: 'fa-box'
+                };
+
+                return `
+                    <div class="mt-2 flex min-w-0 flex-wrap items-center gap-2">
+                        <span class="inline-flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-bold ring-1 ring-inset ${style.badge}">
+                            <i class="fas ${style.icon} text-[9px]"></i>
+                            ${escapeHtml(kode || '-')}
+                        </span>
+                        <span class="min-w-0 whitespace-normal break-words text-xs leading-5 text-slate-500">
+                            ${escapeHtml(nama)}
+                        </span>
+                    </div>
+                `;
+            }
+
+            function renderKondisi(kondisi) {
+                if (!kondisi || kondisi.length === 0) {
+                    return '<span class="text-xs text-slate-400">-</span>';
+                }
+
+                const chips = kondisi.map(function(item) {
+                    const style = kondisiStyle[item.kondisi] || {
+                        badge: 'bg-slate-100 text-slate-600',
+                        icon: 'fa-solid fa-circle'
+                    };
+
+                    const jumlah = Number(item.jumlah || 0);
+
+                    if (jumlah <= 0) return '';
+
+                    return `
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${style.badge}">
+                            <i class="${style.icon} text-[9px]"></i>
+                            ${escapeHtml(item.kondisi)} ${jumlah}
+                        </span>
+                    `;
+                }).join('');
+
+                return chips || '<span class="text-xs text-slate-400">-</span>';
+            }
+
+            // ==========================================
+            // LOAD DATA
+            // ==========================================
+
             loadData();
 
             $('#search').on('input', function() {
@@ -223,552 +363,606 @@
                     loadData(1);
                 }, 400);
             });
-        });
 
-        function loadData(currentPage = 1) {
-            page = currentPage;
+            $('#filterJenis').on('change', function() {
+                loadData(1);
+            });
 
-            if (requestInventaris) {
-                requestInventaris.abort();
-            }
+            $('#btnReset').on('click', function() {
+                $('#search').val('');
+                $('#filterJenis').val('');
 
-            $('#emptyState').addClass('hidden');
-            $('#tableContainer').removeClass('hidden');
+                loadData(1);
+            });
 
-            $('#tableData').html(`
-                <tr>
-                    <td colspan="5" class="py-10 text-center text-slate-500">
-                        <i class="fa-solid fa-spinner fa-spin mr-2"></i>
-                        Memuat data...
-                    </td>
-                </tr>
-            `);
+            $(document).on('click', '#pagination button[data-page], #paginationMobile button[data-page]', function() {
+                loadData(Number($(this).data('page')));
+            });
 
-            $('#mobileContainer').html(`
-                <div class="rounded-2xl border border-slate-200 bg-white p-10 text-center">
-                    <i class="fa-solid fa-spinner fa-spin text-2xl text-primary"></i>
-                    <p class="mt-3 text-sm text-slate-500">Memuat data...</p>
-                </div>
-            `);
+            $(document).on('click', '[data-reload]', function() {
+                loadData(page);
+            });
 
-            requestInventaris = $.ajax({
-                url: inventarisDataUrl,
-                method: 'GET',
-                data: {
-                    page: page,
-                    search: $('#search').val()
-                },
+            function loadData(currentPage = 1) {
+                page = currentPage;
 
-                success: function(res) {
-                    if (res.total === 0 && !$('#search').val().trim()) {
-                        $('#tableContainer').addClass('hidden');
-                        $('#emptyState').removeClass('hidden');
-                        return;
-                    }
+                if (requestInventaris) {
+                    requestInventaris.abort();
+                }
 
-                    $('#emptyState').addClass('hidden');
-                    $('#tableContainer').removeClass('hidden');
+                const adaFilter = Boolean($('#search').val().trim() || $('#filterJenis').val());
 
-                    let desktopHtml = '';
-                    let mobileHtml = '';
+                $('#emptyState').addClass('hidden');
+                $('#panelData').removeClass('hidden');
 
-                    if (!res.data || res.data.length === 0) {
-                        desktopHtml = `
-                            <tr>
-                                <td colspan="5" class="px-6 py-16 text-center">
-                                    <i class="fa-solid fa-magnifying-glass text-3xl text-slate-300"></i>
-                                    <h3 class="mt-4 font-semibold text-slate-700">
-                                        Data tidak ditemukan
-                                    </h3>
-                                    <p class="mt-2 text-sm text-slate-500">
-                                        Coba gunakan kata kunci lain.
-                                    </p>
-                                </td>
-                            </tr>
-                        `;
+                $('#tableData').html(`
+                    <tr>
+                        <td colspan="6" class="px-6 py-16 text-center text-sm text-slate-400">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                            Memuat data inventaris...
+                        </td>
+                    </tr>
+                `);
 
-                        mobileHtml = `
-                            <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center">
-                                <i class="fa-solid fa-magnifying-glass text-3xl text-slate-300"></i>
-                                <h3 class="mt-4 font-semibold text-slate-700">
-                                    Data tidak ditemukan
-                                </h3>
-                                <p class="mt-2 text-sm text-slate-500">
-                                    Coba gunakan kata kunci lain.
-                                </p>
-                            </div>
-                        `;
-                    } else {
-                        $.each(res.data, function(i, item) {
-                            const nama = escapeHtml(item.nama);
-                            const kode = escapeHtml(item.kode_inventaris);
-                            const jenis = renderJenis(item.jenis);
-                            const harga = formatRupiah(item.harga);
-                            const tanggal = escapeHtml(formatTanggal(item.tanggal_perolehan));
-                            const gambar = escapeHtml(fotoUrl(item.foto));
-                            const id = Number(item.id);
+                $('#mobileContainer').html(`
+                    <div class="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+                        <i class="fas fa-spinner fa-spin text-2xl text-primary"></i>
+                        <p class="mt-3 text-sm text-slate-500">Memuat data...</p>
+                    </div>
+                `);
 
-                            // Desktop
-                            desktopHtml += `
-                                <tr class="border-t transition hover:bg-slate-50">
-                                    <td class="px-4 py-3 md:px-6">
-                                        <img src="${gambar}"
-                                            alt="${nama}"
-                                            onerror="this.onerror=null;this.src=${JSON.stringify(noImageUrl)}"
-                                            class="h-12 w-12 rounded-xl border border-slate-200 object-cover md:h-14 md:w-14">
-                                    </td>
+                $('#pagination, #paginationMobile').empty();
 
-                                    <td class="whitespace-nowrap px-4 py-3 font-semibold text-slate-700 md:px-6">
-                                        ${kode}
-                                    </td>
+                requestInventaris = $.ajax({
+                    url: inventarisDataUrl,
+                    method: 'GET',
+                    data: {
+                        page: page,
+                        search: $('#search').val(),
+                        jenis: $('#filterJenis').val()
+                    },
 
-                                    <td class="px-4 py-3 md:px-6">
-                                        <div class="min-w-0 max-w-[360px]">
-                                            <p class="break-words font-semibold leading-5 text-slate-800">
-                                                ${nama}
-                                            </p>
-                                            ${jenis}
-                                        </div>
-                                    </td>
+                    success: function(res) {
+                        renderStats(res.stats);
 
-                                    <td class="px-4 py-3 md:px-6">
-                                        <div class="flex min-w-[150px] flex-col gap-1">
-                                            <span class="whitespace-nowrap font-semibold text-slate-800">
-                                                Rp ${harga}
-                                            </span>
-                                            <span class="whitespace-nowrap text-xs text-slate-500">
-                                                <i class="fa-regular fa-calendar mr-1.5"></i>${tanggal}
-                                            </span>
-                                        </div>
-                                    </td>
+                        if (res.total === 0 && !adaFilter) {
+                            $('#panelData').addClass('hidden');
+                            $('#emptyState').removeClass('hidden');
+                            return;
+                        }
 
-                                    <td class="px-4 py-3 md:px-6">
-                                        <div class="flex justify-center gap-2">
-                                            <button type="button"
-                                                onclick="editInventaris(${id})"
-                                                title="Edit"
-                                                class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100">
-                                                <i class="fa-solid fa-pen"></i>
-                                            </button>
+                        $('#emptyState').addClass('hidden');
+                        $('#panelData').removeClass('hidden');
 
-                                            <button type="button"
-                                                onclick="hapusInventaris(${id})"
-                                                title="Hapus"
-                                                class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
+                        let desktopHtml = '';
+                        let mobileHtml = '';
+
+                        if (!res.data || res.data.length === 0) {
+                            desktopHtml = `
+                                <tr>
+                                    <td colspan="6" class="px-6 py-16 text-center">
+                                        <div class="flex flex-col items-center">
+                                            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                                                <i class="fas fa-magnifying-glass text-2xl"></i>
+                                            </div>
+                                            <p class="mt-4 font-semibold text-slate-700">Data tidak ditemukan</p>
+                                            <p class="mt-1 text-sm text-slate-400">Coba gunakan kata kunci atau filter lainnya.</p>
                                         </div>
                                     </td>
                                 </tr>
                             `;
 
-                            // Mobile
-                            mobileHtml += `
-                                <div class="w-full min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                                    <div class="flex items-start gap-3">
-                                        <img src="${gambar}"
-                                            alt="${nama}"
-                                            onerror="this.onerror=null;this.src=${JSON.stringify(noImageUrl)}"
-                                            class="h-20 w-20 shrink-0 rounded-xl border border-slate-200 object-cover">
-
-                                        <div class="min-w-0 flex-1">
-                                            <h3 class="break-words font-semibold text-slate-800">
-                                                ${nama}
-                                            </h3>
-
-                                            <p class="mt-1 break-all text-xs font-medium text-slate-500">
-                                                ${kode}
-                                            </p>
-
-                                            <div class="mt-2">
-                                                ${jenis}
-                                            </div>
-
-                                            <p class="mt-2 font-bold text-primary">
-                                                Rp ${harga}
-                                            </p>
-
-                                            <p class="mt-2 text-xs text-slate-500">
-                                                <i class="fa-regular fa-calendar mr-1"></i>
-                                                ${tanggal}
-                                            </p>
-                                        </div>
+                            mobileHtml = `
+                                <div class="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+                                    <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                                        <i class="fas fa-magnifying-glass text-2xl"></i>
                                     </div>
-
-                                    <div class="mt-4 flex justify-end gap-2 border-t border-slate-100 pt-3">
-                                        <button type="button"
-                                            onclick="editInventaris(${id})"
-                                            class="flex h-9 items-center gap-2 rounded-lg bg-blue-50 px-3 text-sm text-blue-600 hover:bg-blue-100">
-                                            <i class="fa-solid fa-pen"></i>
-                                            Edit
-                                        </button>
-
-                                        <button type="button"
-                                            onclick="hapusInventaris(${id})"
-                                            class="flex h-9 items-center gap-2 rounded-lg bg-red-50 px-3 text-sm text-red-600 hover:bg-red-100">
-                                            <i class="fa-solid fa-trash"></i>
-                                            Hapus
-                                        </button>
-                                    </div>
+                                    <p class="mt-4 font-semibold text-slate-700">Data tidak ditemukan</p>
+                                    <p class="mt-1 text-sm text-slate-400">Coba gunakan kata kunci atau filter lainnya.</p>
                                 </div>
                             `;
-                        });
-                    }
+                        } else {
+                            $.each(res.data, function(i, item) {
+                                const nama = escapeHtml(item.nama);
+                                const kode = escapeHtml(item.kode_inventaris);
+                                const jenis = renderJenis(item.jenis);
+                                const kondisi = renderKondisi(item.kondisi);
+                                const harga = formatRupiah(item.harga);
+                                const tanggal = escapeHtml(formatTanggal(item.tanggal_perolehan));
+                                const gambar = escapeHtml(fotoUrl(item.foto));
+                                const id = Number(item.id);
 
-                    $('#tableData').html(desktopHtml);
-                    $('#mobileContainer').html(mobileHtml);
+                                // Desktop
+                                desktopHtml += `
+                                    <tr class="group transition duration-150 hover:bg-primary/[0.035]">
+                                        <td class="px-5 py-4">
+                                            <img src="${gambar}"
+                                                alt="${nama}"
+                                                onerror="this.onerror=null;this.src='${noImageUrl}'"
+                                                class="h-12 w-12 rounded-xl border border-slate-200 object-cover transition group-hover:scale-105">
+                                        </td>
 
-                    renderPagination(res);
-                },
+                                        <td class="whitespace-nowrap px-5 py-4">
+                                            <span class="inline-flex items-center rounded-lg bg-primary/5 px-3 py-1.5 text-xs font-bold tracking-wide text-primary">
+                                                ${kode}
+                                            </span>
+                                        </td>
 
-                error: function(xhr, status) {
-                    if (status === 'abort') return;
+                                        <td class="px-5 py-4">
+                                            <div class="min-w-0 max-w-[320px]">
+                                                <p class="break-words font-semibold leading-5 text-slate-800">
+                                                    ${nama}
+                                                </p>
+                                                ${jenis}
+                                            </div>
+                                        </td>
 
-                    $('#tableData').html(`
-                        <tr>
-                            <td colspan="5" class="px-6 py-10 text-center text-red-500">
-                                Gagal memuat data inventaris.
-                                <button type="button" onclick="loadData(page)"
-                                    class="ml-2 font-semibold underline">
+                                        <td class="px-5 py-4">
+                                            <div class="flex max-w-[220px] flex-wrap gap-1.5">
+                                                ${kondisi}
+                                            </div>
+                                        </td>
+
+                                        <td class="whitespace-nowrap px-5 py-4">
+                                            <div class="flex flex-col gap-1">
+                                                <span class="font-semibold text-slate-800">
+                                                    Rp ${harga}
+                                                </span>
+                                                <span class="flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <i class="fa-regular fa-calendar text-[10px]"></i>
+                                                    ${tanggal}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <td class="px-5 py-4">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <button type="button"
+                                                    data-id="${id}"
+                                                    title="Edit Inventaris"
+                                                    class="btnEdit flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600 transition hover:border-amber-200 hover:bg-amber-500 hover:text-white">
+                                                    <i class="fas fa-pen text-xs"></i>
+                                                </button>
+
+                                                <button type="button"
+                                                    data-id="${id}"
+                                                    title="Hapus Inventaris"
+                                                    class="btnHapus flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white">
+                                                    <i class="fas fa-trash text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+
+                                // Mobile
+                                mobileHtml += `
+                                    <div class="w-full min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                                        <div class="flex items-start gap-3">
+                                            <img src="${gambar}"
+                                                alt="${nama}"
+                                                onerror="this.onerror=null;this.src='${noImageUrl}'"
+                                                class="h-20 w-20 shrink-0 rounded-xl border border-slate-200 object-cover">
+
+                                            <div class="min-w-0 flex-1">
+                                                <h3 class="break-words font-semibold leading-5 text-slate-800">
+                                                    ${nama}
+                                                </h3>
+
+                                                <span class="mt-1.5 inline-flex items-center rounded-lg bg-primary/5 px-2.5 py-1 text-[11px] font-bold tracking-wide text-primary">
+                                                    ${kode}
+                                                </span>
+
+                                                <div class="mt-2">
+                                                    ${jenis}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mt-3 flex flex-wrap gap-1.5">
+                                            ${kondisi}
+                                        </div>
+
+                                        <div class="mt-3 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
+                                            <div>
+                                                <p class="text-sm font-bold text-primary">
+                                                    Rp ${harga}
+                                                </p>
+                                                <p class="mt-0.5 flex items-center gap-1.5 text-xs text-slate-500">
+                                                    <i class="fa-regular fa-calendar text-[10px]"></i>
+                                                    ${tanggal}
+                                                </p>
+                                            </div>
+
+                                            <div class="flex items-center gap-2">
+                                                <button type="button"
+                                                    data-id="${id}"
+                                                    title="Edit Inventaris"
+                                                    class="btnEdit flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600 transition hover:border-amber-200 hover:bg-amber-500 hover:text-white">
+                                                    <i class="fas fa-pen text-xs"></i>
+                                                </button>
+
+                                                <button type="button"
+                                                    data-id="${id}"
+                                                    title="Hapus Inventaris"
+                                                    class="btnHapus flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white">
+                                                    <i class="fas fa-trash text-xs"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                        }
+
+                        $('#tableData').html(desktopHtml);
+                        $('#mobileContainer').html(mobileHtml);
+
+                        renderPagination(res);
+                    },
+
+                    error: function(xhr, status) {
+                        if (status === 'abort') return;
+
+                        $('#tableData').html(`
+                            <tr>
+                                <td colspan="6" class="px-6 py-14 text-center">
+                                    <div class="flex flex-col items-center">
+                                        <i class="fas fa-exclamation-circle text-3xl text-red-400"></i>
+                                        <p class="mt-3 font-semibold text-slate-700">Gagal memuat data inventaris.</p>
+                                        <button type="button" data-reload
+                                            class="mt-3 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                                            Coba lagi
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `);
+
+                        $('#mobileContainer').html(`
+                            <div class="rounded-2xl border border-red-100 bg-white p-8 text-center shadow-sm">
+                                <i class="fas fa-exclamation-circle text-3xl text-red-400"></i>
+                                <p class="mt-3 font-semibold text-slate-700">Gagal memuat data.</p>
+                                <button type="button" data-reload
+                                    class="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                                     Coba lagi
                                 </button>
-                            </td>
-                        </tr>
-                    `);
+                            </div>
+                        `);
+                    },
 
-                    $('#mobileContainer').html(`
-                        <div class="rounded-xl border border-red-200 bg-white p-6 text-center text-sm text-red-500">
-                            Gagal memuat data.
-                            <button type="button" onclick="loadData(page)"
-                                class="mt-2 block w-full font-semibold underline">
-                                Coba lagi
-                            </button>
+                    complete: function(xhr, status) {
+                        if (requestInventaris && status !== 'abort') {
+                            requestInventaris = null;
+                        }
+                    }
+                });
+            }
+
+            // ==========================================
+            // STATISTIK
+            // ==========================================
+
+            function renderStats(stats) {
+                if (!stats) return;
+
+                $('#totalInventaris').text(formatRupiah(stats.total_inventaris));
+                $('#totalNilai').text('Rp ' + formatRupiah(stats.total_nilai));
+                $('#totalBaik').text(formatRupiah(stats.kondisi?.Baik || 0));
+                $('#totalRusak').text(
+                    formatRupiah((stats.kondisi?.Rusak || 0) + (stats.kondisi?.Hilang || 0))
+                );
+            }
+
+            // ==========================================
+            // PAGINATION
+            // ==========================================
+
+            function renderPagination(res) {
+                const totalData = Number(res.total || 0);
+                const dari = totalData > 0 ? Number(res.from || 0) : 0;
+                const sampai = totalData > 0 ? Number(res.to || 0) : 0;
+
+                const infoHtml = `
+                    <p class="text-sm text-slate-500">
+                        Menampilkan
+                        <span class="font-semibold text-slate-700">${dari}-${sampai}</span>
+                        dari
+                        <span class="font-semibold text-slate-700">${formatRupiah(totalData)}</span>
+                        data
+                    </p>
+                `;
+
+                if (!res.last_page || res.last_page <= 1) {
+                    $('#pagination').html(`
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            ${infoHtml}
                         </div>
                     `);
-                },
-
-                complete: function(xhr, status) {
-                    if (requestInventaris && requestInventaris.statusText !== 'abort') {
-                        requestInventaris = null;
-                    }
-                }
-            });
-        }
-
-        // ==========================================
-        // PAGINATION
-        // ==========================================
-
-        function renderPagination(res) {
-            const totalData = Number(res.total || 0);
-            const dari = totalData > 0 ? Number(res.from || ((res.current_page - 1) * (res.per_page || res.data.length) +
-                1)) : 0;
-            const sampai = totalData > 0 ? Number(res.to || Math.min(dari + (res.data?.length || 0) - 1, totalData)) : 0;
-
-            const infoHtml = `
-                <p class="text-xs text-slate-500 sm:text-sm">
-                    Menampilkan
-                    <span class="font-semibold text-slate-700">${dari}–${sampai}</span>
-                    dari
-                    <span class="font-semibold text-slate-700">${totalData}</span>
-                    data
-                </p>
-            `;
-
-            if (!res.last_page || res.last_page <= 1) {
-                $('#pagination').html(`
-                    <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-                        ${infoHtml}
-                    </div>
-                `);
-                $('#paginationMobile').html(`
-                    <div class="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-                        ${infoHtml}
-                    </div>
-                `);
-                return;
-            }
-
-            let html =
-                '<div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">';
-            html += infoHtml;
-            html += '<div class="flex flex-wrap items-center justify-end gap-1.5">';
-
-            html += `
-                <button type="button"
-                    ${res.current_page <= 1 ? 'disabled' : `onclick="loadData(${res.current_page - 1})"`}
-                    aria-label="Halaman sebelumnya"
-                    class="flex h-9 w-9 items-center justify-center rounded-lg border text-sm transition
-                    ${res.current_page <= 1
-                        ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
-                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'}">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
-            `;
-
-            const total = Number(res.last_page);
-            const current = Number(res.current_page);
-            let pages = [];
-
-            if (total <= 7) {
-                for (let i = 1; i <= total; i++) {
-                    pages.push(i);
-                }
-            } else {
-                pages.push(1);
-                if (current > 3) pages.push('...');
-
-                for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
-                    pages.push(i);
-                }
-
-                if (current < total - 2) pages.push('...');
-                pages.push(total);
-            }
-
-            pages.forEach(function(item) {
-                if (item === '...') {
-                    html += '<span class="px-1 text-xs text-slate-400">...</span>';
+                    $('#paginationMobile').html(`
+                        <div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                            ${infoHtml}
+                        </div>
+                    `);
                     return;
                 }
 
+                const total = Number(res.last_page);
+                const current = Number(res.current_page);
+                let pages = [];
+
+                if (total <= 7) {
+                    for (let i = 1; i <= total; i++) {
+                        pages.push(i);
+                    }
+                } else {
+                    pages.push(1);
+                    if (current > 3) pages.push('...');
+
+                    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+                        pages.push(i);
+                    }
+
+                    if (current < total - 2) pages.push('...');
+                    pages.push(total);
+                }
+
+                let html = '<div class="flex flex-wrap items-center justify-between gap-3">';
+                html += infoHtml;
+                html += '<div class="flex flex-wrap items-center justify-end gap-1.5">';
+
                 html += `
                     <button type="button"
-                        ${item === current ? 'aria-current="page"' : ''}
-                        onclick="loadData(${item})"
-                        class="h-9 min-w-9 rounded-lg border px-3 text-sm transition
-                        ${item === current
-                            ? 'border-primary bg-primary font-semibold text-white'
-                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'}">
-                        ${item}
+                        data-page="${current - 1}" ${current <= 1 ? 'disabled' : ''}
+                        aria-label="Halaman sebelumnya"
+                        class="flex h-9 w-9 items-center justify-center rounded-xl border text-sm transition
+                        ${current <= 1
+                            ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
+                            : 'border-slate-200 bg-white text-slate-500 hover:border-primary hover:text-primary'}">
+                        <i class="fas fa-chevron-left text-xs"></i>
                     </button>
                 `;
-            });
 
-            html += `
-                <button type="button"
-                    ${current >= total ? 'disabled' : `onclick="loadData(${current + 1})"`}
-                    aria-label="Halaman berikutnya"
-                    class="flex h-9 w-9 items-center justify-center rounded-lg border text-sm transition
-                    ${current >= total
-                        ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
-                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-100'}">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
-            `;
+                pages.forEach(function(item) {
+                    if (item === '...') {
+                        html += '<span class="px-1 text-xs text-slate-400">...</span>';
+                        return;
+                    }
 
-            html += '</div></div>';
+                    html += `
+                        <button type="button"
+                            ${item === current ? 'aria-current="page"' : ''}
+                            data-page="${item}"
+                            class="flex h-9 min-w-9 items-center justify-center rounded-xl px-3 text-sm font-semibold transition
+                            ${item === current
+                                ? 'bg-primary text-white shadow-sm shadow-primary/20'
+                                : 'border border-slate-200 bg-white text-slate-600 hover:border-primary hover:text-primary'}">
+                            ${item}
+                        </button>
+                    `;
+                });
 
-            $('#pagination').html(html);
-            $('#paginationMobile').html(html);
-        }
+                html += `
+                    <button type="button"
+                        data-page="${current + 1}" ${current >= total ? 'disabled' : ''}
+                        aria-label="Halaman berikutnya"
+                        class="flex h-9 w-9 items-center justify-center rounded-xl border text-sm transition
+                        ${current >= total
+                            ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
+                            : 'border-slate-200 bg-white text-slate-500 hover:border-primary hover:text-primary'}">
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </button>
+                `;
 
-        // ==========================================
-        // TAMBAH INVENTARIS
-        // ==========================================
+                html += '</div></div>';
 
-        function tambahInventaris() {
-            const form = $('#formInventaris')[0];
-
-            form.reset();
-
-            $('#inventaris_id').val('');
-            $('#formMethod').val('POST');
-            $('#jenis').val('');
-            $('#modalTitle').text('Tambah Inventaris');
-
-            $('#foto').prop('required', true).val('');
-
-            $('#previewFoto')
-                .attr('src', noImageUrl)
-                .addClass('hidden');
-
-            $('#placeholderFoto').removeClass('hidden');
-            $('#formInventaris [name^="kondisi"]').val(0);
-
-            $('#formInventaris button[type="submit"]')
-                .prop('disabled', false)
-                .html('<i class="fa-solid fa-floppy-disk mr-2"></i> Simpan');
-
-            showModal('modalInventaris');
-        }
-
-        // ==========================================
-        // EDIT INVENTARIS
-        // ==========================================
-
-        function editInventaris(id) {
-            $.ajax({
-                url: inventarisUrl + '/' + id,
-                method: 'GET',
-
-                success: function(res) {
-                    $('#formInventaris')[0].reset();
-
-                    $('#modalTitle').text('Edit Inventaris');
-                    $('#inventaris_id').val(res.id);
-                    $('#formMethod').val('PUT');
-
-                    $('#jenis').val(res.jenis);
-                    $('[name="nama"]').val(res.nama);
-                    $('#harga').val(formatRupiah(res.harga));
-
-                    $('[name="tanggal_perolehan"]').val(
-                        String(res.tanggal_perolehan || '').substring(0, 10)
-                    );
-
-                    $('#foto').val('').prop('required', false);
-
-                    $('#previewFoto')
-                        .attr('src', fotoUrl(res.foto))
-                        .removeClass('hidden');
-
-                    $('#placeholderFoto').addClass('hidden');
-                    $('#formInventaris [name^="kondisi"]').val(0);
-
-                    (res.kondisi || []).forEach(function(item) {
-                        $(`#formInventaris [name="kondisi[${item.kondisi}]"]`)
-                            .val(item.jumlah);
-                    });
-
-                    showModal('modalInventaris');
-                },
-
-                error: function() {
-                    swalError('Data inventaris gagal dimuat.');
-                }
-            });
-        }
-
-        // ==========================================
-        // SIMPAN / UPDATE
-        // ==========================================
-
-        $('#formInventaris').on('submit', function(e) {
-            e.preventDefault();
-
-            const form = this;
-            const id = $('#inventaris_id').val();
-            const method = $('#formMethod').val();
-
-            const url = method === 'POST' ?
-                inventarisStoreUrl :
-                inventarisUrl + '/' + id;
-
-            const formData = new FormData(form);
-
-            formData.set('harga', $('#harga').val().replace(/\D/g, ''));
-
-            if (method === 'PUT') {
-                formData.set('_method', 'PUT');
+                $('#pagination').html(html);
+                $('#paginationMobile').html(
+                    `<div class="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">${html}</div>`
+                );
             }
 
-            $.ajax({
-                url: url,
-                method: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
+            // ==========================================
+            // FORM INVENTARIS
+            // ==========================================
 
-                beforeSend: function() {
-                    $('#formInventaris button[type="submit"]')
-                        .prop('disabled', true)
-                        .html('<i class="fa-solid fa-spinner fa-spin mr-2"></i> Menyimpan...');
-                },
+            function resetFormInventaris() {
+                const form = $('#formInventaris');
 
-                success: function(res) {
-                    if (!res.status) {
-                        swalError(res.message || 'Inventaris gagal disimpan.');
-                        return;
+                form[0].reset();
+                form.removeData('id');
+
+                $('#methodInventaris').val('POST');
+                $('#modalTitle').text('Tambah Inventaris');
+                $('#btnSimpanInventaris').html('<i class="fas fa-floppy-disk mr-2"></i> Simpan');
+
+                $('#previewFoto').attr('src', noImageUrl).addClass('hidden');
+                $('#placeholderFoto').removeClass('hidden');
+            }
+
+            $('#btnTambahInventaris, #btnTambahInventarisKosong').on('click', function() {
+                resetFormInventaris();
+                showModal('modalInventaris');
+            });
+
+            // Ambil data inventaris dan tampilkan pada modal yang sama untuk proses edit.
+            $(document).on('click', '.btnEdit', function() {
+                const button = $(this);
+                const id = button.data('id');
+
+                button.prop('disabled', true);
+
+                $.ajax({
+                    url: inventarisUrl + '/' + encodeURIComponent(id),
+                    type: 'GET',
+                    dataType: 'json',
+
+                    success: function(res) {
+                        resetFormInventaris();
+
+                        $('#formInventaris').data('id', id);
+                        $('#methodInventaris').val('PUT');
+                        $('#modalTitle').text('Edit Inventaris');
+                        $('#btnSimpanInventaris').html('<i class="fas fa-floppy-disk mr-2"></i> Simpan Perubahan');
+
+                        $('#jenis').val(res.jenis);
+                        $('#nama').val(res.nama);
+                        $('#harga').val(formatRupiah(res.harga));
+                        $('#tanggal_perolehan').val(
+                            String(res.tanggal_perolehan || '').substring(0, 10)
+                        );
+
+                        if (res.foto) {
+                            $('#previewFoto').attr('src', fotoUrl(res.foto)).removeClass('hidden');
+                            $('#placeholderFoto').addClass('hidden');
+                        }
+
+                        (res.kondisi || []).forEach(function(item) {
+                            $(`#formInventaris [name="kondisi[${item.kondisi}]"]`).val(item.jumlah);
+                        });
+
+                        showModal('modalInventaris');
+                    },
+
+                    error: function(xhr) {
+                        swalError(xhr.responseJSON?.message || 'Data inventaris gagal dimuat.');
+                    },
+
+                    complete: function() {
+                        button.prop('disabled', false);
                     }
+                });
+            });
 
-                    closeModal('modalInventaris');
+            // Foto bersifat opsional, file hanya diperiksa jika dipilih.
+            $('#foto').on('change', function() {
+                const file = this.files[0];
 
-                    form.reset();
+                if (!file) return;
 
-                    $('#inventaris_id').val('');
-                    $('#formMethod').val('POST');
-                    $('#foto').prop('required', true);
-
-                    $('#previewFoto')
-                        .attr('src', noImageUrl)
-                        .addClass('hidden');
-
-                    $('#placeholderFoto').removeClass('hidden');
-
-                    loadData(1);
-
-                    swalSuccess(
-                        res.message ||
-                        (method === 'POST' ?
-                            'Inventaris berhasil ditambahkan.' :
-                            'Inventaris berhasil diperbarui.')
-                    );
-                },
-
-                error: function(xhr) {
-                    if (xhr.status === 422 && xhr.responseJSON?.errors) {
-                        const message = Object.values(xhr.responseJSON.errors)
-                            .flat()
-                            .map(escapeHtml)
-                            .join('<br>');
-
-                        swalError(message);
-                        return;
-                    }
-
-                    swalError(
-                        xhr.responseJSON?.message ||
-                        'Inventaris gagal disimpan.'
-                    );
-                },
-
-                complete: function() {
-                    $('#formInventaris button[type="submit"]')
-                        .prop('disabled', false)
-                        .html('<i class="fa-solid fa-floppy-disk mr-2"></i> Simpan');
+                if (!['image/jpeg', 'image/png', 'image/jpg', 'image/gif'].includes(file.type)) {
+                    $(this).val('');
+                    swalError('Format foto tidak didukung.');
+                    return;
                 }
+
+                if (file.size > 2 * 1024 * 1024) {
+                    $(this).val('');
+                    swalError('Ukuran foto maksimal 2 MB.');
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $('#previewFoto').attr('src', e.target.result).removeClass('hidden');
+                    $('#placeholderFoto').addClass('hidden');
+                };
+
+                reader.readAsDataURL(file);
+            });
+
+            $('#harga').on('input', function() {
+                const value = $(this).val().replace(/\D/g, '');
+
+                $(this).val(value ? formatRupiah(value) : '');
+            });
+
+            $('#formInventaris').on('submit', function(e) {
+                e.preventDefault();
+
+                const form = $(this);
+                const button = $('#btnSimpanInventaris');
+                const originalButton = button.html();
+                const id = form.data('id');
+                const isEdit = Boolean(id);
+
+                // Laravel menerima PUT melalui method spoofing.
+                $('#methodInventaris').val(isEdit ? 'PUT' : 'POST');
+
+                const formData = new FormData(this);
+
+                formData.set('harga', $('#harga').val().replace(/\D/g, ''));
+
+                button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...');
+
+                $.ajax({
+                    url: isEdit ? inventarisUrl + '/' + encodeURIComponent(id) : inventarisStoreUrl,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+
+                    success: function(res) {
+                        if (!res.status) {
+                            swalError(res.message || 'Inventaris gagal disimpan.');
+                            return;
+                        }
+
+                        closeModal('modalInventaris');
+                        loadData(1);
+                        swalSuccess(res.message);
+                    },
+
+                    error: function(xhr) {
+                        // swalError menampilkan teks biasa, jadi pesan tidak perlu di-escape.
+                        const errors = xhr.responseJSON?.errors;
+
+                        swalError(
+                            errors ?
+                            Object.values(errors).flat().join(' ') :
+                            xhr.responseJSON?.message || 'Inventaris gagal disimpan.'
+                        );
+                    },
+
+                    complete: function() {
+                        button.prop('disabled', false).html(originalButton);
+                    }
+                });
+            });
+
+            // ==========================================
+            // HAPUS INVENTARIS
+            // ==========================================
+
+            $(document).on('click', '.btnHapus', function() {
+                const id = $(this).data('id');
+
+                swalConfirm(
+                    'Hapus Inventaris?',
+                    'Data yang dihapus tidak dapat dikembalikan.',
+                    function() {
+                        $.ajax({
+                            url: inventarisUrl + '/' + id,
+                            method: 'POST',
+                            data: {
+                                _method: 'DELETE',
+                                _token: csrfToken
+                            },
+
+                            beforeSend: function() {
+                                Swal.showLoading();
+                            },
+
+                            success: function(res) {
+                                loadData(1);
+
+                                swalSuccess(
+                                    res.message || 'Inventaris berhasil dihapus.'
+                                );
+                            },
+
+                            error: function(xhr) {
+                                swalError(
+                                    xhr.responseJSON?.message ||
+                                    'Inventaris gagal dihapus.'
+                                );
+                            }
+                        });
+                    }
+                );
             });
         });
-
-        // ==========================================
-        // HAPUS INVENTARIS
-        // ==========================================
-
-        function hapusInventaris(id) {
-            swalConfirm(
-                'Hapus Inventaris?',
-                'Data yang dihapus tidak dapat dikembalikan.',
-                function() {
-                    $.ajax({
-                        url: inventarisUrl + '/' + id,
-                        method: 'POST',
-                        data: {
-                            _method: 'DELETE',
-                            _token: csrfToken
-                        },
-
-                        beforeSend: function() {
-                            Swal.showLoading();
-                        },
-
-                        success: function(res) {
-                            swalSuccess(
-                                res.message || 'Inventaris berhasil dihapus.'
-                            );
-
-                            loadData(1);
-                        },
-
-                        error: function(xhr) {
-                            swalError(
-                                xhr.responseJSON?.message ||
-                                'Inventaris gagal dihapus.'
-                            );
-                        }
-                    });
-                }
-            );
-        }
     </script>
 @endpush

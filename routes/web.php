@@ -45,7 +45,7 @@ Route::middleware(['auth'])->group(
             Route::delete('/{id}', [AnggotaController::class, 'destroy'])->name('destroy');
         });
 
-        Route::prefix('peminjaman')->group(
+        Route::prefix('data-peminjaman')->group(
             function () {
                 Route::get('/', [AdminPeminjamanController::class, 'index'])->name('peminjaman-admin');
                 Route::get('/data', [AdminPeminjamanController::class, 'getData'])->name('peminjaman-admin.getData');
