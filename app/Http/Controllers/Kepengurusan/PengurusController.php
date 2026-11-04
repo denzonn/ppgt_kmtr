@@ -69,20 +69,30 @@ class PengurusController extends Controller
 
     private function validated(Request $request, Periode $periode, ?int $ignoreId = null): array
     {
-        $jabatan = $periode->jabatans()->find($request->input('jabatan_id'));
+        $jid = $request->input('jabatan_id');
+        $jabatan = is_scalar($jid) ? $periode->jabatans()->find($jid) : null;
 
         return $request->validate([
-            'jabatan_id' => ['required', Rule::exists('jabatans', 'id')->where('periode_id', $periode->id)],
-            'data_anggota_id' => ['required', 'exists:data_anggota,id',
+            'jabatan_id' => ['required', 'integer', Rule::exists('jabatans', 'id')->where('periode_id', $periode->id)],
+            'data_anggota_id' => ['required', 'integer', 'exists:data_anggota,id',
                 Rule::unique('pengurus', 'data_anggota_id')->where('periode_id', $periode->id)->ignore($ignoreId)],
             'bidang_id' => [
                 $jabatan?->terkait_bidang ? 'required' : 'prohibited',
                 'nullable',
+                'integer',
                 Rule::exists('bidangs', 'id')->where('periode_id', $periode->id),
             ],
         ], [
             'bidang_id.required' => 'Bidang wajib diisi untuk jabatan ini.',
             'bidang_id.prohibited' => 'Jabatan ini tidak terkait bidang.',
+            'data_anggota_id.required' => 'Anggota wajib dipilih.',
+            'data_anggota_id.integer' => 'Anggota tidak valid.',
+            'data_anggota_id.exists' => 'Anggota tidak ditemukan.',
+            'jabatan_id.required' => 'Jabatan wajib dipilih.',
+            'jabatan_id.integer' => 'Jabatan tidak valid.',
+            'jabatan_id.exists' => 'Jabatan tidak ditemukan pada periode ini.',
+            'bidang_id.integer' => 'Bidang tidak valid.',
+            'bidang_id.exists' => 'Bidang tidak ditemukan pada periode ini.',
             'data_anggota_id.unique' => 'Anggota ini sudah menjadi pengurus di periode ini.',
         ]);
     }

@@ -161,3 +161,21 @@ test('bidang dan jabatan yang punya pengurus tidak bisa dihapus', function () {
     $this->actingAs($admin)->deleteJson("/kepengurusan/{$p->id}/bidang/{$bidang->id}")->assertUnprocessable();
     $this->actingAs($admin)->deleteJson("/kepengurusan/{$p->id}/jabatan/{$ketuaBidang->id}")->assertUnprocessable();
 });
+
+test('data_anggota_id kosong memberi pesan Indonesian', function () {
+    [$p, $ketua] = periodeLengkap();
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson("/kepengurusan/{$p->id}/pengurus", ['jabatan_id' => $ketua->id])
+        ->assertUnprocessable()
+        ->assertJsonPath('errors.data_anggota_id.0', 'Anggota wajib dipilih.');
+});
+
+test('id body non-integer memberi 422, bukan 500', function () {
+    [$p] = periodeLengkap();
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson("/kepengurusan/{$p->id}/pengurus", ['jabatan_id' => [''], 'data_anggota_id' => 'x'])
+        ->assertUnprocessable()->assertJsonValidationErrors(['jabatan_id', 'data_anggota_id']);
+    $this->actingAs(User::factory()->admin()->create())
+        ->postJson("/kepengurusan/{$p->id}/program-kerja", ['tahun' => 2020, 'bidang_id' => [''], 'nama' => 'X'])
+        ->assertUnprocessable()->assertJsonValidationErrors('bidang_id');
+});

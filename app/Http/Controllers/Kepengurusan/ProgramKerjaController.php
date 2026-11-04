@@ -44,13 +44,21 @@ class ProgramKerjaController extends Controller
     {
         return $request->validate([
             'tahun' => ['required', 'integer', 'between:' . $periode->tahun_mulai . ',' . $periode->tahun_selesai],
-            'bidang_id' => ['required', Rule::exists('bidangs', 'id')->where('periode_id', $periode->id)],
+            'bidang_id' => ['required', 'integer', Rule::exists('bidangs', 'id')->where('periode_id', $periode->id)],
             'nama' => ['required', 'string', 'max:255',
                 Rule::unique('program_kerjas', 'nama')
                     ->where('bidang_id', $request->input('bidang_id'))
                     ->where('tahun', $request->input('tahun'))
                     ->ignore($ignoreId)],
-        ], ['nama.unique' => 'Program dengan nama tersebut sudah ada pada bidang dan tahun ini.']);
+        ], ['tahun.required' => 'Tahun wajib diisi.',
+            'tahun.integer' => 'Tahun tidak valid.',
+            'tahun.between' => 'Tahun harus berada dalam rentang periode.',
+            'bidang_id.required' => 'Bidang wajib dipilih.',
+            'bidang_id.integer' => 'Bidang tidak valid.',
+            'bidang_id.exists' => 'Bidang tidak ditemukan pada periode ini.',
+            'nama.required' => 'Nama program wajib diisi.',
+            'nama.max' => 'Nama program maksimal 255 karakter.',
+            'nama.unique' => 'Program dengan nama tersebut sudah ada pada bidang dan tahun ini.']);
     }
 
     public function store(Request $request, Periode $periode)

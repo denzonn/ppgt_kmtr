@@ -299,7 +299,7 @@
                 </div>
 
                 <div class="text-[10px] text-slate-500 md:text-xs">
-                    Administrator
+                    {{ auth()->user()->role?->nama }}
                 </div>
 
             </div>

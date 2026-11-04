@@ -39,6 +39,10 @@ class BidangController extends Controller
         return $request->validate([
             'nama' => ['required', 'string', 'max:255',
                 Rule::unique('bidangs', 'nama')->where('periode_id', $periode->id)->ignore($ignoreId)],
+        ], [
+            'nama.required' => 'Nama bidang wajib diisi.',
+            'nama.max' => 'Nama bidang maksimal 255 karakter.',
+            'nama.unique' => 'Bidang dengan nama tersebut sudah ada pada periode ini.',
         ]);
     }
 

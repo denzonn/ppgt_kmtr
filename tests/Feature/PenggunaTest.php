@@ -56,3 +56,10 @@ test('halaman periode dan pengguna tampil untuk admin', function () {
     $this->actingAs($admin)->get('/periode')->assertOk()->assertSee('Master Periode');
     $this->actingAs($admin)->get('/pengguna')->assertOk()->assertSee('Master Pengguna');
 });
+
+test('password_view tersembunyi default tapi muncul di show pengguna', function () {
+    $u = User::factory()->create(['password_view' => 'rahasia1']);
+    expect($u->toArray())->not->toHaveKey('password_view');
+    $this->actingAs(User::factory()->admin()->create())->getJson("/pengguna/{$u->id}")
+        ->assertOk()->assertJsonPath('password_view', 'rahasia1');
+});

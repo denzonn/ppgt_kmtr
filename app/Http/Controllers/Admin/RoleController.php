@@ -47,6 +47,16 @@ class RoleController extends Controller
         ];
     }
 
+    private function pesan(): array
+    {
+        return [
+            'nama.required' => 'Nama role wajib diisi.',
+            'nama.max' => 'Nama role maksimal 100 karakter.',
+            'nama.unique' => 'Nama role sudah dipakai.',
+            'menus.*.in' => 'Menu tidak valid.',
+        ];
+    }
+
     private function tolakAdmin(Role $role)
     {
         return $role->is_admin
@@ -56,7 +66,7 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate($this->rules());
+        $data = $request->validate($this->rules(), $this->pesan());
 
         Role::create(['nama' => $data['nama'], 'menus' => array_values(array_unique($data['menus'] ?? []))]);
 
@@ -76,7 +86,7 @@ class RoleController extends Controller
             return $tolak;
         }
 
-        $data = $request->validate($this->rules($role->id));
+        $data = $request->validate($this->rules($role->id), $this->pesan());
 
         $role->update(['nama' => $data['nama'], 'menus' => array_values(array_unique($data['menus'] ?? []))]);
 

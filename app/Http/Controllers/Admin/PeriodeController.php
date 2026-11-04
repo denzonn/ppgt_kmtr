@@ -43,6 +43,14 @@ class PeriodeController extends Controller
         $data = $request->validate([
             'tahun_mulai' => ['required', 'integer', 'between:1900,2100'],
             'tahun_selesai' => ['required', 'integer', 'between:1900,2100', 'gte:tahun_mulai'],
+        ], [
+            'tahun_mulai.required' => 'Tahun mulai wajib diisi.',
+            'tahun_mulai.integer' => 'Tahun mulai harus berupa angka.',
+            'tahun_mulai.between' => 'Tahun mulai harus antara 1900 dan 2100.',
+            'tahun_selesai.required' => 'Tahun selesai wajib diisi.',
+            'tahun_selesai.integer' => 'Tahun selesai harus berupa angka.',
+            'tahun_selesai.between' => 'Tahun selesai harus antara 1900 dan 2100.',
+            'tahun_selesai.gte' => 'Tahun selesai tidak boleh lebih kecil dari tahun mulai.',
         ]);
 
         $kembar = Periode::where($data)->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))->exists();

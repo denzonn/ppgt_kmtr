@@ -65,3 +65,26 @@ test('sidebar hanya menampilkan menu yang dimiliki', function () {
         ->assertDontSee(route('peminjaman-admin'), false)
         ->assertDontSee(route('generate_qr.index'), false);
 });
+
+test('gate per menu di dalam kepengurusan', function () {
+    $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
+    $role = roleDengan(['bidang']);
+    $user = User::factory()->untukPeriode($p)->create(['role_id' => $role->id]);
+    $this->actingAs($user)->get("/kepengurusan/{$p->id}/pengurus")->assertForbidden();
+    $this->actingAs($user)->get("/kepengurusan/{$p->id}/bidang")->assertOk();
+    $role->update(['menus' => ['bidang', 'pengurus']]);
+    $this->actingAs($user->fresh())->get("/kepengurusan/{$p->id}/pengurus")->assertOk();
+});
+
+test('admin tanpa periode bisa membuka program kerja periode mana pun', function () {
+    $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
+    $this->actingAs(User::factory()->admin()->create())
+        ->get("/kepengurusan/{$p->id}/program-kerja")->assertOk();
+});
+
+test('sidebar menampilkan nama role pengguna', function () {
+    $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
+    $this->actingAs(User::factory()->untukPeriode($p)->create())
+        ->get("/kepengurusan/{$p->id}/program-kerja")->assertOk()
+        ->assertSee('Pengguna Periode')->assertDontSee('Administrator');
+});

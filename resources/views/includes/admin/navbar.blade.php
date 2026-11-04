@@ -74,7 +74,7 @@
                         </div>
 
                         <div class="text-xs text-slate-500 truncate">
-                            Administrator
+                            {{ auth()->user()->role?->nama }}
                         </div>
 
                     </div>

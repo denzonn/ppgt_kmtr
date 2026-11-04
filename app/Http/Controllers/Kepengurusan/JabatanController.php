@@ -40,6 +40,12 @@ class JabatanController extends Controller
             'nama' => ['required', 'string', 'max:255',
                 Rule::unique('jabatans', 'nama')->where('periode_id', $periode->id)->ignore($ignoreId)],
             'terkait_bidang' => ['required', 'boolean'],
+        ], [
+            'nama.required' => 'Nama jabatan wajib diisi.',
+            'nama.max' => 'Nama jabatan maksimal 255 karakter.',
+            'nama.unique' => 'Jabatan dengan nama tersebut sudah ada pada periode ini.',
+            'terkait_bidang.required' => 'Pilih apakah jabatan terkait bidang.',
+            'terkait_bidang.boolean' => 'Nilai terkait bidang tidak valid.',
         ]);
     }
 

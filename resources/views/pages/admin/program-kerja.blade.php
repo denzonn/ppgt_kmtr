@@ -196,6 +196,7 @@
         const pkBase = @json(route('kepengurusan.program_kerja.index', $periode)).replace(/\/$/, '');
         const kegiatanBase = pkBase.replace(/\/program-kerja$/, '/kegiatan');
         const csrf = @json(csrf_token());
+        const storageUrl = @json(asset('storage'));
         const namaBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
         let pkPage = 1;
@@ -363,7 +364,7 @@
             $('#formDokumentasi')[0].reset();
             $('#dok_id').val(k.id);
             $('#dok_link').val(k.link ?? '');
-            $('#dok_preview').toggleClass('hidden', !k.foto).attr('src', k.foto ? '/storage/' + k.foto : '');
+            $('#dok_preview').toggleClass('hidden', !k.foto).attr('src', k.foto ? storageUrl + '/' + k.foto : '');
             $('#dok_hapus_wrap').toggleClass('hidden', !k.foto).toggleClass('flex', !!k.foto);
             bukaModal('modalDokumentasi');
         }
@@ -389,7 +390,7 @@
             const link = k.link ?
                 `<a href="${esc(k.link)}" target="_blank" rel="noopener" class="text-primary underline">Link</a>` : '';
             const foto = k.foto ?
-                `<a href="/storage/${esc(k.foto)}" target="_blank" rel="noopener" class="text-primary underline">Foto</a>` : '';
+                `<a href="${esc(storageUrl)}/${esc(k.foto)}" target="_blank" rel="noopener" class="text-primary underline">Foto</a>` : '';
             const dok = [foto, link].filter(Boolean).join(' | ') || '-';
 
             return `

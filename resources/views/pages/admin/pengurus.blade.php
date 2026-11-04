@@ -218,6 +218,10 @@
             });
         }
 
+        $('#pengurus_cari').on('keydown', function(e) {
+            if (e.key === 'Enter') e.preventDefault();
+        });
+
         $('#formPengurus').on('submit', function(e) {
             e.preventDefault();
 

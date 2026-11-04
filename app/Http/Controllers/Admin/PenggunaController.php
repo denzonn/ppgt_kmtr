@@ -60,6 +60,16 @@ class PenggunaController extends Controller
             'password' => [$user ? 'nullable' : 'required', 'string', 'min:6'],
             'role_id' => ['required', Rule::exists('roles', 'id')->where('is_admin', false)],
             'periode_id' => ['nullable', 'exists:periodes,id'],
+        ], [
+            'name.required' => 'Nama wajib diisi.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 6 karakter.',
+            'role_id.required' => 'Role wajib dipilih.',
+            'role_id.exists' => 'Role tidak valid.',
+            'periode_id.exists' => 'Periode tidak valid.',
         ]);
 
         $role = Role::find($data['role_id']);
