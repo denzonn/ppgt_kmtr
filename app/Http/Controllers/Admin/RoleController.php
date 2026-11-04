@@ -42,7 +42,7 @@ class RoleController extends Controller
     {
         return [
             'nama' => ['required', 'string', 'max:100', Rule::unique('roles', 'nama')->ignore($ignoreId)],
-            'menus' => ['present', 'array'],
+            'menus' => ['nullable', 'array'],
             'menus.*' => ['string', Rule::in(array_keys(Role::MENU_UMUM + Role::MENU_KEPENGURUSAN))],
         ];
     }
@@ -58,7 +58,7 @@ class RoleController extends Controller
     {
         $data = $request->validate($this->rules());
 
-        Role::create(['nama' => $data['nama'], 'menus' => array_values(array_unique($data['menus']))]);
+        Role::create(['nama' => $data['nama'], 'menus' => array_values(array_unique($data['menus'] ?? []))]);
 
         return response()->json(['status' => true, 'message' => 'Role berhasil ditambahkan.']);
     }
@@ -78,7 +78,7 @@ class RoleController extends Controller
 
         $data = $request->validate($this->rules($role->id));
 
-        $role->update(['nama' => $data['nama'], 'menus' => array_values(array_unique($data['menus']))]);
+        $role->update(['nama' => $data['nama'], 'menus' => array_values(array_unique($data['menus'] ?? []))]);
 
         return response()->json(['status' => true, 'message' => 'Role berhasil diperbarui.']);
     }
