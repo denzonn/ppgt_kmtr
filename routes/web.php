@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventarisController;
 use App\Http\Controllers\Admin\PeminjamanController as AdminPeminjamanController;
+use App\Http\Controllers\Admin\PenggunaController;
+use App\Http\Controllers\Admin\PeriodeController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\GenerateQRLinkController;
@@ -40,6 +42,28 @@ Route::middleware(['auth'])->group(
                 Route::get('/{id}', [RoleController::class, 'show'])->name('show');
                 Route::put('/{id}', [RoleController::class, 'update'])->name('update');
                 Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
+            }
+        );
+
+        Route::prefix('periode')->name('periode.')->middleware('admin')->group(
+            function () {
+                Route::get('/', [PeriodeController::class, 'index'])->name('index');
+                Route::get('/data', [PeriodeController::class, 'getData'])->name('getData');
+                Route::post('/', [PeriodeController::class, 'store'])->name('store');
+                Route::get('/{id}', [PeriodeController::class, 'show'])->name('show');
+                Route::put('/{id}', [PeriodeController::class, 'update'])->name('update');
+                Route::delete('/{id}', [PeriodeController::class, 'destroy'])->name('destroy');
+            }
+        );
+
+        Route::prefix('pengguna')->name('pengguna.')->middleware('admin')->group(
+            function () {
+                Route::get('/', [PenggunaController::class, 'index'])->name('index');
+                Route::get('/data', [PenggunaController::class, 'getData'])->name('getData');
+                Route::post('/', [PenggunaController::class, 'store'])->name('store');
+                Route::get('/{id}', [PenggunaController::class, 'show'])->name('show');
+                Route::put('/{id}', [PenggunaController::class, 'update'])->name('update');
+                Route::delete('/{id}', [PenggunaController::class, 'destroy'])->name('destroy');
             }
         );
 
