@@ -40,7 +40,7 @@ class InventarisController extends Controller
             $query->where('jenis', $jenis);
         }
 
-        $paginator = $query->orderByDesc('created_at')->paginate(10);
+        $paginator = $query->orderByDesc('created_at')->paginate(25);
 
         return response()->json([
             'data' => $paginator->items(),
