@@ -60,7 +60,7 @@ class JabatanController extends Controller
         $jabatan = $periode->jabatans()->findOrFail($id);
         $data = $this->validated($request, $periode, $jabatan->id);
 
-        if ($data['terkait_bidang'] !== $jabatan->terkait_bidang && $jabatan->pengurus()->exists()) {
+        if ((bool) $data['terkait_bidang'] !== $jabatan->terkait_bidang && $jabatan->pengurus()->exists()) {
             return response()->json([
                 'message' => 'Status terkait bidang tidak bisa diubah karena jabatan sudah punya pengurus.',
                 'errors' => ['terkait_bidang' => ['Status terkait bidang tidak bisa diubah karena jabatan sudah punya pengurus.']],

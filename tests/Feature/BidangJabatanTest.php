@@ -43,3 +43,15 @@ test('terkait_bidang tidak bisa diubah saat jabatan sudah punya pengurus', funct
     $this->actingAs($admin)->putJson("/kepengurusan/{$p->id}/jabatan/{$j->id}", ['nama' => 'Ketua Umum', 'terkait_bidang' => false])
         ->assertOk();
 });
+
+test('terkait_bidang string ala form: tidak berubah lolos, berubah ditolak', function () {
+    $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
+    $j = $p->jabatans()->create(['nama' => 'Ketua', 'terkait_bidang' => false]);
+    $a = DataAnggota::create(['jemaat_id' => Jemaat::create(['nama' => 'Jemaat Satu'])->id, 'nama' => 'Budi']);
+    Pengurus::create(['periode_id' => $p->id, 'jabatan_id' => $j->id, 'data_anggota_id' => $a->id]);
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->putJson("/kepengurusan/{$p->id}/jabatan/{$j->id}", ['nama' => 'Ketua Umum', 'terkait_bidang' => '0'])->assertOk();
+    $this->actingAs($admin)->putJson("/kepengurusan/{$p->id}/jabatan/{$j->id}", ['nama' => 'Ketua Umum', 'terkait_bidang' => '1'])
+        ->assertUnprocessable()->assertJsonValidationErrors('terkait_bidang');
+});
