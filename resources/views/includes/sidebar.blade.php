@@ -1,4 +1,5 @@
 @php
+    $periodeAktif = request()->route('periode') ?? auth()->user()->periode;
     $page = trim($__env->yieldContent('page'));
 
     $inventarisPeminjamanOpen = in_array($page, ['inventaris', 'peminjaman', 'pengembalian']);
@@ -53,6 +54,7 @@
 
         <nav class="space-y-2">
 
+            @if (auth()->user()->bisaMenu('dashboard'))
             {{-- Dashboard --}}
             <a href="{{ route('dashboard') }}"
                 class="flex items-center gap-3 rounded-xl px-4 py-3
@@ -69,6 +71,9 @@
 
             </a>
 
+            @endif
+
+            @if (auth()->user()->bisaMenu('inventaris') || auth()->user()->bisaMenu('peminjaman'))
             {{-- Inventaris & Peminjaman --}}
             <div class="space-y-1">
 
@@ -105,7 +110,8 @@
 
                         <div class="ml-5 space-y-1 border-l-2 border-slate-200 py-1 pl-4">
 
-                            {{-- Submenu Inventaris --}}
+                            @if (auth()->user()->bisaMenu('inventaris'))
+            {{-- Submenu Inventaris --}}
                             <a href="{{ route('inventaris.index') }}"
                                 class="flex items-center gap-3 rounded-xl px-4 py-2.5
                                 text-sm transition-all duration-200 ease-in-out
@@ -121,7 +127,10 @@
 
                             </a>
 
-                            {{-- Submenu Peminjaman --}}
+                            @endif
+
+            @if (auth()->user()->bisaMenu('peminjaman'))
+            {{-- Submenu Peminjaman --}}
                             <a href="{{ route('peminjaman-admin') }}"
                                 class="flex items-center gap-3 rounded-xl px-4 py-2.5
                                 text-sm transition-all duration-200 ease-in-out
@@ -137,7 +146,9 @@
 
                             </a>
 
-                        </div>
+@endif
+
+                                    </div>
 
                     </div>
 
@@ -145,6 +156,9 @@
 
             </div>
 
+            @endif
+
+            @if (auth()->user()->bisaMenu('data_anggota'))
             {{-- Anggota --}}
             <a href="{{ route('data_anggota.index') }}"
                 class="flex items-center gap-3 rounded-xl px-4 py-3
@@ -158,6 +172,9 @@
                 <span class="font-medium">Data Anggota</span>
             </a>
 
+            @endif
+
+            @if (auth()->user()->bisaMenu('generator_qr'))
             {{-- Generator QR Code --}}
             <a href="{{ route('generate_qr.index') }}"
                 class="flex items-center gap-3 rounded-xl px-4 py-3
@@ -172,6 +189,8 @@
                     Generator QR Code
                 </span>
             </a>
+
+            @endif
 
             {{-- Pengaturan --}}
             <a href="#"

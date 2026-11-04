@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Periode;
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -29,8 +31,19 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'password_view' => 'password',
+            'role_id' => fn () => Role::where('nama', 'Pengguna Periode')->value('id'),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn () => ['role_id' => Role::where('is_admin', true)->value('id')]);
+    }
+
+    public function untukPeriode(Periode $periode): static
+    {
+        return $this->state(fn () => ['periode_id' => $periode->id]);
     }
 
     /**

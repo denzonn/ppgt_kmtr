@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\PeminjamanController as AdminPeminjamanController
 use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\GenerateQRLinkController;
 use App\Http\Controllers\PeminjamanController;
+use App\Models\Periode;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,7 +24,14 @@ Route::middleware(['auth'])->group(
     function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-        Route::prefix('inventaris')->name('inventaris.')->group(
+        Route::view('/akses-kosong', 'pages.akses-kosong')->name('akses.kosong');
+
+        // Stub, diganti di Task 7.
+        Route::get('/kepengurusan/{periode}/program-kerja', fn (Periode $periode) => response(''))
+            ->middleware(['periode', 'menu:program_kerja'])
+            ->name('kepengurusan.program_kerja.index');
+
+        Route::prefix('inventaris')->name('inventaris.')->middleware('menu:inventaris')->group(
             function () {
                 Route::get('/', [InventarisController::class, 'index'])->name('index');
                 Route::get('/data', [InventarisController::class, 'getData'])->name('getData');
@@ -34,7 +42,7 @@ Route::middleware(['auth'])->group(
             }
         );
 
-        Route::prefix('data-anggota')->name('data_anggota.')->group(function () {
+        Route::prefix('data-anggota')->name('data_anggota.')->middleware('menu:data_anggota')->group(function () {
             Route::get('/', [AnggotaController::class, 'index'])->name('index');
             Route::get('/data', [AnggotaController::class, 'getData'])->name('getData');
             Route::post('/import', [AnggotaController::class, 'import'])->name('import');
@@ -45,7 +53,7 @@ Route::middleware(['auth'])->group(
             Route::delete('/{id}', [AnggotaController::class, 'destroy'])->name('destroy');
         });
 
-        Route::prefix('data-peminjaman')->group(
+        Route::prefix('data-peminjaman')->middleware('menu:peminjaman')->group(
             function () {
                 Route::get('/', [AdminPeminjamanController::class, 'index'])->name('peminjaman-admin');
                 Route::get('/data', [AdminPeminjamanController::class, 'getData'])->name('peminjaman-admin.getData');
@@ -53,7 +61,7 @@ Route::middleware(['auth'])->group(
             }
         );
 
-        Route::prefix('generator-qr-link')->name('generate_qr.')->group(function () {
+        Route::prefix('generator-qr-link')->name('generate_qr.')->middleware('menu:generator_qr')->group(function () {
             Route::get('/', [GenerateQRLinkController::class, 'index'])->name('index');
             Route::get('/data', [GenerateQRLinkController::class, 'getData'])->name('getData');
             Route::post('/', [GenerateQRLinkController::class, 'store'])->name('store');

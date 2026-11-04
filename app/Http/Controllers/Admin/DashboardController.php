@@ -13,6 +13,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        if (! auth()->user()->bisaMenu('dashboard')) {
+            return redirect(auth()->user()->homeUrl());
+        }
+
         $inventarisCount = Inventaris::count();
         $inventarisThisMonthCount = Inventaris::whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)

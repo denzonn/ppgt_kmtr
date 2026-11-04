@@ -28,7 +28,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = $request->user();
+
+        // Non-admin tidak mengikuti intended: bisa menunjuk halaman terlarang.
+        return $user->isAdmin()
+            ? redirect()->intended($user->homeUrl())
+            : redirect($user->homeUrl());
     }
 
     /**

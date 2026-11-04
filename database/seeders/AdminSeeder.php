@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,7 @@ class AdminSeeder extends Seeder
             'email' => 'admin@gmail.com',
             'password' => bcrypt('123'),
             'password_view' => '123',
-            'roles' => 'admin',
+            'role_id' => Role::where('is_admin', true)->value('id'),
         ]);
     }
 }
