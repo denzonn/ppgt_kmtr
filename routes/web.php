@@ -10,9 +10,10 @@ use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\GenerateQRLinkController;
 use App\Http\Controllers\Kepengurusan\BidangController;
 use App\Http\Controllers\Kepengurusan\JabatanController;
+use App\Http\Controllers\Kepengurusan\KegiatanController;
 use App\Http\Controllers\Kepengurusan\PengurusController;
+use App\Http\Controllers\Kepengurusan\ProgramKerjaController;
 use App\Http\Controllers\PeminjamanController;
-use App\Models\Periode;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -32,10 +33,20 @@ Route::middleware(['auth'])->group(
 
         Route::view('/akses-kosong', 'pages.akses-kosong')->name('akses.kosong');
 
-        // Stub, diganti di Task 7.
-        Route::get('/kepengurusan/{periode}/program-kerja', fn (Periode $periode) => response(''))
-            ->middleware(['periode', 'menu:program_kerja'])
-            ->name('kepengurusan.program_kerja.index');
+        Route::prefix('kepengurusan/{periode}')->name('kepengurusan.')->middleware(['periode', 'menu:program_kerja'])->group(
+            function () {
+                Route::get('/program-kerja', [ProgramKerjaController::class, 'index'])->name('program_kerja.index');
+                Route::get('/program-kerja/data', [ProgramKerjaController::class, 'getData'])->name('program_kerja.getData');
+                Route::post('/program-kerja', [ProgramKerjaController::class, 'store'])->name('program_kerja.store');
+                Route::get('/program-kerja/{id}', [ProgramKerjaController::class, 'show'])->name('program_kerja.show');
+                Route::put('/program-kerja/{id}', [ProgramKerjaController::class, 'update'])->name('program_kerja.update');
+                Route::delete('/program-kerja/{id}', [ProgramKerjaController::class, 'destroy'])->name('program_kerja.destroy');
+                Route::post('/program-kerja/{id}/kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
+                Route::put('/kegiatan/{id}', [KegiatanController::class, 'update'])->name('kegiatan.update');
+                Route::delete('/kegiatan/{id}', [KegiatanController::class, 'destroy'])->name('kegiatan.destroy');
+                Route::post('/kegiatan/{id}/dokumentasi', [KegiatanController::class, 'dokumentasi'])->name('kegiatan.dokumentasi');
+            }
+        );
 
         foreach (['bidang' => BidangController::class, 'jabatan' => JabatanController::class] as $nama => $controller) {
             Route::prefix("kepengurusan/{periode}/{$nama}")->name("kepengurusan.{$nama}.")->middleware(['periode', "menu:{$nama}"])->group(

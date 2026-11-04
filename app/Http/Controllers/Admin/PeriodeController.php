@@ -68,7 +68,19 @@ class PeriodeController extends Controller
     public function update(Request $request, $id)
     {
         $periode = Periode::findOrFail($id);
-        $periode->update($this->validated($request, $periode->id));
+        $data = $this->validated($request, $periode->id);
+
+        $diLuar = $periode->programKerjas()
+            ->where(fn ($q) => $q->where('tahun', '<', $data['tahun_mulai'])->orWhere('tahun', '>', $data['tahun_selesai']))
+            ->exists();
+        if ($diLuar) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Rentang periode tidak bisa dipersempit karena ada program kerja di luar rentang baru.',
+            ], 422);
+        }
+
+        $periode->update($data);
 
         return response()->json(['status' => true, 'message' => 'Periode berhasil diperbarui.']);
     }

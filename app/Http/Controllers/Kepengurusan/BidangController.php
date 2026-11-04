@@ -70,6 +70,10 @@ class BidangController extends Controller
             return response()->json(['status' => false, 'message' => 'Bidang tidak bisa dihapus karena sudah dipakai pengurus.'], 422);
         }
 
+        if ($item->programKerjas()->exists()) {
+            return response()->json(['status' => false, 'message' => 'Bidang tidak bisa dihapus karena sudah memiliki program kerja.'], 422);
+        }
+
         $item->delete();
 
         return response()->json(['status' => true, 'message' => 'Bidang berhasil dihapus.']);
