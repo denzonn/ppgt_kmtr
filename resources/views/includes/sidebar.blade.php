@@ -175,7 +175,7 @@
             @endif
 
             @if ($periodeAktif)
-                @foreach (['bidang' => ['Bidang', 'fa-sitemap'], 'jabatan' => ['Jabatan', 'fa-id-badge']] as $kunci => [$label, $ikon])
+                @foreach (['bidang' => ['Bidang', 'fa-sitemap'], 'jabatan' => ['Jabatan', 'fa-id-badge'], 'pengurus' => ['Pengurus', 'fa-user-tie']] as $kunci => [$label, $ikon])
                     @if (auth()->user()->bisaMenu($kunci))
                         <a href="{{ route('kepengurusan.' . $kunci . '.index', $periodeAktif) }}"
                             class="flex items-center gap-3 rounded-xl px-4 py-3

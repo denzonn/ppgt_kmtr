@@ -238,6 +238,14 @@ class AnggotaController extends Controller
     public function destroy($id)
     {
         $anggota = DataAnggota::findOrFail($id);
+
+        if (\App\Models\Pengurus::where('data_anggota_id', $anggota->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anggota tidak bisa dihapus karena tercatat sebagai pengurus.',
+            ], 422);
+        }
+
         $anggota->delete();
 
         return response()->json([

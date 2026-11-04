@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\DataAnggota;
+use App\Models\Jemaat;
+use App\Models\Pengurus;
 use App\Models\Periode;
 use App\Models\User;
 
@@ -28,5 +31,15 @@ test('periode yang punya bidang tidak bisa dihapus', function () {
 });
 
 test('terkait_bidang tidak bisa diubah saat jabatan sudah punya pengurus', function () {
-    // Baris Pengurus memakai Pengurus::create; tes ini lolos penuh setelah Task 6.
-})->todo();
+    $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
+    $j = $p->jabatans()->create(['nama' => 'Ketua', 'terkait_bidang' => false]);
+    $jemaat = Jemaat::create(['nama' => 'Jemaat Satu']);
+    $a = DataAnggota::create(['jemaat_id' => $jemaat->id, 'nama' => 'Budi']);
+    Pengurus::create(['periode_id' => $p->id, 'jabatan_id' => $j->id, 'data_anggota_id' => $a->id]);
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->putJson("/kepengurusan/{$p->id}/jabatan/{$j->id}", ['nama' => 'Ketua', 'terkait_bidang' => true])
+        ->assertUnprocessable()->assertJsonValidationErrors('terkait_bidang');
+    $this->actingAs($admin)->putJson("/kepengurusan/{$p->id}/jabatan/{$j->id}", ['nama' => 'Ketua Umum', 'terkait_bidang' => false])
+        ->assertOk();
+});

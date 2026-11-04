@@ -64,7 +64,13 @@ class BidangController extends Controller
 
     public function destroy(Periode $periode, $id)
     {
-        $periode->bidangs()->findOrFail($id)->delete();
+        $item = $periode->bidangs()->findOrFail($id);
+
+        if ($item->pengurus()->exists()) {
+            return response()->json(['status' => false, 'message' => 'Bidang tidak bisa dihapus karena sudah dipakai pengurus.'], 422);
+        }
+
+        $item->delete();
 
         return response()->json(['status' => true, 'message' => 'Bidang berhasil dihapus.']);
     }

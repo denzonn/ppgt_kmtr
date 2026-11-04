@@ -10,6 +10,7 @@ use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\GenerateQRLinkController;
 use App\Http\Controllers\Kepengurusan\BidangController;
 use App\Http\Controllers\Kepengurusan\JabatanController;
+use App\Http\Controllers\Kepengurusan\PengurusController;
 use App\Http\Controllers\PeminjamanController;
 use App\Models\Periode;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +49,18 @@ Route::middleware(['auth'])->group(
                 }
             );
         }
+
+        Route::prefix('kepengurusan/{periode}/pengurus')->name('kepengurusan.pengurus.')->middleware(['periode', 'menu:pengurus'])->group(
+            function () {
+                Route::get('/', [PengurusController::class, 'index'])->name('index');
+                Route::get('/data', [PengurusController::class, 'getData'])->name('getData');
+                Route::get('/anggota', [PengurusController::class, 'anggota'])->name('anggota');
+                Route::post('/', [PengurusController::class, 'store'])->name('store');
+                Route::get('/{id}', [PengurusController::class, 'show'])->name('show');
+                Route::put('/{id}', [PengurusController::class, 'update'])->name('update');
+                Route::delete('/{id}', [PengurusController::class, 'destroy'])->name('destroy');
+            }
+        );
 
         Route::prefix('role')->name('role.')->middleware('admin')->group(
             function () {

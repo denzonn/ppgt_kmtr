@@ -24,6 +24,11 @@ class Periode extends Model
         return $this->hasMany(Bidang::class);
     }
 
+    public function pengurus()
+    {
+        return $this->hasMany(Pengurus::class);
+    }
+
     public function jabatans()
     {
         return $this->hasMany(Jabatan::class);

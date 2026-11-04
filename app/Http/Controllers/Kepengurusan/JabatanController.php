@@ -58,14 +58,29 @@ class JabatanController extends Controller
     public function update(Request $request, Periode $periode, $id)
     {
         $jabatan = $periode->jabatans()->findOrFail($id);
-        $jabatan->update($this->validated($request, $periode, $jabatan->id));
+        $data = $this->validated($request, $periode, $jabatan->id);
+
+        if ($data['terkait_bidang'] !== $jabatan->terkait_bidang && $jabatan->pengurus()->exists()) {
+            return response()->json([
+                'message' => 'Status terkait bidang tidak bisa diubah karena jabatan sudah punya pengurus.',
+                'errors' => ['terkait_bidang' => ['Status terkait bidang tidak bisa diubah karena jabatan sudah punya pengurus.']],
+            ], 422);
+        }
+
+        $jabatan->update($data);
 
         return response()->json(['status' => true, 'message' => 'Jabatan berhasil diperbarui.']);
     }
 
     public function destroy(Periode $periode, $id)
     {
-        $periode->jabatans()->findOrFail($id)->delete();
+        $item = $periode->jabatans()->findOrFail($id);
+
+        if ($item->pengurus()->exists()) {
+            return response()->json(['status' => false, 'message' => 'Jabatan tidak bisa dihapus karena sudah dipakai pengurus.'], 422);
+        }
+
+        $item->delete();
 
         return response()->json(['status' => true, 'message' => 'Jabatan berhasil dihapus.']);
     }

@@ -12,4 +12,9 @@ class Bidang extends Model
     {
         return $this->belongsTo(Periode::class);
     }
+
+    public function pengurus()
+    {
+        return $this->hasMany(Pengurus::class);
+    }
 }
