@@ -192,6 +192,22 @@
 
             @endif
 
+            @if (auth()->user()->isAdmin())
+            {{-- Manajemen Role --}}
+            <a href="{{ route('role.index') }}"
+                class="flex items-center gap-3 rounded-xl px-4 py-3
+    text-sm transition-all duration-200 ease-in-out md:text-base
+    {{ $page == 'role'
+        ? 'bg-primary text-white shadow-md'
+        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
+
+                <i class="fa-solid fa-user-shield w-5 text-center"></i>
+
+                <span class="font-medium">Manajemen Role</span>
+            </a>
+
+            @endif
+
             {{-- Pengaturan --}}
             <a href="#"
                 class="flex items-center gap-3 rounded-xl px-4 py-3

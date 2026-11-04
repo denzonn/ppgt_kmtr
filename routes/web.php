@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InventarisController;
 use App\Http\Controllers\Admin\PeminjamanController as AdminPeminjamanController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\GenerateQRLinkController;
 use App\Http\Controllers\PeminjamanController;
@@ -30,6 +31,17 @@ Route::middleware(['auth'])->group(
         Route::get('/kepengurusan/{periode}/program-kerja', fn (Periode $periode) => response(''))
             ->middleware(['periode', 'menu:program_kerja'])
             ->name('kepengurusan.program_kerja.index');
+
+        Route::prefix('role')->name('role.')->middleware('admin')->group(
+            function () {
+                Route::get('/', [RoleController::class, 'index'])->name('index');
+                Route::get('/data', [RoleController::class, 'getData'])->name('getData');
+                Route::post('/', [RoleController::class, 'store'])->name('store');
+                Route::get('/{id}', [RoleController::class, 'show'])->name('show');
+                Route::put('/{id}', [RoleController::class, 'update'])->name('update');
+                Route::delete('/{id}', [RoleController::class, 'destroy'])->name('destroy');
+            }
+        );
 
         Route::prefix('inventaris')->name('inventaris.')->middleware('menu:inventaris')->group(
             function () {
