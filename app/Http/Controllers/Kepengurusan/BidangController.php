@@ -19,8 +19,9 @@ class BidangController extends Controller
         $search = trim((string) $request->input('search', ''));
 
         $paginator = $periode->bidangs()
+            ->withCount(['pengurus', 'jabatans', 'programKerjas'])
             ->when($search !== '', fn ($q) => $q->where('nama', 'like', '%' . $search . '%'))
-            ->orderBy('nama')
+            ->orderBy('id')
             ->paginate(25);
 
         return response()->json([
@@ -34,15 +35,22 @@ class BidangController extends Controller
         ]);
     }
 
-    private function validated(Request $request, Periode $periode, ?int $ignoreId = null): array
+    private function validated(Request $request, Periode $periode, ?int $ignoreId = null, int $terisi = 0): array
     {
         return $request->validate([
             'nama' => ['required', 'string', 'max:255',
                 Rule::unique('bidangs', 'nama')->where('periode_id', $periode->id)->ignore($ignoreId)],
+            'jumlah_anggota' => ['required', 'integer', 'min:' . max(1, $terisi), 'max:999'],
         ], [
             'nama.required' => 'Nama bidang wajib diisi.',
             'nama.max' => 'Nama bidang maksimal 255 karakter.',
             'nama.unique' => 'Bidang dengan nama tersebut sudah ada pada periode ini.',
+            'jumlah_anggota.required' => 'Jumlah orang dalam bidang wajib diisi.',
+            'jumlah_anggota.integer' => 'Jumlah orang harus berupa angka.',
+            'jumlah_anggota.min' => $terisi > 1
+                ? "Bidang ini sudah punya {$terisi} pengurus, jadi jumlah orang minimal {$terisi}."
+                : 'Jumlah orang minimal 1.',
+            'jumlah_anggota.max' => 'Jumlah orang maksimal 999.',
         ]);
     }
 
@@ -61,7 +69,7 @@ class BidangController extends Controller
     public function update(Request $request, Periode $periode, $id)
     {
         $bidang = $periode->bidangs()->findOrFail($id);
-        $bidang->update($this->validated($request, $periode, $bidang->id));
+        $bidang->update($this->validated($request, $periode, $bidang->id, $bidang->pengurus()->count()));
 
         return response()->json(['status' => true, 'message' => 'Bidang berhasil diperbarui.']);
     }
@@ -70,8 +78,8 @@ class BidangController extends Controller
     {
         $item = $periode->bidangs()->findOrFail($id);
 
-        if ($item->pengurus()->exists()) {
-            return response()->json(['status' => false, 'message' => 'Bidang tidak bisa dihapus karena sudah dipakai pengurus.'], 422);
+        if ($item->jabatans()->exists()) {
+            return response()->json(['status' => false, 'message' => 'Bidang tidak bisa dihapus karena masih memiliki jabatan.'], 422);
         }
 
         if ($item->programKerjas()->exists()) {

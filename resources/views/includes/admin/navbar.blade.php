@@ -70,7 +70,7 @@
                     <div class="hidden lg:block text-left max-w-[180px]">
 
                         <div class="text-sm font-semibold truncate">
-                            {{ auth()->user()->nama_lengkap }}
+                            {{ auth()->user()->name }}
                         </div>
 
                         <div class="text-xs text-slate-500 truncate">
@@ -93,7 +93,7 @@
                     <div class="p-4 border-b border-slate-100">
 
                         <div class="font-semibold">
-                            {{ auth()->user()->nama_lengkap }}
+                            {{ auth()->user()->name }}
                         </div>
 
                         <div class="text-sm text-slate-500 mt-1">

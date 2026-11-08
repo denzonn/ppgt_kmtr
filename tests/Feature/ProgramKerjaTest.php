@@ -35,13 +35,52 @@ function periodeProgram(): array
 
 const JSON_HDR = ['Accept' => 'application/json'];
 
-test('tahun program harus dalam rentang periode', function () {
-    [$p, $admin, $pk] = periodeProgram();
-    $data = ['bidang_id' => $pk->bidang_id, 'nama' => 'Baru'];
+test('program baru selalu memakai tahun berjalan, walau dikirim tahun lain', function () {
+    $this->travelTo('2021-06-15');
+    $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
+    $bidang = $p->bidangs()->create(['nama' => 'Umum']);
+    $url = "/kepengurusan/{$p->id}/program-kerja";
+    $admin = User::factory()->admin()->create();
 
-    $this->actingAs($admin)->postJson("/kepengurusan/{$p->id}/program-kerja", $data + ['tahun' => 2021])->assertOk();
-    $this->actingAs($admin)->postJson("/kepengurusan/{$p->id}/program-kerja", $data + ['tahun' => 2023])
-        ->assertUnprocessable()->assertJsonValidationErrors('tahun');
+    $this->actingAs($admin)->postJson($url, ['bidang_id' => $bidang->id, 'nama' => 'Tanpa Tahun'])->assertOk();
+    $this->actingAs($admin)->postJson($url, ['bidang_id' => $bidang->id, 'nama' => 'Tahun Lain', 'tahun' => 2099])->assertOk();
+
+    expect(ProgramKerja::pluck('tahun')->unique()->all())->toBe([2021]);
+});
+
+test('periode di luar tahun berjalan memakai tahun terdekat', function () {
+    $this->travelTo('2026-06-15');
+    $admin = User::factory()->admin()->create();
+    foreach ([[2020, 2022, 2022], [2030, 2032, 2030]] as [$mulai, $selesai, $harapan]) {
+        $p = Periode::create(['tahun_mulai' => $mulai, 'tahun_selesai' => $selesai]);
+        $bidang = $p->bidangs()->create(['nama' => 'Umum']);
+        $this->actingAs($admin)->postJson("/kepengurusan/{$p->id}/program-kerja", ['bidang_id' => $bidang->id, 'nama' => 'X'])->assertOk();
+        expect(ProgramKerja::where('bidang_id', $bidang->id)->value('tahun'))->toBe($harapan);
+    }
+});
+
+test('mengubah program tidak mengubah tahunnya', function () {
+    $this->travelTo('2022-06-15');
+    $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
+    $pk = programDi($p);
+    $this->actingAs(User::factory()->admin()->create())
+        ->putJson("/kepengurusan/{$p->id}/program-kerja/{$pk->id}", ['bidang_id' => $pk->bidang_id, 'nama' => 'Baru', 'tahun' => 2020])->assertOk();
+
+    expect($pk->fresh()->tahun)->toBe(2021)->and($pk->fresh()->nama)->toBe('Baru');
+});
+
+test('nama program kembar ditolak hanya pada tahun yang sama', function () {
+    $this->travelTo('2021-06-15');
+    $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
+    $pk = programDi($p);
+    $admin = User::factory()->admin()->create();
+    $url = "/kepengurusan/{$p->id}/program-kerja";
+
+    $this->actingAs($admin)->postJson($url, ['bidang_id' => $pk->bidang_id, 'nama' => $pk->nama])
+        ->assertUnprocessable()->assertJsonValidationErrors('nama');
+
+    $this->travelTo('2022-06-15');
+    $this->actingAs($admin)->postJson($url, ['bidang_id' => $pk->bidang_id, 'nama' => $pk->nama])->assertOk();
 });
 
 test('bidang dari periode lain ditolak saat membuat program', function () {
@@ -143,15 +182,15 @@ test('foto: mengganti menghapus file lama, hapus_foto menghapusnya', function ()
 
     $this->actingAs($admin)->post($url, ['foto' => UploadedFile::fake()->image('a.jpg')], JSON_HDR)->assertOk();
     $a = $k->fresh()->foto;
-    Storage::disk('public')->assertExists($a);
+    Storage::disk('public')->assertExists(\App\Support\FileUpload::path($a));
 
     $this->actingAs($admin)->post($url, ['foto' => UploadedFile::fake()->image('b.jpg')], JSON_HDR)->assertOk();
     $b = $k->fresh()->foto;
-    Storage::disk('public')->assertMissing($a);
-    Storage::disk('public')->assertExists($b);
+    Storage::disk('public')->assertMissing(\App\Support\FileUpload::path($a));
+    Storage::disk('public')->assertExists(\App\Support\FileUpload::path($b));
 
     $this->actingAs($admin)->postJson($url, ['hapus_foto' => 1])->assertOk();
-    Storage::disk('public')->assertMissing($b);
+    Storage::disk('public')->assertMissing(\App\Support\FileUpload::path($b));
     expect($k->fresh()->foto)->toBeNull();
 });
 
@@ -164,7 +203,7 @@ test('menghapus kegiatan ikut menghapus fotonya', function () {
     $foto = $k->fresh()->foto;
 
     $this->actingAs($admin)->deleteJson("/kepengurusan/{$p->id}/kegiatan/{$k->id}")->assertOk();
-    Storage::disk('public')->assertMissing($foto);
+    Storage::disk('public')->assertMissing(\App\Support\FileUpload::path($foto));
     expect(Kegiatan::count())->toBe(0);
 });
 
@@ -221,4 +260,50 @@ test('daftar program bisa difilter tahun dan bidang', function () {
     expect($res->json('total'))->toBe(1)->and($res->json('data.0.kegiatans'))->toHaveCount(1);
     expect($this->actingAs($admin)->getJson("/kepengurusan/{$p->id}/program-kerja/data?bidang_id={$lain->bidang_id}")->json('total'))->toBe(1);
     $this->actingAs($admin)->get("/kepengurusan/{$p->id}/program-kerja")->assertOk();
+});
+
+test('form program menampilkan tahun tanpa pilihan', function () {
+    $this->travelTo('2026-06-15');
+    $p = Periode::create(['tahun_mulai' => 2025, 'tahun_selesai' => 2027]);
+
+    $html = $this->actingAs(User::factory()->admin()->create())->get("/kepengurusan/{$p->id}/program-kerja")->assertOk()->getContent();
+
+    expect($html)->not->toContain('<select id="program_tahun"');
+    expect($html)->toMatch('~id="program_tahun_teks"[^>]*>2026<~');
+});
+
+test('ringkasan program kerja menghitung semua hasil saringan', function () {
+    $tahun = now()->year;
+    $p = Periode::create(['tahun_mulai' => $tahun, 'tahun_selesai' => $tahun + 2]);
+    $a = $p->bidangs()->create(['nama' => 'Bidang A']);
+    $b = $p->bidangs()->create(['nama' => 'Bidang B']);
+    $programA = ProgramKerja::create(['bidang_id' => $a->id, 'tahun' => $tahun, 'nama' => 'Program A']);
+    $programB = ProgramKerja::create(['bidang_id' => $b->id, 'tahun' => $tahun, 'nama' => 'Program B']);
+    Kegiatan::create(['program_kerja_id' => $programA->id, 'nama' => 'K1', 'deskripsi' => 'x', 'anggaran' => 1000, 'bulan' => [1]]);
+    Kegiatan::create(['program_kerja_id' => $programA->id, 'nama' => 'K2', 'deskripsi' => 'x', 'anggaran' => 2000, 'bulan' => [2]]);
+    Kegiatan::create(['program_kerja_id' => $programB->id, 'nama' => 'K3', 'deskripsi' => 'x', 'anggaran' => 4000, 'bulan' => [3]]);
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->getJson("/kepengurusan/{$p->id}/program-kerja/data")
+        ->assertOk()
+        ->assertJsonPath('total', 2)
+        ->assertJsonPath('ringkasan', ['kegiatan' => 3, 'anggaran' => 7000]);
+
+    $this->actingAs($admin)->getJson("/kepengurusan/{$p->id}/program-kerja/data?bidang_id={$a->id}")
+        ->assertJsonPath('total', 1)
+        ->assertJsonPath('ringkasan', ['kegiatan' => 2, 'anggaran' => 3000]);
+});
+
+test('daftar program kerja berkumpul per bidang', function () {
+    $tahun = now()->year;
+    $p = Periode::create(['tahun_mulai' => $tahun, 'tahun_selesai' => $tahun + 2]);
+    $a = $p->bidangs()->create(['nama' => 'Bidang A']);
+    $b = $p->bidangs()->create(['nama' => 'Bidang B']);
+    foreach ([[$b, 'A dari B'], [$a, 'Z dari A'], [$b, 'B dari B'], [$a, 'Y dari A']] as [$bidang, $nama]) {
+        ProgramKerja::create(['bidang_id' => $bidang->id, 'tahun' => $tahun, 'nama' => $nama]);
+    }
+
+    $this->actingAs(User::factory()->admin()->create())->getJson("/kepengurusan/{$p->id}/program-kerja/data")
+        ->assertOk()
+        ->assertJsonPath('data.*.nama', ['Y dari A', 'Z dari A', 'A dari B', 'B dari B']);
 });

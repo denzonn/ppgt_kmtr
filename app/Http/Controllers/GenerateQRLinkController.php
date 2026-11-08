@@ -9,6 +9,9 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class GenerateQRLinkController extends Controller
 {
+    // QR dengan koreksi kesalahan tinggi (H) hanya memuat sekitar 1.270 karakter.
+    private const MAKS_LINK = 1200;
+
     public function index()
     {
         return view('pages.admin.generate-qr');
@@ -27,13 +30,10 @@ class GenerateQRLinkController extends Controller
             });
         }
 
-        $data = $query->latest()->paginate(10);
+        $data = $query->latest()->paginate(12);
 
-        // Pastikan URL QR Code lengkap dikirim ke frontend.
         $items = collect($data->items())->map(function ($item) {
-            $item->qr_code = $item->qr_code
-                ? $this->getQrUrl($item->qr_code)
-                : null;
+            $item->qr_code = $this->getQrUrl($item);
 
             return $item;
         });
@@ -52,13 +52,13 @@ class GenerateQRLinkController extends Controller
     {
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:150'],
-            'link' => ['required', 'url', 'max:2048'],
+            'link' => ['required', 'url:http,https', 'max:' . self::MAKS_LINK],
         ], [
             'nama.required' => 'Nama QR Code wajib diisi.',
             'nama.max' => 'Nama QR Code maksimal 150 karakter.',
             'link.required' => 'Link tujuan wajib diisi.',
             'link.url' => 'Masukkan URL yang valid, misalnya https://contoh.com.',
-            'link.max' => 'Link maksimal 2048 karakter.',
+            'link.max' => 'Link maksimal ' . self::MAKS_LINK . ' karakter.',
         ]);
 
         $item = QRCodeLink::create([
@@ -94,10 +94,7 @@ class GenerateQRLinkController extends Controller
     {
         $item = QRCodeLink::findOrFail($id);
 
-        // Untuk menampilkan URL lengkap jika diperlukan.
-        $item->qr_code = $item->qr_code
-            ? $this->getQrUrl($item->qr_code)
-            : null;
+        $item->qr_code = $this->getQrUrl($item);
 
         return response()->json($item);
     }
@@ -108,13 +105,13 @@ class GenerateQRLinkController extends Controller
 
         $validated = $request->validate([
             'nama' => ['required', 'string', 'max:150'],
-            'link' => ['required', 'url', 'max:2048'],
+            'link' => ['required', 'url:http,https', 'max:' . self::MAKS_LINK],
         ], [
             'nama.required' => 'Nama QR Code wajib diisi.',
             'nama.max' => 'Nama QR Code maksimal 150 karakter.',
             'link.required' => 'Link tujuan wajib diisi.',
             'link.url' => 'Masukkan URL yang valid, misalnya https://contoh.com.',
-            'link.max' => 'Link maksimal 2048 karakter.',
+            'link.max' => 'Link maksimal ' . self::MAKS_LINK . ' karakter.',
         ]);
 
         $item->nama = $validated['nama'];
@@ -151,7 +148,7 @@ class GenerateQRLinkController extends Controller
 
         return response()->json([
             'status' => true,
-            'url' => $this->getQrUrl($item->qr_code),
+            'url' => $this->getQrUrl($item),
             'nama' => $item->nama,
         ]);
     }
@@ -160,7 +157,6 @@ class GenerateQRLinkController extends Controller
     {
         $item = QRCodeLink::findOrFail($id);
 
-        // Kolom qr_code sekarang menyimpan URL lengkap.
         $path = $this->getQrPath($item->qr_code);
 
         if ($path) {
@@ -176,7 +172,7 @@ class GenerateQRLinkController extends Controller
     }
 
     /**
-     * Membuat file QR dan menyimpan URL lengkap ke database.
+     * Membuat file QR dan menyimpan path relatifnya, supaya tidak terikat ke alamat web tertentu.
      */
     private function generateQrCode(QRCodeLink $item): void
     {
@@ -190,39 +186,22 @@ class GenerateQRLinkController extends Controller
 
         Storage::disk('public')->put($path, (string) $svg);
 
-        // Contoh:
-        // http://127.0.0.1:8000/storage/qr-codes/1.svg
-        $item->qr_code = $this->getQrUrl($path);
+        $item->qr_code = $path;
         $item->save();
     }
 
     /**
-     * Mengubah path atau URL QR menjadi URL lengkap.
+     * URL gambar mengikuti alamat web yang sedang dibuka. Versi mencegah gambar lama dari cache browser.
      */
-    private function getQrUrl(?string $value): ?string
+    private function getQrUrl(QRCodeLink $item): ?string
     {
-        if (!$value) {
-            return null;
-        }
+        $path = $this->getQrPath($item->qr_code);
 
-        // Jika sudah URL lengkap, gunakan URL tersebut.
-        if (filter_var($value, FILTER_VALIDATE_URL)) {
-            return $value;
-        }
-
-        $path = ltrim($value, '/');
-
-        // Mendukung data lama yang hanya berisi qr-codes/1.svg.
-        if (str_starts_with($path, 'storage/')) {
-            $path = substr($path, strlen('storage/'));
-        }
-
-        return url(Storage::disk('public')->url($path));
+        return $path ? asset('storage/' . $path) . '?v=' . $item->updated_at?->timestamp : null;
     }
 
     /**
-     * Mengambil path relatif dari path atau URL lengkap.
-     * Dibutuhkan agar Storage dapat membaca dan menghapus file.
+     * Mengambil path relatif, termasuk dari data lama yang menyimpan URL lengkap.
      */
     private function getQrPath(?string $value): ?string
     {

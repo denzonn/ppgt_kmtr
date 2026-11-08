@@ -209,7 +209,6 @@
             const inventarisDataUrl = @json(route('inventaris.getData'));
             const csrfToken = @json(csrf_token());
             const noImageUrl = @json(asset('images/no-image.svg'));
-            const storageUrl = @json(asset('storage'));
 
             const jenisInventaris = {
                 PAK: 'Perlengkapan Administrasi Kesekretariatan',
@@ -295,12 +294,7 @@
             }
 
             function fotoUrl(foto) {
-                if (!foto) return noImageUrl;
-
-                return storageUrl + '/' + String(foto)
-                    .split('/')
-                    .map(encodeURIComponent)
-                    .join('/');
+                return foto || noImageUrl;
             }
 
             function renderJenis(jenis) {
@@ -766,11 +760,36 @@
             // FORM INVENTARIS
             // ==========================================
 
+            // Menampilkan/menyembunyikan input kondisi. Input yang ditutup dikosongkan
+            // agar nilainya tidak ikut tersimpan tanpa terlihat.
+            function toggleKondisi(button, show) {
+                const box = $('#' + button.attr('aria-controls'));
+
+                box.toggleClass('hidden', !show);
+                button.attr('aria-expanded', show);
+                button.find('i').toggleClass('fa-plus', !show).toggleClass('fa-xmark', show);
+
+                if (!show) box.find('input').val('');
+            }
+
+            $('.btnKondisi').on('click', function() {
+                const button = $(this);
+                const show = button.attr('aria-expanded') !== 'true';
+
+                toggleKondisi(button, show);
+
+                if (show) $('#' + button.attr('aria-controls')).find('input').trigger('focus');
+            });
+
             function resetFormInventaris() {
                 const form = $('#formInventaris');
 
                 form[0].reset();
                 form.removeData('id');
+
+                $('.btnKondisi').each(function() {
+                    toggleKondisi($(this), false);
+                });
 
                 $('#methodInventaris').val('POST');
                 $('#modalTitle').text('Tambah Inventaris');
@@ -819,6 +838,15 @@
 
                         (res.kondisi || []).forEach(function(item) {
                             $(`#formInventaris [name="kondisi[${item.kondisi}]"]`).val(item.jumlah);
+                        });
+
+                        // Kondisi yang sudah berisi langsung ditampilkan saat edit.
+                        $('.btnKondisi').each(function() {
+                            const button = $(this);
+
+                            if ($('#' + button.attr('aria-controls')).find('input').val()) {
+                                toggleKondisi(button, true);
+                            }
                         });
 
                         showModal('modalInventaris');
@@ -883,6 +911,11 @@
                 const formData = new FormData(this);
 
                 formData.set('harga', $('#harga').val().replace(/\D/g, ''));
+
+                // Kondisi yang tidak diisi dikirim sebagai 0.
+                form.find('[name^="kondisi["]').each(function() {
+                    formData.set(this.name, this.value || 0);
+                });
 
                 button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...');
 

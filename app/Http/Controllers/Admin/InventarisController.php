@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Support\FileUpload;
 use App\Http\Controllers\Controller;
 use App\Models\Inventaris;
 use App\Models\InventarisKondisi;
 use App\Models\PeminjamanDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class InventarisController extends Controller
@@ -127,7 +127,7 @@ class InventarisController extends Controller
             'kondisi.*' => 'required|integer|min:0',
         ]);
 
-        $imageName = $request->file('foto')?->store('inventaris', 'public');
+        $imageName = $request->hasFile('foto') ? FileUpload::simpan($request->file('foto'), 'inventaris') : null;
 
         $inventaris = Inventaris::create([
             'kode_inventaris' => $this->generateKodeInventaris(
@@ -197,26 +197,25 @@ class InventarisController extends Controller
 
         if ($request->hasFile('foto')) {
             if ($inventaris->foto) {
-                Storage::disk('public')->delete($inventaris->foto);
+                FileUpload::hapus($inventaris->foto);
             }
 
-            $data['foto'] = $request->file('foto')
-                ->store('inventaris', 'public');
+            $data['foto'] = FileUpload::simpan($request->file('foto'), 'inventaris');
         }
 
         $inventaris->update($data);
 
-        InventarisKondisi::where('id_inventaris', $id)->delete();
+        // Hanya kondisi yang berubah yang disentuh, supaya audit log mencatat perubahan sebenarnya.
+        $lama = InventarisKondisi::where('id_inventaris', $id)->get()->keyBy('kondisi');
 
         foreach ($request->kondisi as $kondisi => $jumlah) {
             if ($jumlah > 0) {
-                InventarisKondisi::create([
-                    'id_inventaris' => $id,
-                    'kondisi' => $kondisi,
-                    'jumlah' => $jumlah,
-                ]);
+                $baris = $lama->pull($kondisi) ?? new InventarisKondisi(['id_inventaris' => $id, 'kondisi' => $kondisi]);
+                $baris->fill(['jumlah' => $jumlah])->save();
             }
         }
+
+        $lama->each->delete();
 
         return response()->json([
             'status' => true,
@@ -242,11 +241,11 @@ class InventarisController extends Controller
         }
 
         if ($inventaris->foto) {
-            Storage::disk('public')->delete($inventaris->foto);
+            FileUpload::hapus($inventaris->foto);
         }
 
         // hapus kondisi
-        $inventaris->kondisi()->delete();
+        $inventaris->kondisi->each->delete();
 
         // hapus inventaris
         $inventaris->delete();

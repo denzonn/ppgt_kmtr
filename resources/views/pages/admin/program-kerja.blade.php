@@ -10,44 +10,63 @@
 
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="text-xl font-bold text-slate-800 md:text-2xl">Program Kerja</h2>
-                <p class="mt-1 text-sm text-slate-500">Kelola program kerja dan kegiatan periode {{ $periode->nama }}.</p>
+                <h2 class="text-xl font-bold text-slate-800">Program Kerja</h2>
+                <p class="mt-1 text-sm text-slate-500">Kelola program dan kegiatan periode {{ $periode->nama }}.</p>
             </div>
-
-            <button type="button" onclick="tambahProgram()"
-                class="inline-flex items-center justify-center gap-2 rounded-xl
-            bg-primary px-5 py-3 text-sm font-semibold text-white
-            transition hover:bg-primary_hover active:scale-[0.98]">
-                <i class="fa-solid fa-plus"></i>
+            <button type="button" onclick="tambahProgram()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
+                <i class="fas fa-plus"></i>
                 Tambah Program
             </button>
         </div>
 
-        <div class="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2">
-            <select id="filterTahun" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
-                <option value="">Semua tahun</option>
-                @foreach ($tahuns as $t)
-                    <option value="{{ $t }}">{{ $t }}</option>
-                @endforeach
-            </select>
-            <select id="filterBidang" class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
-                <option value="">Semua bidang</option>
-                @foreach ($bidangs as $b)
-                    <option value="{{ $b->id }}">{{ $b->nama }}</option>
-                @endforeach
-            </select>
+        <div class="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm xl:flex-row xl:items-center xl:justify-between">
+            <dl class="grid grid-cols-2 gap-y-3 sm:flex sm:divide-x sm:divide-slate-200">
+                <div class="sm:pr-8">
+                    <dt class="text-xs text-slate-500">Program</dt>
+                    <dd id="ringkasanProgram" class="mt-0.5 text-lg font-bold text-slate-800">-</dd>
+                </div>
+                <div class="sm:px-8">
+                    <dt class="text-xs text-slate-500">Kegiatan</dt>
+                    <dd id="ringkasanKegiatan" class="mt-0.5 text-lg font-bold text-slate-800">-</dd>
+                </div>
+                <div class="col-span-2 border-t border-slate-100 pt-3 sm:border-t-0 sm:pl-8 sm:pt-0">
+                    <dt class="text-xs text-slate-500">Total anggaran</dt>
+                    <dd id="ringkasanAnggaran" class="mt-0.5 whitespace-nowrap text-lg font-bold text-primary">-</dd>
+                </div>
+            </dl>
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:flex xl:items-center">
+                <select id="filterTahun" aria-label="Saring tahun" class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3.5 pr-9 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 xl:w-40">
+                    <option value="">Semua Tahun</option>
+                    @foreach ($tahuns as $t)
+                        <option value="{{ $t }}">{{ $t }}</option>
+                    @endforeach
+                </select>
+                <select id="filterBidang" aria-label="Saring bidang" class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3.5 pr-9 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 xl:w-64">
+                    <option value="">Semua Bidang</option>
+                    @foreach ($bidangs as $b)
+                        <option value="{{ $b->id }}">{{ $b->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
         </div>
 
-        <div id="daftarProgram" class="space-y-4"></div>
+        <div id="daftarProgram" class="space-y-8"></div>
 
-        <div id="paginationProgram" class="flex flex-wrap justify-end gap-2"></div>
+        <div id="paginationProgram" class="flex flex-wrap justify-end gap-2 empty:hidden"></div>
     </div>
 
     {{-- Modal Program --}}
-    <div id="modalProgram" class="fixed inset-0 z-[100] hidden items-center justify-center overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm">
-        <div class="my-auto w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <h3 id="modalProgramTitle" class="text-lg font-bold text-slate-800">Tambah Program</h3>
+    <div id="modalProgram"
+        class="modal-overlay fixed inset-0 z-[1000] hidden overflow-y-auto bg-slate-950/50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="modal-content mx-auto my-6 w-full max-w-lg scale-95 -translate-y-6 rounded-2xl bg-white shadow-2xl transition-all duration-300">
+            <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <i class="fas fa-clipboard-list text-lg"></i>
+                    </div>
+                    <h3 id="modalProgramTitle" class="text-lg font-bold text-slate-800">Tambah Program</h3>
+                </div>
                 <button type="button" onclick="tutupModal('modalProgram')"
                     class="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -57,18 +76,14 @@
             <form id="formProgram" class="space-y-5 p-6">
                 <input type="hidden" id="program_id">
 
-                <div>
-                    <label for="program_tahun" class="mb-2 block text-sm font-semibold text-slate-700">Tahun</label>
-                    <select id="program_tahun" required class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
-                        @foreach ($tahuns as $t)
-                            <option value="{{ $t }}">{{ $t }}</option>
-                        @endforeach
-                    </select>
+                <div class="flex items-center justify-between rounded-xl bg-primary/5 px-4 py-3">
+                    <span class="text-sm font-semibold text-slate-700"><i class="fas fa-calendar-days mr-2 text-primary"></i>Tahun Program</span>
+                    <span id="program_tahun_teks" class="font-bold text-primary">{{ $tahunBerjalan }}</span>
                 </div>
 
-                <div>
+<div>
                     <label for="program_bidang" class="mb-2 block text-sm font-semibold text-slate-700">Bidang</label>
-                    <select id="program_bidang" required class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
+                    <select id="program_bidang" required class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
                         <option value="">Pilih bidang</option>
                         @foreach ($bidangs as $b)
                             <option value="{{ $b->id }}">{{ $b->nama }}</option>
@@ -78,8 +93,8 @@
 
                 <div>
                     <label for="program_nama" class="mb-2 block text-sm font-semibold text-slate-700">Nama Program</label>
-                    <input type="text" id="program_nama" required maxlength="255"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
+                    <input type="text" id="program_nama" placeholder="Contoh: Perlawatan" required maxlength="255"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
                 </div>
 
                 <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
@@ -93,10 +108,16 @@
     </div>
 
     {{-- Modal Kegiatan --}}
-    <div id="modalKegiatan" class="fixed inset-0 z-[100] hidden items-center justify-center overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm">
-        <div class="my-auto w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <h3 id="modalKegiatanTitle" class="text-lg font-bold text-slate-800">Tambah Kegiatan</h3>
+    <div id="modalKegiatan"
+        class="modal-overlay fixed inset-0 z-[1000] hidden overflow-y-auto bg-slate-950/50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="modal-content mx-auto my-6 w-full max-w-lg scale-95 -translate-y-6 rounded-2xl bg-white shadow-2xl transition-all duration-300">
+            <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <i class="fas fa-calendar-check text-lg"></i>
+                    </div>
+                    <h3 id="modalKegiatanTitle" class="text-lg font-bold text-slate-800">Tambah Kegiatan</h3>
+                </div>
                 <button type="button" onclick="tutupModal('modalKegiatan')"
                     class="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -109,30 +130,29 @@
 
                 <div>
                     <label for="kegiatan_nama" class="mb-2 block text-sm font-semibold text-slate-700">Nama Kegiatan</label>
-                    <input type="text" id="kegiatan_nama" required maxlength="255"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
+                    <input type="text" id="kegiatan_nama" placeholder="Contoh: Perlawatan Jemaat Tahun 2026" required maxlength="255"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
                 </div>
 
                 <div>
                     <label for="kegiatan_deskripsi" class="mb-2 block text-sm font-semibold text-slate-700">Deskripsi</label>
-                    <textarea id="kegiatan_deskripsi" rows="3" required
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-primary focus:ring-primary"></textarea>
+                    <textarea id="kegiatan_deskripsi" placeholder="Contoh: Melakukan perkunjungan ke jemaat-jemaat" rows="3" required
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-primary focus:ring-primary"></textarea>
                 </div>
 
                 <div>
                     <label for="kegiatan_anggaran" class="mb-2 block text-sm font-semibold text-slate-700">Anggaran (Rp)</label>
-                    <input type="number" id="kegiatan_anggaran" min="0" step="1" required
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
+                    <input type="number" id="kegiatan_anggaran" placeholder="Contoh: 5000000" min="0" step="1" required
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
                 </div>
 
                 <div>
                     <span class="mb-2 block text-sm font-semibold text-slate-700">Bulan Pelaksanaan</span>
-                    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    <div class="grid grid-cols-3 gap-2 sm:grid-cols-4">
                         @foreach (['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'] as $i => $bulan)
-                            <label class="flex items-center gap-2 text-sm text-slate-700">
-                                <input type="checkbox" name="kegiatan_bulan" value="{{ $i + 1 }}"
-                                    class="rounded border-slate-300 text-primary focus:ring-primary">
-                                {{ $bulan }}
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="kegiatan_bulan" value="{{ $i + 1 }}" class="peer sr-only">
+                                <span class="block rounded-lg border border-slate-300 px-2 py-2 text-center text-xs font-medium text-slate-600 transition hover:border-primary peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-primary">{{ $bulan }}</span>
                             </label>
                         @endforeach
                     </div>
@@ -149,10 +169,16 @@
     </div>
 
     {{-- Modal Dokumentasi --}}
-    <div id="modalDokumentasi" class="fixed inset-0 z-[100] hidden items-center justify-center overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm">
-        <div class="my-auto w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <h3 class="text-lg font-bold text-slate-800">Dokumentasi Kegiatan</h3>
+    <div id="modalDokumentasi"
+        class="modal-overlay fixed inset-0 z-[1000] hidden overflow-y-auto bg-slate-950/50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="modal-content mx-auto my-6 w-full max-w-lg scale-95 -translate-y-6 rounded-2xl bg-white shadow-2xl transition-all duration-300">
+            <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <i class="fas fa-camera text-lg"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800">Dokumentasi Kegiatan</h3>
+                </div>
                 <button type="button" onclick="tutupModal('modalDokumentasi')"
                     class="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -166,7 +192,7 @@
                     <label for="dok_foto" class="mb-2 block text-sm font-semibold text-slate-700">Foto (JPG/PNG, maks. 2 MB)</label>
                     <img id="dok_preview" alt="Foto kegiatan" class="mb-3 hidden max-h-48 rounded-xl border border-slate-200">
                     <input type="file" id="dok_foto" accept="image/jpeg,image/png"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm">
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm">
                     <label id="dok_hapus_wrap" class="mt-2 hidden items-center gap-2 text-sm text-slate-700">
                         <input type="checkbox" id="dok_hapus" class="rounded border-slate-300 text-primary focus:ring-primary">
                         Hapus foto saat ini
@@ -176,7 +202,7 @@
                 <div>
                     <label for="dok_link" class="mb-2 block text-sm font-semibold text-slate-700">Link Dokumentasi</label>
                     <input type="url" id="dok_link" maxlength="2048" placeholder="https://..."
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-primary focus:ring-primary">
                 </div>
 
                 <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
@@ -196,7 +222,8 @@
         const pkBase = @json(route('kepengurusan.program_kerja.index', $periode)).replace(/\/$/, '');
         const kegiatanBase = pkBase.replace(/\/program-kerja$/, '/kegiatan');
         const csrf = @json(csrf_token());
-        const storageUrl = @json(asset('storage'));
+        const tahunBerjalan = @json($tahunBerjalan);
+        const daftarBidang = @json($bidangs->map(fn ($b) => ['id' => $b->id, 'nama' => $b->nama])->values());
         const namaBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
         let pkPage = 1;
@@ -213,13 +240,11 @@
         }
 
         function bukaModal(id) {
-            $('#' + id).removeClass('hidden').addClass('flex');
-            document.body.classList.add('overflow-hidden');
+            showModal(id);
         }
 
         function tutupModal(id) {
-            $('#' + id).addClass('hidden').removeClass('flex');
-            document.body.classList.remove('overflow-hidden');
+            closeModal(id);
         }
 
         function tampilError(xhr, fallback) {
@@ -273,9 +298,11 @@
         }
 
         // ---------- Program ----------
-        function tambahProgram() {
+        function tambahProgram(bidangId = '') {
             $('#formProgram')[0].reset();
             $('#program_id').val('');
+            $('#program_bidang').val(bidangId);
+            $('#program_tahun_teks').text(tahunBerjalan);
             $('#modalProgramTitle').text('Tambah Program');
             bukaModal('modalProgram');
         }
@@ -283,7 +310,7 @@
         function editProgram(id) {
             const p = pkRows[id];
             $('#program_id').val(p.id);
-            $('#program_tahun').val(p.tahun);
+            $('#program_tahun_teks').text(p.tahun);
             $('#program_bidang').val(p.bidang_id);
             $('#program_nama').val(p.nama);
             $('#modalProgramTitle').text('Edit Program');
@@ -294,7 +321,6 @@
             e.preventDefault();
             const id = $('#program_id').val();
             kirim(id ? `${pkBase}/${id}` : pkBase, id ? 'PUT' : 'POST', {
-                tahun: $('#program_tahun').val(),
                 bidang_id: $('#program_bidang').val(),
                 nama: $('#program_nama').val()
             }, $('#btnSimpanProgram'), function(res) {
@@ -364,7 +390,7 @@
             $('#formDokumentasi')[0].reset();
             $('#dok_id').val(k.id);
             $('#dok_link').val(k.link ?? '');
-            $('#dok_preview').toggleClass('hidden', !k.foto).attr('src', k.foto ? storageUrl + '/' + k.foto : '');
+            $('#dok_preview').toggleClass('hidden', !k.foto).attr('src', k.foto || '');
             $('#dok_hapus_wrap').toggleClass('hidden', !k.foto).toggleClass('flex', !!k.foto);
             bukaModal('modalDokumentasi');
         }
@@ -385,57 +411,132 @@
         });
 
         // ---------- Daftar ----------
+        const tombolAksi = 'flex h-9 w-9 flex-none items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition';
+        const tombolEdit = `${tombolAksi} hover:border-primary hover:text-primary`;
+        const tombolHapus = `${tombolAksi} hover:border-red-300 hover:bg-red-50 hover:text-red-600`;
+
+        // Bulan berurutan diringkas jadi rentang: [1,2,3,7] menjadi "Jan–Mar, Jul".
+        function labelBulan(bulan) {
+            const rentang = [];
+            [...bulan].sort((a, b) => a - b).forEach(b => {
+                const akhir = rentang[rentang.length - 1];
+                if (akhir && akhir[1] === b - 1) akhir[1] = b;
+                else rentang.push([b, b]);
+            });
+
+            return rentang.map(([a, b]) => a === b ? namaBulan[a - 1] : `${namaBulan[a - 1]}–${namaBulan[b - 1]}`).join(', ');
+        }
+
+        function stripBulan(bulan) {
+            return namaBulan.map((nama, i) => {
+                const aktif = bulan.includes(i + 1);
+                return `<span title="${nama}" class="flex h-6 flex-1 items-center justify-center rounded text-[10px] font-semibold ${aktif ? 'bg-primary text-white' : 'bg-slate-100 text-slate-400'}">${nama[0]}</span>`;
+            }).join('');
+        }
+
+        function bukaDeskripsi(tombol) {
+            const teks = tombol.previousElementSibling;
+            const tertutup = teks.classList.toggle('line-clamp-2');
+            tombol.textContent = tertutup ? 'Selengkapnya' : 'Tutup';
+            tombol.setAttribute('aria-expanded', String(!tertutup));
+        }
+
         function renderKegiatan(k) {
-            const bulan = k.bulan.map(b => namaBulan[b - 1]).join(', ');
-            const link = k.link ?
-                `<a href="${esc(k.link)}" target="_blank" rel="noopener" class="text-primary underline">Link</a>` : '';
+            const panjang = k.deskripsi && (k.deskripsi.length > 150 || k.deskripsi.includes('\n'));
             const foto = k.foto ?
-                `<a href="${esc(storageUrl)}/${esc(k.foto)}" target="_blank" rel="noopener" class="text-primary underline">Foto</a>` : '';
-            const dok = [foto, link].filter(Boolean).join(' | ') || '-';
+                `<a href="${esc(k.foto)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 rounded-lg bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/10"><i class="fas fa-image"></i>Foto</a>` : '';
+            const link = k.link ?
+                `<a href="${esc(k.link)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 rounded-lg bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/10"><i class="fas fa-link"></i>Link</a>` : '';
 
             return `
-            <tr>
-                <td class="px-4 py-3 font-semibold text-slate-800">${esc(k.nama)}<div class="font-normal text-slate-500">${esc(k.deskripsi)}</div></td>
-                <td class="px-4 py-3 whitespace-nowrap">${esc(bulan)}</td>
-                <td class="px-4 py-3 whitespace-nowrap">${esc(rupiah(k.anggaran))}</td>
-                <td class="px-4 py-3">${dok}</td>
-                <td class="px-4 py-3">
-                    <div class="flex justify-center gap-2">
-                        <button onclick="dokumentasi(${k.id})" class="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200">Dokumentasi</button>
-                        <button onclick="editKegiatan(${k.id})" title="Edit" class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="hapusKegiatan(${k.id})" title="Hapus" class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100"><i class="fa-solid fa-trash"></i></button>
+            <article class="grid gap-4 px-5 py-5 transition hover:bg-slate-50/70 lg:grid-cols-[minmax(0,1fr)_15rem_8.5rem_auto] lg:gap-6">
+                <div class="min-w-0">
+                    <h5 class="font-semibold leading-snug text-slate-800">${esc(k.nama)}</h5>
+                    <p class="${panjang ? 'line-clamp-2 ' : ''}mt-1 whitespace-pre-line text-sm leading-6 text-slate-500">${esc(k.deskripsi)}</p>
+                    ${panjang ? '<button type="button" onclick="bukaDeskripsi(this)" aria-expanded="false" class="mt-1 text-xs font-semibold text-primary hover:underline">Selengkapnya</button>' : ''}
+                    <div class="mt-3 flex flex-wrap items-center gap-2">
+                        ${foto}${link}
+                        <button type="button" onclick="dokumentasi(${k.id})" class="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-500 transition hover:border-primary hover:text-primary"><i class="fas fa-camera"></i>${k.foto || k.link ? 'Ubah dokumentasi' : 'Tambah dokumentasi'}</button>
                     </div>
-                </td>
-            </tr>`;
+                </div>
+
+                <div>
+                    <p class="text-xs text-slate-500">Pelaksanaan: <span class="font-semibold text-slate-700">${esc(labelBulan(k.bulan))}</span></p>
+                    <div class="mt-2 flex gap-0.5" aria-hidden="true">${stripBulan(k.bulan)}</div>
+                </div>
+
+                <div>
+                    <p class="text-xs text-slate-500">Anggaran</p>
+                    <p class="mt-1 whitespace-nowrap font-bold text-slate-800">${esc(rupiah(k.anggaran))}</p>
+                </div>
+
+                <div class="flex items-start gap-2">
+                    <button type="button" onclick="editKegiatan(${k.id})" title="Edit kegiatan" aria-label="Edit kegiatan ${esc(k.nama)}" class="${tombolEdit}"><i class="fas fa-pen text-xs"></i></button>
+                    <button type="button" onclick="hapusKegiatan(${k.id})" title="Hapus kegiatan" aria-label="Hapus kegiatan ${esc(k.nama)}" class="${tombolHapus}"><i class="fas fa-trash text-xs"></i></button>
+                </div>
+            </article>`;
         }
 
         function renderProgram(p) {
-            const rows = p.kegiatans.length ?
-                p.kegiatans.map(renderKegiatan).join('') :
-                '<tr><td colspan="5" class="px-4 py-6 text-center text-slate-500">Belum ada kegiatan.</td></tr>';
+            const total = p.kegiatans.reduce((jumlah, k) => jumlah + Number(k.anggaran), 0);
+            const isi = p.kegiatans.length ?
+                `<div class="divide-y divide-slate-100">${p.kegiatans.map(renderKegiatan).join('')}</div>` :
+                `<div class="flex flex-col items-center gap-3 px-5 py-8 text-center">
+                    <p class="text-sm text-slate-500">Belum ada kegiatan pada program ini.</p>
+                    <button type="button" onclick="tambahKegiatan(${p.id})" class="inline-flex items-center gap-2 rounded-xl border border-dashed border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:border-primary hover:text-primary"><i class="fas fa-plus text-xs"></i>Tambah kegiatan pertama</button>
+                </div>`;
 
             return `
-            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div class="flex flex-col gap-3 border-b border-slate-100 bg-slate-50 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <div class="font-bold text-slate-800">${esc(p.nama)}</div>
-                        <div class="text-sm text-slate-500">${esc(p.bidang?.nama ?? '-')} - ${esc(p.tahun)}</div>
+            <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <header class="flex flex-col gap-4 border-b border-slate-100 border-l-4 border-l-primary px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="min-w-0">
+                        <h4 class="text-lg font-bold leading-snug text-slate-800">${esc(p.nama)}</h4>
+                        <p class="mt-1 text-xs text-slate-500">Tahun ${esc(p.tahun)} · ${p.kegiatans.length} kegiatan · ${esc(rupiah(total))}</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="tambahKegiatan(${p.id})" class="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white hover:bg-primary_hover">+ Kegiatan</button>
-                        <button onclick="editProgram(${p.id})" title="Edit" class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100"><i class="fa-solid fa-pen"></i></button>
-                        <button onclick="hapusProgram(${p.id})" title="Hapus" class="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100"><i class="fa-solid fa-trash"></i></button>
+                    <div class="flex flex-none items-center gap-2">
+                        <button type="button" onclick="tambahKegiatan(${p.id})" class="inline-flex h-9 items-center gap-1.5 rounded-xl bg-primary/10 px-3 text-xs font-semibold text-primary transition hover:bg-primary hover:text-white"><i class="fas fa-plus"></i>Kegiatan</button>
+                        <button type="button" onclick="editProgram(${p.id})" title="Edit program" aria-label="Edit program ${esc(p.nama)}" class="${tombolEdit}"><i class="fas fa-pen text-xs"></i></button>
+                        <button type="button" onclick="hapusProgram(${p.id})" title="Hapus program" aria-label="Hapus program ${esc(p.nama)}" class="${tombolHapus}"><i class="fas fa-trash text-xs"></i></button>
                     </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-[700px] text-sm">
-                        <thead><tr class="text-left text-slate-600">
-                            <th class="px-4 py-3">Kegiatan</th><th class="px-4 py-3">Bulan</th><th class="px-4 py-3">Anggaran</th><th class="px-4 py-3">Dokumentasi</th><th class="px-4 py-3 text-center">Aksi</th>
-                        </tr></thead>
-                        <tbody class="divide-y divide-slate-100">${rows}</tbody>
-                    </table>
-                </div>
-            </div>`;
+                </header>
+                ${isi}
+            </section>`;
+        }
+
+        function renderBidang(b, nomor, programs) {
+            const kegiatans = programs.flatMap(p => p.kegiatans);
+            const total = kegiatans.reduce((jumlah, k) => jumlah + Number(k.anggaran), 0);
+            const isi = programs.length ?
+                `<div class="space-y-4">${programs.map(renderProgram).join('')}</div>` :
+                '<p class="rounded-2xl border border-dashed border-slate-300 px-5 py-6 text-center text-sm text-slate-500">Belum ada program pada bidang ini.</p>';
+
+            return `
+            <section>
+                <header class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex min-w-0 items-center gap-3">
+                        <span class="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-primary text-sm font-bold text-white">${String(nomor).padStart(2, '0')}</span>
+                        <div class="min-w-0">
+                            <h3 class="font-bold leading-snug text-slate-800">${esc(b.nama)}</h3>
+                            <p class="text-xs text-slate-500">${programs.length} program · ${kegiatans.length} kegiatan · ${esc(rupiah(total))}</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="tambahProgram(${b.id})" class="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:border-primary hover:text-primary"><i class="fas fa-plus"></i>Program</button>
+                </header>
+                ${isi}
+            </section>`;
+        }
+
+        // Bidang kosong hanya ditampilkan kalau semua program muat di satu halaman,
+        // karena di halaman lain programnya belum tentu benar-benar kosong.
+        function renderDaftar(data, satuHalaman) {
+            const terpilih = Number($('#filterBidang').val());
+            const html = daftarBidang
+                .map((b, i) => ({ b, nomor: i + 1, programs: data.filter(p => Number(p.bidang_id) === b.id) }))
+                .filter(g => (!terpilih || g.b.id === terpilih) && (satuHalaman || g.programs.length))
+                .map(g => renderBidang(g.b, g.nomor, g.programs))
+                .join('');
+
+            return html || '<div class="rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center text-sm text-slate-500">Program kerja tidak ditemukan.</div>';
         }
 
         function loadProgram(page = 1) {
@@ -449,31 +550,24 @@
                 pkRows = {};
                 data.forEach(p => pkRows[p.id] = p);
 
-                $('#daftarProgram').html(data.length ? data.map(renderProgram).join('') :
-                    '<div class="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center text-slate-500">Program kerja tidak ditemukan.</div>');
+                $('#ringkasanProgram').text(res.total);
+                $('#ringkasanKegiatan').text(res.ringkasan.kegiatan);
+                $('#ringkasanAnggaran').text(rupiah(res.ringkasan.anggaran));
+
+                $('#daftarProgram').html(renderDaftar(data, res.last_page === 1));
 
                 let html = '';
                 if (res.last_page > 1) {
                     for (let i = 1; i <= res.last_page; i++) {
-                        html += `<button onclick="loadProgram(${i})"
-                            class="rounded-lg border px-3 py-2 text-sm transition ${i === res.current_page ? 'border-primary bg-primary text-white' : 'hover:bg-slate-50'}">${i}</button>`;
+                        html += `<button type="button" onclick="loadProgram(${i})"
+                            class="rounded-lg border px-3 py-2 text-sm transition ${i === res.current_page ? 'border-primary bg-primary text-white' : 'border-slate-200 bg-white hover:bg-slate-50'}">${i}</button>`;
                     }
                 }
                 $('#paginationProgram').html(html);
             }).fail(function() {
-                $('#daftarProgram').html('<div class="px-6 py-10 text-center text-red-600">Gagal memuat program kerja.</div>');
+                $('#daftarProgram').html('<div class="rounded-2xl border border-slate-200 bg-white px-6 py-10 text-center text-red-600">Gagal memuat program kerja.</div>');
             });
         }
-
-        ['modalProgram', 'modalKegiatan', 'modalDokumentasi'].forEach(id => {
-            document.getElementById(id).addEventListener('click', function(e) {
-                if (e.target === this) tutupModal(id);
-            });
-        });
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') ['modalProgram', 'modalKegiatan', 'modalDokumentasi'].forEach(tutupModal);
-        });
 
         $('#filterTahun, #filterBidang').on('change', () => loadProgram(1));
 

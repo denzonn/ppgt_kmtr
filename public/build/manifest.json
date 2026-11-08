@@ -1,7 +1,12 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-CbeINjBj.css",
+    "file": "assets/app-DQg0Tqcn.css",
     "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/css/konten-artikel.css": {
+    "file": "assets/konten-artikel-CrN_Aplf.css",
+    "src": "resources/css/konten-artikel.css",
     "isEntry": true
   },
   "resources/js/app.js": {
@@ -9,5 +14,14 @@
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true
+  },
+  "resources/js/artikel-editor.js": {
+    "file": "assets/artikel-editor-CGFrkGgb.js",
+    "name": "artikel-editor",
+    "src": "resources/js/artikel-editor.js",
+    "isEntry": true,
+    "css": [
+      "assets/artikel-editor-1VHYeXva.css"
+    ]
   }
 }

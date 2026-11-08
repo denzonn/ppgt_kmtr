@@ -1,0 +1,196 @@
+@import 'ckeditor5/ckeditor5-content.css';
+
+/*
+ * Gaya isi artikel, dipakai bersama oleh editor dan halaman baca lewat class .ck-content,
+ * supaya hasilnya sama persis. Tailwind menghapus gaya bawaan h2, ul, dan lainnya,
+ * jadi semuanya ditulis ulang di sini.
+ */
+
+:root {
+    --ck-content-font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+}
+
+.ck-editor__editable_inline {
+    min-height: 480px;
+}
+
+/* Toolbar yang menempel harus tetap di bawah navbar (z-30) dan sidebar. */
+.ck.ck-sticky-panel .ck-sticky-panel__content_sticky {
+    z-index: 20;
+}
+
+/* Di halaman tulis, editor menyatu dengan kartu supaya terasa seperti selembar dokumen. */
+.artikel-kertas .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content {
+    border: 0;
+}
+
+.artikel-kertas .ck-rounded-corners .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content .ck-toolbar,
+.artikel-kertas .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content .ck-toolbar {
+    border: 0;
+    border-block: 1px solid #f1f5f9;
+    border-radius: 0;
+    background: #f8fafc;
+    padding-inline: 1rem;
+}
+
+.artikel-kertas .ck.ck-editor__main > .ck-editor__editable,
+.artikel-kertas .ck.ck-editor__main > .ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    outline: none;
+    padding: 0.75rem 2rem 2rem;
+}
+
+@media (max-width: 767px) {
+    .artikel-kertas .ck.ck-editor__main > .ck-editor__editable,
+    .artikel-kertas .ck.ck-editor__main > .ck-editor__editable.ck-focused:not(.ck-editor__nested-editable) {
+        padding-inline: 1.25rem;
+    }
+}
+
+.ck-content {
+    font-family: var(--ck-content-font-family);
+    color: #334155;
+    font-size: 0.9375rem;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+}
+
+.ck-content::after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+.ck-content p {
+    margin: 0.75rem 0;
+}
+
+.ck-content h2,
+.ck-content h3,
+.ck-content h4 {
+    color: #1e293b;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.ck-content h2 {
+    margin: 1.5rem 0 0.75rem;
+    font-size: 1.5rem;
+}
+
+.ck-content h3 {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 1.25rem;
+}
+
+.ck-content h4 {
+    margin: 1rem 0 0.5rem;
+    font-size: 1.0625rem;
+}
+
+.ck-content ul,
+.ck-content ol {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.ck-content ul {
+    list-style: disc;
+}
+
+.ck-content ol {
+    list-style: decimal;
+}
+
+.ck-content ul ul {
+    list-style: circle;
+}
+
+.ck-content ol ol {
+    list-style: lower-latin;
+}
+
+.ck-content li {
+    margin: 0.25rem 0;
+}
+
+.ck-content li > ul,
+.ck-content li > ol,
+.ck-content li > p {
+    margin: 0.25rem 0;
+}
+
+.ck-content a {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.ck-content strong,
+.ck-content b {
+    font-weight: 700;
+}
+
+.ck-content i,
+.ck-content em {
+    font-style: italic;
+}
+
+.ck-content u {
+    text-decoration: underline;
+}
+
+.ck-content s {
+    text-decoration: line-through;
+}
+
+.ck-content blockquote {
+    margin: 1rem 0;
+    padding: 0.25rem 1rem;
+    border-left: 4px solid #bfdbfe;
+    color: #475569;
+    font-style: italic;
+}
+
+.ck-content hr {
+    margin: 1.25rem 0;
+    border: 0;
+    border-top: 2px solid #e2e8f0;
+}
+
+.ck-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    border-radius: 0.5rem;
+}
+
+.ck-content figcaption {
+    padding: 0.5rem;
+    color: #64748b;
+    font-size: 0.8125rem;
+    text-align: center;
+}
+
+.ck-content .table th {
+    background: #f1f5f9;
+    font-weight: 700;
+}
+
+.ck-content .ta-left {
+    text-align: left;
+}
+
+.ck-content .ta-center {
+    text-align: center;
+}
+
+.ck-content .ta-right {
+    text-align: right;
+}
+
+.ck-content .ta-justify {
+    text-align: justify;
+}

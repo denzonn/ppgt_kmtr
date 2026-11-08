@@ -33,7 +33,7 @@
 
                     <h1 class="mt-4 text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight text-white break-words">
 
-                        {{ auth()->user()->nama_lengkap }}
+                        {{ auth()->user()->name }}
 
                     </h1>
 

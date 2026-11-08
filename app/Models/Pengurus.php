@@ -2,13 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 
 class Pengurus extends Model
 {
     protected $table = 'pengurus';
 
-    protected $fillable = ['periode_id', 'jabatan_id', 'data_anggota_id', 'bidang_id'];
+    protected $fillable = ['periode_id', 'jabatan_id', 'data_anggota_id', 'foto'];
+
+    protected function nama(): Attribute
+    {
+        return Attribute::get(fn () => $this->anggota?->nama);
+    }
 
     public function jabatan()
     {
@@ -18,10 +24,5 @@ class Pengurus extends Model
     public function anggota()
     {
         return $this->belongsTo(DataAnggota::class, 'data_anggota_id');
-    }
-
-    public function bidang()
-    {
-        return $this->belongsTo(Bidang::class);
     }
 }

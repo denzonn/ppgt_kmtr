@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jemaat;
 use App\Models\Periode;
 use App\Models\Role;
 use App\Models\User;
@@ -23,7 +24,9 @@ class PenggunaController extends Controller
         return view('pages.admin.pengguna', [
             'roles' => $roles,
             'periodes' => Periode::orderByDesc('tahun_mulai')->orderByDesc('tahun_selesai')->get(),
-            'butuhPeriode' => $roles->mapWithKeys(fn ($r) => [$r->id => array_intersect(array_keys(Role::MENU_KEPENGURUSAN), $r->menus ?? []) !== []]),
+            'butuhPeriode' => $roles->mapWithKeys(fn ($r) => [$r->id => $r->butuhPeriode()]),
+            'jemaats' => Jemaat::orderBy('nama')->get(['id', 'nama']),
+            'butuhJemaat' => $roles->mapWithKeys(fn ($r) => [$r->id => $r->butuhJemaat()]),
         ]);
     }
 
@@ -32,7 +35,7 @@ class PenggunaController extends Controller
         $search = trim((string) $request->input('search', ''));
 
         $paginator = $this->query()
-            ->with(['role:id,nama', 'periode'])
+            ->with(['role:id,nama', 'periode', 'jemaat:id,nama'])
             ->when($search !== '', fn ($q) => $q->where(fn ($w) => $w
                 ->where('name', 'like', '%' . $search . '%')
                 ->orWhere('email', 'like', '%' . $search . '%')))
@@ -60,6 +63,7 @@ class PenggunaController extends Controller
             'password' => [$user ? 'nullable' : 'required', 'string', 'min:6'],
             'role_id' => ['required', Rule::exists('roles', 'id')->where('is_admin', false)],
             'periode_id' => ['nullable', 'exists:periodes,id'],
+            'jemaat_id' => ['nullable', 'exists:jemaat,id'],
         ], [
             'name.required' => 'Nama wajib diisi.',
             'email.required' => 'Email wajib diisi.',
@@ -70,10 +74,16 @@ class PenggunaController extends Controller
             'role_id.required' => 'Role wajib dipilih.',
             'role_id.exists' => 'Role tidak valid.',
             'periode_id.exists' => 'Periode tidak valid.',
+            'jemaat_id.exists' => 'Jemaat tidak valid.',
         ]);
 
         $role = Role::find($data['role_id']);
-        $butuh = array_intersect(array_keys(Role::MENU_KEPENGURUSAN), $role->menus ?? []) !== [];
+        $butuh = $role->butuhPeriode();
+        $butuhJemaat = $role->butuhJemaat();
+
+        if ($butuhJemaat && empty($data['jemaat_id'])) {
+            $request->validate(['jemaat_id' => 'required'], ['jemaat_id.required' => 'Jemaat wajib dipilih untuk role ini.']);
+        }
 
         if ($butuh && empty($data['periode_id'])) {
             $request->validate(['periode_id' => 'required'], ['periode_id.required' => 'Periode wajib dipilih untuk role kepengurusan.']);
@@ -84,6 +94,7 @@ class PenggunaController extends Controller
             'email' => $data['email'],
             'role_id' => $role->id,
             'periode_id' => $butuh ? $data['periode_id'] : null,
+            'jemaat_id' => $butuhJemaat ? $data['jemaat_id'] : null,
         ];
 
         if (! empty($data['password'])) {
@@ -103,7 +114,7 @@ class PenggunaController extends Controller
 
     public function show($id)
     {
-        $user = $this->query()->with(['role:id,nama', 'periode'])->findOrFail($id);
+        $user = $this->query()->with(['role:id,nama', 'periode', 'jemaat:id,nama'])->findOrFail($id);
 
         return response()->json($user->makeVisible('password_view'));
     }

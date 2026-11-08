@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\FileUpload;
 use App\Models\Inventaris;
 use App\Models\InventarisKondisi;
 use App\Models\PeminjamanDetail;
@@ -53,8 +54,7 @@ class PeminjamanController extends Controller
             }
         }
 
-        $namaFoto = $request->file('foto_pengambilan')
-            ->store('peminjaman', 'public');
+        $namaFoto = FileUpload::simpan($request->file('foto_pengambilan'), 'peminjaman');
 
         DB::transaction(function () use ($request, $namaFoto) {
 

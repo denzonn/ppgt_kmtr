@@ -34,6 +34,7 @@
                             <li>Status wilayah otomatis menjadi Dalam Wilayah.</li>
                             <li>Nomor anggota yang sudah terdaftar akan dilewati.</li>
                             <li>Jemaat harus sudah tersedia di database.</li>
+                            <li>Kolom <b>kelompok</b> boleh diisi. Kalau namanya belum terdaftar, anggota masuk tanpa kelompok.</li>
                         </ul>
                     </div>
                 </div>

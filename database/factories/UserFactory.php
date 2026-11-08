@@ -31,7 +31,7 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'password_view' => 'password',
-            'role_id' => fn () => Role::where('nama', 'Pengguna Periode')->value('id'),
+            'role_id' => fn () => Role::where('nama', 'Pengurus Klasis')->value('id'),
             'remember_token' => Str::random(10),
         ];
     }

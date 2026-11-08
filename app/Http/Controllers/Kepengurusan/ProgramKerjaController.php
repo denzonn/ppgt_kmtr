@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Kepengurusan;
 
 use App\Http\Controllers\Controller;
+use App\Models\Kegiatan;
 use App\Models\Periode;
 use App\Models\ProgramKerja;
 use Illuminate\Http\Request;
@@ -14,17 +15,24 @@ class ProgramKerjaController extends Controller
     {
         return view('pages.admin.program-kerja', [
             'periode' => $periode,
-            'bidangs' => $periode->bidangs()->orderBy('nama')->get(['id', 'nama']),
+            'bidangs' => $periode->bidangs()->orderBy('id')->get(['id', 'nama']),
             'tahuns' => range($periode->tahun_mulai, $periode->tahun_selesai),
+            'tahunBerjalan' => $periode->tahunBerjalan(),
         ]);
     }
 
     public function getData(Request $request, Periode $periode)
     {
-        $paginator = ProgramKerja::milikPeriode($periode)
-            ->with(['bidang:id,nama', 'kegiatans'])
+        $query = ProgramKerja::milikPeriode($periode)
             ->when($request->filled('tahun'), fn ($q) => $q->where('tahun', (int) $request->input('tahun')))
-            ->when($request->filled('bidang_id'), fn ($q) => $q->where('bidang_id', (int) $request->input('bidang_id')))
+            ->when($request->filled('bidang_id'), fn ($q) => $q->where('bidang_id', (int) $request->input('bidang_id')));
+
+        // Dihitung dari semua hasil saringan, bukan hanya halaman yang tampil.
+        $kegiatan = Kegiatan::whereIn('program_kerja_id', (clone $query)->select('id'));
+
+        $paginator = $query
+            ->with(['bidang:id,nama', 'kegiatans'])
+            ->orderBy('bidang_id')
             ->orderByDesc('tahun')
             ->orderBy('nama')
             ->paginate(25);
@@ -32,6 +40,10 @@ class ProgramKerjaController extends Controller
         return response()->json([
             'data' => $paginator->items(),
             'total' => $paginator->total(),
+            'ringkasan' => [
+                'kegiatan' => (clone $kegiatan)->count(),
+                'anggaran' => (int) (clone $kegiatan)->sum('anggaran'),
+            ],
             'from' => $paginator->firstItem(),
             'to' => $paginator->lastItem(),
             'current_page' => $paginator->currentPage(),
@@ -40,30 +52,29 @@ class ProgramKerjaController extends Controller
         ]);
     }
 
-    private function validated(Request $request, Periode $periode, ?int $ignoreId = null): array
+    /** Tahun tidak dipilih pengguna: program baru memakai tahun berjalan. */
+    private function validated(Request $request, Periode $periode, int $tahun, ?int $ignoreId = null): array
     {
-        return $request->validate([
-            'tahun' => ['required', 'integer', 'between:' . $periode->tahun_mulai . ',' . $periode->tahun_selesai],
+        $data = $request->validate([
             'bidang_id' => ['required', 'integer', Rule::exists('bidangs', 'id')->where('periode_id', $periode->id)],
             'nama' => ['required', 'string', 'max:255',
                 Rule::unique('program_kerjas', 'nama')
                     ->where('bidang_id', $request->input('bidang_id'))
-                    ->where('tahun', $request->input('tahun'))
+                    ->where('tahun', $tahun)
                     ->ignore($ignoreId)],
-        ], ['tahun.required' => 'Tahun wajib diisi.',
-            'tahun.integer' => 'Tahun tidak valid.',
-            'tahun.between' => 'Tahun harus berada dalam rentang periode.',
-            'bidang_id.required' => 'Bidang wajib dipilih.',
+        ], ['bidang_id.required' => 'Bidang wajib dipilih.',
             'bidang_id.integer' => 'Bidang tidak valid.',
             'bidang_id.exists' => 'Bidang tidak ditemukan pada periode ini.',
             'nama.required' => 'Nama program wajib diisi.',
             'nama.max' => 'Nama program maksimal 255 karakter.',
             'nama.unique' => 'Program dengan nama tersebut sudah ada pada bidang dan tahun ini.']);
+
+        return $data + ['tahun' => $tahun];
     }
 
     public function store(Request $request, Periode $periode)
     {
-        ProgramKerja::create($this->validated($request, $periode));
+        ProgramKerja::create($this->validated($request, $periode, $periode->tahunBerjalan()));
 
         return response()->json(['status' => true, 'message' => 'Program kerja berhasil ditambahkan.']);
     }
@@ -76,7 +87,7 @@ class ProgramKerjaController extends Controller
     public function update(Request $request, Periode $periode, $id)
     {
         $program = ProgramKerja::milikPeriode($periode)->findOrFail($id);
-        $program->update($this->validated($request, $periode, $program->id));
+        $program->update($this->validated($request, $periode, $program->tahun, $program->id));
 
         return response()->json(['status' => true, 'message' => 'Program kerja berhasil diperbarui.']);
     }

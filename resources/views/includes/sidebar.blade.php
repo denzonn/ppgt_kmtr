@@ -2,7 +2,55 @@
     $periodeAktif = request()->route('periode') ?? auth()->user()->periode;
     $page = trim($__env->yieldContent('page'));
 
-    $inventarisPeminjamanOpen = in_array($page, ['inventaris', 'peminjaman', 'pengembalian']);
+    $menuKepengurusan = [];
+
+    if ($periodeAktif) {
+        foreach (['program_kerja' => ['Program Kerja', 'fa-clipboard-list'], 'bidang' => ['Bidang', 'fa-sitemap'], 'jabatan' => ['Jabatan', 'fa-id-badge'], 'pengurus' => ['Pengurus', 'fa-user-tie'], 'pendampingan' => ['Rekap Pendampingan', 'fa-handshake-angle']] as $kunci => [$label, $ikon]) {
+            $menuKepengurusan[] = ['izin' => $kunci, 'label' => $label, 'ikon' => $ikon, 'url' => route('kepengurusan.' . $kunci . '.index', $periodeAktif), 'halaman' => [$kunci]];
+        }
+    }
+
+    // Entri dengan 'item' tampil sebagai grup, lainnya sebagai menu tunggal. Izin 'admin' hanya untuk administrator, 'semua' untuk setiap akun.
+    $daftarMenu = [
+        ['izin' => 'dashboard', 'label' => 'Dashboard', 'ikon' => 'fa-house', 'url' => route('dashboard'), 'halaman' => ['dashboard']],
+        // 'ringkas': kalau hanya satu submenu yang boleh dibuka, tampil sebagai menu tunggal.
+        ['kunci' => 'anggota', 'label' => 'Data Anggota', 'ikon' => 'fa-users', 'ringkas' => true, 'item' => [
+            ['izin' => 'data_anggota', 'label' => 'Daftar Anggota', 'ikon' => 'fa-address-book', 'url' => route('data_anggota.index'), 'halaman' => ['anggota']],
+            ['izin' => 'jemaat_kelompok', 'label' => 'Kelompok', 'ikon' => 'fa-users-rectangle', 'url' => route('jemaat.kelompok.index'), 'halaman' => ['jemaat_kelompok']],
+        ]],
+        ['kunci' => 'inventaris', 'label' => 'Inventaris & Peminjaman', 'ikon' => 'fa-boxes-stacked', 'item' => [
+            ['izin' => 'inventaris', 'label' => 'Inventaris', 'ikon' => 'fa-box-archive', 'url' => route('inventaris.index'), 'halaman' => ['inventaris']],
+            ['izin' => 'peminjaman', 'label' => 'Peminjaman', 'ikon' => 'fa-handshake', 'url' => route('peminjaman-admin'), 'halaman' => ['peminjaman', 'pengembalian']],
+        ]],
+        ['kunci' => 'jemaat', 'label' => 'Kepengurusan', 'ikon' => 'fa-people-group', 'item' => [
+            ['izin' => 'jemaat_bidang', 'label' => 'Bidang', 'ikon' => 'fa-sitemap', 'url' => route('jemaat.bidang.index'), 'halaman' => ['jemaat_bidang']],
+            ['izin' => 'jemaat_pengurus', 'label' => 'Pengurus', 'ikon' => 'fa-user-tie', 'url' => route('jemaat.pengurus.index'), 'halaman' => ['jemaat_pengurus']],
+        ]],
+        ['izin' => 'artikel', 'label' => 'Artikel', 'ikon' => 'fa-newspaper', 'url' => route('jemaat.artikel.index'), 'halaman' => ['artikel']],
+        ['izin' => 'jemaat_pemilihan', 'label' => 'Pemilihan', 'ikon' => 'fa-check-to-slot', 'url' => route('jemaat.pemilihan.index'), 'halaman' => ['jemaat_pemilihan']],
+        ['kunci' => 'kepengurusan', 'label' => 'Kepengurusan', 'ikon' => 'fa-people-group', 'item' => $menuKepengurusan],
+        ['izin' => 'persetujuan_artikel', 'label' => 'Persetujuan Artikel', 'ikon' => 'fa-file-circle-check', 'url' => route('persetujuan_artikel.index'), 'halaman' => ['persetujuan_artikel']],
+        ['izin' => 'tim_tanggap', 'label' => 'Golongan Darah', 'ikon' => 'fa-droplet', 'url' => route('tim_tanggap.index'), 'halaman' => ['tim_tanggap']],
+        ['izin' => 'admin', 'label' => 'Pemilihan Konferensi', 'ikon' => 'fa-check-to-slot', 'url' => route('pemilihan.index'), 'halaman' => ['pemilihan']],
+        ['kunci' => 'layanan', 'label' => 'Layanan', 'ikon' => 'fa-layer-group', 'item' => [
+            ['izin' => 'absen', 'label' => 'Absen', 'ikon' => 'fa-clipboard-check', 'url' => route('absen.index'), 'halaman' => ['absen']],
+            ['izin' => 'linktree', 'label' => 'Linktree', 'ikon' => 'fa-link', 'url' => route('linktree.index'), 'halaman' => ['linktree']],
+            ['izin' => 'generator_qr', 'label' => 'Generator QR Code', 'ikon' => 'fa-qrcode', 'url' => route('generate_qr.index'), 'halaman' => ['generator_qr']],
+        ]],
+        ['kunci' => 'administrasi', 'label' => 'Administrasi', 'ikon' => 'fa-shield-halved', 'item' => [
+            ['izin' => 'admin', 'label' => 'Manajemen Role', 'ikon' => 'fa-user-shield', 'url' => route('role.index'), 'halaman' => ['role']],
+            ['izin' => 'admin', 'label' => 'Master Periode', 'ikon' => 'fa-calendar-days', 'url' => route('periode.index'), 'halaman' => ['periode']],
+            ['izin' => 'admin', 'label' => 'Master Pengguna', 'ikon' => 'fa-user-gear', 'url' => route('pengguna.index'), 'halaman' => ['pengguna']],
+            ['izin' => 'admin', 'label' => 'Audit Log', 'ikon' => 'fa-clock-rotate-left', 'url' => route('audit_log.index'), 'halaman' => ['audit_log']],
+        ]],
+        ['izin' => 'semua', 'label' => 'Panduan', 'ikon' => 'fa-circle-question', 'url' => route('panduan'), 'halaman' => ['panduan']],
+    ];
+
+    $bolehBuka = fn (array $menu) => match ($menu['izin']) {
+        'semua' => true,
+        'admin' => auth()->user()->isAdmin(),
+        default => auth()->user()->bisaMenu($menu['izin']),
+    };
 @endphp
 
 {{-- Overlay Mobile --}}
@@ -54,201 +102,85 @@
 
         <nav class="space-y-2">
 
-            @if (auth()->user()->bisaMenu('dashboard'))
-            {{-- Dashboard --}}
-            <a href="{{ route('dashboard') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3
-                text-sm transition-all duration-200 ease-in-out md:text-base
-                {{ $page == 'dashboard'
-                    ? 'bg-primary text-white shadow-md'
-                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
+            @foreach ($daftarMenu as $menu)
+                @php
+                    if ($menu['ringkas'] ?? false) {
+                        $bolehRingkas = array_filter($menu['item'], $bolehBuka);
 
-                <i class="fa-solid fa-house w-5 text-center"></i>
+                        if (count($bolehRingkas) === 1) {
+                            $menu = ['label' => $menu['label'], 'ikon' => $menu['ikon']] + reset($bolehRingkas);
+                        }
+                    }
+                @endphp
 
-                <span class="font-medium">
-                    Dashboard
-                </span>
+                @if (isset($menu['item']))
+                    @php
+                        $itemBoleh = array_filter($menu['item'], $bolehBuka);
+                        $grupTerbuka = in_array($page, array_merge(...array_values(array_column($itemBoleh, 'halaman')) ?: [[]]), true);
+                    @endphp
 
-            </a>
+                    @if ($itemBoleh)
+                        <div class="space-y-1">
 
-            @endif
+                            <button type="button" data-grup="{{ $menu['kunci'] }}" aria-expanded="{{ $grupTerbuka ? 'true' : 'false' }}"
+                                aria-controls="submenu-{{ $menu['kunci'] }}"
+                                class="group flex w-full items-center gap-3 rounded-xl px-4 py-3
+                                text-sm transition-all duration-200 ease-in-out md:text-base
+                                {{ $grupTerbuka ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-100' }}">
 
-            @if (auth()->user()->bisaMenu('inventaris') || auth()->user()->bisaMenu('peminjaman'))
-            {{-- Inventaris & Peminjaman --}}
-            <div class="space-y-1">
+                                <i class="fa-solid {{ $menu['ikon'] }} w-5 text-center
+                                    transition-transform duration-200 group-hover:scale-110"></i>
 
-                {{-- Menu Utama --}}
-                <button type="button" id="btnInventarisPeminjaman" aria-controls="submenuInventarisPeminjaman"
-                    aria-expanded="{{ $inventarisPeminjamanOpen ? 'true' : 'false' }}"
-                    class="group flex w-full items-center gap-3 rounded-xl px-4 py-3
-                    text-sm transition-all duration-200 ease-in-out md:text-base
-                    {{ $inventarisPeminjamanOpen ? 'bg-primary/10 text-primary' : 'text-slate-600 hover:bg-slate-100' }}">
+                                <span class="flex-1 text-left font-medium">{{ $menu['label'] }}</span>
 
-                    <i
-                        class="fa-solid fa-boxes-stacked w-5 text-center
-                        transition-transform duration-200 group-hover:scale-110"></i>
+                                <i data-grup-ikon class="fa-solid fa-chevron-down text-xs
+                                    transition-transform duration-300 ease-in-out
+                                    {{ $grupTerbuka ? 'rotate-180' : '' }}"></i>
 
-                    <span class="flex-1 text-left font-medium">
-                        Inventaris & Peminjaman
-                    </span>
+                            </button>
 
-                    <i id="iconInventarisPeminjaman"
-                        class="fa-solid fa-chevron-down text-xs
-                        transition-transform duration-300 ease-in-out
-                        {{ $inventarisPeminjamanOpen ? 'rotate-180' : '' }}">
-                    </i>
+                            <div id="submenu-{{ $menu['kunci'] }}"
+                                class="grid transition-[grid-template-rows,opacity]
+                                duration-300 ease-in-out
+                                {{ $grupTerbuka ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0' }}">
 
-                </button>
+                                <div class="overflow-hidden">
+                                    <div class="ml-5 space-y-1 border-l-2 border-slate-200 py-1 pl-4">
 
-                {{-- Submenu dengan animasi smooth --}}
-                <div id="submenuInventarisPeminjaman"
-                    class="grid transition-[grid-template-rows,opacity]
-                    duration-300 ease-in-out
-                    {{ $inventarisPeminjamanOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0' }}">
+                                        @foreach ($itemBoleh as $item)
+                                            <a href="{{ $item['url'] }}"
+                                                class="flex items-center gap-3 rounded-xl px-4 py-2.5
+                                                text-sm transition-all duration-200 ease-in-out
+                                                {{ in_array($page, $item['halaman'], true)
+                                                    ? 'bg-primary text-white shadow-md'
+                                                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
 
-                    <div class="overflow-hidden">
+                                                <i class="fa-solid {{ $item['ikon'] }} w-5 text-center"></i>
 
-                        <div class="ml-5 space-y-1 border-l-2 border-slate-200 py-1 pl-4">
-
-                            @if (auth()->user()->bisaMenu('inventaris'))
-            {{-- Submenu Inventaris --}}
-                            <a href="{{ route('inventaris.index') }}"
-                                class="flex items-center gap-3 rounded-xl px-4 py-2.5
-                                text-sm transition-all duration-200 ease-in-out
-                                {{ $page == 'inventaris'
-                                    ? 'bg-primary text-white shadow-md'
-                                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
-
-                                <i class="fa-solid fa-box-archive w-5 text-center"></i>
-
-                                <span class="font-medium">
-                                    Inventaris
-                                </span>
-
-                            </a>
-
-                            @endif
-
-            @if (auth()->user()->bisaMenu('peminjaman'))
-            {{-- Submenu Peminjaman --}}
-                            <a href="{{ route('peminjaman-admin') }}"
-                                class="flex items-center gap-3 rounded-xl px-4 py-2.5
-                                text-sm transition-all duration-200 ease-in-out
-                                {{ in_array($page, ['peminjaman', 'pengembalian'])
-                                    ? 'bg-primary text-white shadow-md'
-                                    : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
-
-                                <i class="fa-solid fa-handshake w-5 text-center"></i>
-
-                                <span class="font-medium">
-                                    Peminjaman
-                                </span>
-
-                            </a>
-
-@endif
+                                                <span class="font-medium">{{ $item['label'] }}</span>
+                                            </a>
+                                        @endforeach
 
                                     </div>
+                                </div>
+                            </div>
 
-                    </div>
-
-                </div>
-
-            </div>
-
-            @endif
-
-            @if (auth()->user()->bisaMenu('data_anggota'))
-            {{-- Anggota --}}
-            <a href="{{ route('data_anggota.index') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3
-    text-sm transition-all duration-200 ease-in-out md:text-base
-    {{ $page == 'anggota'
-        ? 'bg-primary text-white shadow-md'
-        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
-
-                <i class="fa-solid fa-users w-5 text-center"></i>
-
-                <span class="font-medium">Data Anggota</span>
-            </a>
-
-            @endif
-
-            @if ($periodeAktif)
-                @foreach (['program_kerja' => ['Program Kerja', 'fa-clipboard-list'], 'bidang' => ['Bidang', 'fa-sitemap'], 'jabatan' => ['Jabatan', 'fa-id-badge'], 'pengurus' => ['Pengurus', 'fa-user-tie']] as $kunci => [$label, $ikon])
-                    @if (auth()->user()->bisaMenu($kunci))
-                        <a href="{{ route('kepengurusan.' . $kunci . '.index', $periodeAktif) }}"
-                            class="flex items-center gap-3 rounded-xl px-4 py-3
-    text-sm transition-all duration-200 ease-in-out md:text-base
-    {{ $page == $kunci
-        ? 'bg-primary text-white shadow-md'
-        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
-
-                            <i class="fa-solid {{ $ikon }} w-5 text-center"></i>
-
-                            <span class="font-medium">{{ $label }}</span>
-                        </a>
+                        </div>
                     @endif
-                @endforeach
-            @endif
+                @elseif ($bolehBuka($menu))
+                    <a href="{{ $menu['url'] }}"
+                        class="flex items-center gap-3 rounded-xl px-4 py-3
+                        text-sm transition-all duration-200 ease-in-out md:text-base
+                        {{ in_array($page, $menu['halaman'], true)
+                            ? 'bg-primary text-white shadow-md'
+                            : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
 
-            @if (auth()->user()->bisaMenu('generator_qr'))
-            {{-- Generator QR Code --}}
-            <a href="{{ route('generate_qr.index') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3
-    text-sm transition-all duration-200 ease-in-out md:text-base
-    {{ $page == 'generator_qr'
-        ? 'bg-primary text-white shadow-md'
-        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
+                        <i class="fa-solid {{ $menu['ikon'] }} w-5 text-center"></i>
 
-                <i class="fa-solid fa-qrcode w-5 text-center"></i>
-
-                <span class="font-medium">
-                    Generator QR Code
-                </span>
-            </a>
-
-            @endif
-
-            @if (auth()->user()->isAdmin())
-            {{-- Manajemen Role --}}
-            <a href="{{ route('role.index') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3
-    text-sm transition-all duration-200 ease-in-out md:text-base
-    {{ $page == 'role'
-        ? 'bg-primary text-white shadow-md'
-        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
-
-                <i class="fa-solid fa-user-shield w-5 text-center"></i>
-
-                <span class="font-medium">Manajemen Role</span>
-            </a>
-
-            <a href="{{ route('periode.index') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3
-    text-sm transition-all duration-200 ease-in-out md:text-base
-    {{ $page == 'periode'
-        ? 'bg-primary text-white shadow-md'
-        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
-
-                <i class="fa-solid fa-calendar-days w-5 text-center"></i>
-
-                <span class="font-medium">Master Periode</span>
-            </a>
-
-            <a href="{{ route('pengguna.index') }}"
-                class="flex items-center gap-3 rounded-xl px-4 py-3
-    text-sm transition-all duration-200 ease-in-out md:text-base
-    {{ $page == 'pengguna'
-        ? 'bg-primary text-white shadow-md'
-        : 'text-slate-600 hover:translate-x-1 hover:bg-slate-100' }}">
-
-                <i class="fa-solid fa-user-gear w-5 text-center"></i>
-
-                <span class="font-medium">Master Pengguna</span>
-            </a>
-
-            @endif
+                        <span class="font-medium">{{ $menu['label'] }}</span>
+                    </a>
+                @endif
+            @endforeach
 
             {{-- Pengaturan --}}
             <a href="#"
@@ -333,16 +265,15 @@
 {{-- JavaScript Sidebar --}}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const btnMenu = document.getElementById('btnInventarisPeminjaman');
-        const submenu = document.getElementById('submenuInventarisPeminjaman');
-        const iconMenu = document.getElementById('iconInventarisPeminjaman');
-
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');
         const btnCloseSidebar = document.getElementById('btnCloseSidebar');
 
-        // Toggle submenu Inventaris & Peminjaman
-        if (btnMenu && submenu && iconMenu) {
+        // Buka tutup grup menu
+        document.querySelectorAll('[data-grup]').forEach(function(btnMenu) {
+            const submenu = document.getElementById(btnMenu.getAttribute('aria-controls'));
+            const iconMenu = btnMenu.querySelector('[data-grup-ikon]');
+
             btnMenu.addEventListener('click', function() {
                 const isOpen = btnMenu.getAttribute('aria-expanded') === 'true';
 
@@ -356,7 +287,7 @@
 
                 iconMenu.classList.toggle('rotate-180', !isOpen);
             });
-        }
+        });
 
         // Buka sidebar mobile
         window.openSidebar = function() {

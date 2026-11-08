@@ -200,6 +200,9 @@
 
         $(document).on('submit', formSelector, function() {
 
+            // Kotak tautan dan teks alternatif CKEditor juga berupa form, tetapi tidak mengirim apa pun.
+            if (this.closest('.ck')) return;
+
             App.loading.show('Sedang menyimpan data...');
 
         });

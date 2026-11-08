@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 test('pengguna: role kepengurusan wajib punya periode', function () {
-    $role = Role::firstWhere('nama', 'Pengguna Periode');
+    $role = Role::firstWhere('nama', 'Pengurus Klasis');
     $this->actingAs(User::factory()->admin()->create())->postJson('/pengguna', [
         'name' => 'A', 'email' => 'a@x.id', 'password' => 'rahasia1', 'role_id' => $role->id,
     ])->assertUnprocessable()->assertJsonValidationErrors('periode_id');
@@ -14,7 +14,7 @@ test('pengguna: role kepengurusan wajib punya periode', function () {
 
 test('pengguna: dibuat dengan password_view dan password ter-hash', function () {
     $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
-    $role = Role::firstWhere('nama', 'Pengguna Periode');
+    $role = Role::firstWhere('nama', 'Pengurus Klasis');
     $this->actingAs(User::factory()->admin()->create())->postJson('/pengguna', [
         'name' => 'A', 'email' => 'a@x.id', 'password' => 'rahasia1', 'role_id' => $role->id, 'periode_id' => $p->id,
     ])->assertOk();

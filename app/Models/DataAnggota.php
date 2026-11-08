@@ -10,6 +10,7 @@ class DataAnggota extends Model
 
     protected $fillable = [
         'jemaat_id',
+        'kelompok_id',
         'no_anggota',
         'nik',
         'nama',
@@ -25,6 +26,11 @@ class DataAnggota extends Model
         'pendidikan',
         'status_wilayah',
     ];
+
+    public function kelompok()
+    {
+        return $this->belongsTo(Kelompok::class);
+    }
 
     public function jemaat()
     {

@@ -6,7 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Bidang extends Model
 {
-    protected $fillable = ['periode_id', 'nama'];
+    public const DEFAULT_NAMA = [
+        'Bidang Umum',
+        'Bidang Pengakaran Iman & Spiritualitas',
+        'Bidang Kaderisasi & Organisasi',
+        'Bidang Pengembang SDM',
+        'Bidang Pelayanan Sosial & Kemasyarakatan',
+    ];
+
+    protected $fillable = ['periode_id', 'nama', 'jumlah_anggota'];
 
     public function periode()
     {
@@ -18,8 +26,13 @@ class Bidang extends Model
         return $this->hasMany(ProgramKerja::class);
     }
 
+    public function jabatans()
+    {
+        return $this->hasMany(Jabatan::class);
+    }
+
     public function pengurus()
     {
-        return $this->hasMany(Pengurus::class);
+        return $this->hasManyThrough(Pengurus::class, Jabatan::class);
     }
 }

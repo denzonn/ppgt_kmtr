@@ -25,7 +25,7 @@
 
         @include('includes.sidebar')
 
-        <div class="flex-1 lg:ml-72">
+        <div class="min-w-0 flex-1 lg:ml-72">
 
             {{-- Navbar --}}
             @include('includes.admin.navbar')

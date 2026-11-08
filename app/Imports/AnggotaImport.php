@@ -4,6 +4,7 @@ namespace App\Imports;
 
 use App\Models\DataAnggota;
 use App\Models\Jemaat;
+use App\Models\Kelompok;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\OnEachRow;
@@ -18,12 +19,21 @@ class AnggotaImport implements OnEachRow, WithHeadingRow
 
     public array $gagal = [];
 
+    /** Baris yang tetap masuk, tetapi kelompoknya tidak dikenali. */
+    public array $catatan = [];
+
     private array $jemaatMap = [];
+
+    private array $kelompokMap = [];
 
     public function __construct()
     {
         foreach (Jemaat::all(['id', 'nama']) as $jemaat) {
             $this->jemaatMap[$this->normalisasi($jemaat->nama)] = $jemaat->id;
+        }
+
+        foreach (Kelompok::all(['id', 'jemaat_id', 'nama']) as $kelompok) {
+            $this->kelompokMap[$kelompok->jemaat_id.'|'.$this->normalisasi($kelompok->nama)] = $kelompok->id;
         }
     }
 
@@ -170,9 +180,13 @@ class AnggotaImport implements OnEachRow, WithHeadingRow
                 $rhesus = 'Negatif';
             }
 
+            $namaKelompok = $this->bersihkan($data['kelompok'] ?? null);
+            $kelompokId = $namaKelompok ? ($this->kelompokMap[$jemaatId.'|'.$this->normalisasi($namaKelompok)] ?? null) : null;
+
             DataAnggota::create([
                 'no_anggota' => $noAnggota,
                 'jemaat_id' => $jemaatId,
+                'kelompok_id' => $kelompokId,
                 'nama' => $nama,
                 'jenis_kelamin' => $jenisKelamin,
                 'tempat_lahir' => $this->bersihkan($data['tempat_lahir'] ?? null),
@@ -191,6 +205,10 @@ class AnggotaImport implements OnEachRow, WithHeadingRow
             ]);
 
             $this->berhasil++;
+
+            if ($namaKelompok && ! $kelompokId) {
+                $this->catatan[] = ['baris' => $baris, 'nama' => $nama, 'alasan' => "Kelompok '{$namaKelompok}' belum terdaftar di jemaat {$namaJemaat}. Anggota masuk tanpa kelompok."];
+            }
         } catch (\Throwable $e) {
             $this->catatGagal(
                 $baris,

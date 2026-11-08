@@ -6,13 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Jabatan extends Model
 {
-    protected $fillable = ['periode_id', 'nama', 'terkait_bidang'];
-
-    protected $casts = ['terkait_bidang' => 'boolean'];
+    protected $fillable = ['periode_id', 'bidang_id', 'nama'];
 
     public function periode()
     {
         return $this->belongsTo(Periode::class);
+    }
+
+    public function bidang()
+    {
+        return $this->belongsTo(Bidang::class);
     }
 
     public function pengurus()

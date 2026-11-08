@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'menu' => \App\Http\Middleware\CekMenu::class,
             'periode' => \App\Http\Middleware\CekPeriode::class,
         ]);
+
+        // Telegram tidak membawa token CSRF. Alamat ini dijaga rahasia webhook.
+        $middleware->validateCsrfTokens(except: ['telegram/webhook']);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

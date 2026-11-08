@@ -40,7 +40,7 @@ test('pengguna periode ditolak dari periode lain', function () {
 });
 
 test('pengguna tanpa menu yang bisa dibuka diarahkan ke halaman pesan', function () {
-    $user = User::factory()->create(); // Pengguna Periode tanpa periode_id
+    $user = User::factory()->create(); // Pengurus Klasis tanpa periode_id
     $this->actingAs($user)->get('/dashboard')->assertRedirect(route('akses.kosong'));
     $this->actingAs($user)->get(route('akses.kosong'))->assertOk()->assertSee('Hubungi admin');
 });
@@ -86,5 +86,5 @@ test('sidebar menampilkan nama role pengguna', function () {
     $p = Periode::create(['tahun_mulai' => 2020, 'tahun_selesai' => 2022]);
     $this->actingAs(User::factory()->untukPeriode($p)->create())
         ->get("/kepengurusan/{$p->id}/program-kerja")->assertOk()
-        ->assertSee('Pengguna Periode')->assertDontSee('Administrator');
+        ->assertSee('Pengurus Klasis')->assertDontSee('Administrator');
 });

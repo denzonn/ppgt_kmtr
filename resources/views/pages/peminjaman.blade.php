@@ -2,8 +2,41 @@
 
 @section('title', 'Peminjaman Inventaris')
 
+@include('includes.motif-latar')
+
+@push('addon-style')
+    <style>
+        .select2-container .select2-selection--single {
+            border-radius: 12px !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            padding-left: 14px !important;
+            font-size: 14px;
+        }
+
+        .select2-dropdown {
+            border-radius: 12px !important;
+        }
+
+        .select2-search--dropdown {
+            padding: 8px;
+        }
+
+        .select2-search--dropdown .select2-search__field {
+            padding: 6px 10px;
+            font-size: 14px;
+        }
+
+        .select2-results__option {
+            padding: 9px 14px !important;
+            font-size: 14px;
+        }
+    </style>
+@endpush
+
 @section('content')
-    <div class="min-h-screen bg-slate-100 pb-10">
+    <div class="motif-latar min-h-screen bg-slate-100 pb-10">
         <div class="mx-auto w-full max-w-lg px-4 py-6 sm:py-10">
 
             {{-- Brand / Kembali --}}
@@ -25,39 +58,39 @@
             </div>
 
             {{-- Header --}}
-            <div class="mb-6 text-center sm:mb-8">
-                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-primary/10 shadow-sm sm:h-20 sm:w-20">
-                    <i class="fa-solid fa-box-open text-primary text-2xl sm:text-3xl"></i>
+            <div class="mb-5 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+                    <i class="fa-solid fa-box-open text-lg text-primary"></i>
                 </div>
 
-                <h1 class="mt-4 text-2xl font-bold text-slate-800 sm:mt-5 sm:text-3xl">
+                <h1 class="mt-3 text-lg font-bold text-slate-800">
                     Peminjaman Inventaris
                 </h1>
 
-                <p class="mt-2 text-sm leading-relaxed text-slate-500 sm:text-base">
+                <p class="mt-1 text-xs leading-relaxed text-slate-500">
                     Pilih inventaris yang ingin dipinjam, tentukan jumlahnya, lalu
                     unggah foto pengambilan sebagai bukti.
                 </p>
             </div>
 
             {{-- Card --}}
-            <div class="rounded-[28px] border border-slate-200 bg-white shadow-xl">
+            <div class="rounded-2xl border border-slate-200 bg-white shadow-xl">
 
                 <form id="formPeminjaman" novalidate>
                     @csrf
 
-                    <div class="space-y-7 p-5 sm:p-6">
+                    <div class="space-y-5 p-5">
 
                         {{-- Nama Peminjam --}}
                         <div>
-                            <label for="nama_peminjam" class="mb-3 block font-semibold text-slate-800">
+                            <label for="nama_peminjam" class="mb-2 block text-sm font-semibold text-slate-800">
                                 Nama Peminjam
                                 <span class="text-red-500">*</span>
                             </label>
 
                             <input type="text" name="nama_peminjam" id="nama_peminjam" maxlength="255"
                                 autocomplete="name"
-                                class="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-800 placeholder:text-sm placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/30">
+                                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/30">
 
                             <p id="errorNama" class="mt-2 hidden text-xs font-medium text-red-500">
                                 Nama peminjam wajib diisi.
@@ -66,7 +99,7 @@
 
                         {{-- Inventaris --}}
                         <div>
-                            <label for="inventaris_select" class="mb-3 block font-semibold text-slate-800">
+                            <label for="inventaris_select" class="mb-2 block text-sm font-semibold text-slate-800">
                                 Inventaris
                                 <span class="text-red-500">*</span>
                             </label>
@@ -80,7 +113,6 @@
                                         @foreach ($inventaris as $item)
                                             @php
                                                 $sisa = $tersedia[$item->id] ?? null;
-                                                $label = $item->nama . ($sisa !== null ? ' — sisa ' . $sisa . ' unit' : '');
                                             @endphp
 
                                             <option value="{{ $item->id }}"
@@ -88,14 +120,14 @@
                                                 data-kode="{{ $item->kode_inventaris }}"
                                                 data-tersedia="{{ $sisa === null ? '' : $sisa }}"
                                                 @if ($sisa === 0) disabled @endif>
-                                                {{ $label }}
+                                                {{ $item->nama }}
                                             </option>
                                         @endforeach
                                     </select>
                                 </div>
 
                                 <button type="button" id="btnTambahInventaris" title="Tambah inventaris"
-                                    class="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-2xl bg-primary text-white shadow transition hover:bg-primary_hover active:scale-95">
+                                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow transition hover:bg-primary_hover active:scale-95">
                                     <i class="fa fa-plus"></i>
                                 </button>
                             </div>
@@ -108,13 +140,13 @@
                         {{-- List Inventaris --}}
                         <div>
                             <div class="mb-3 flex items-center justify-between gap-2">
-                                <h4 class="font-semibold text-slate-800">
+                                <h4 class="whitespace-nowrap text-sm font-semibold text-slate-800">
                                     Inventaris Dipilih
                                     <span id="jumlahDipilih"
                                         class="ml-1 rounded-lg bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">0</span>
                                 </h4>
 
-                                <span class="text-xs text-slate-500">
+                                <span class="text-right text-xs text-slate-500">
                                     Bisa memilih lebih dari satu
                                 </span>
                             </div>
@@ -122,17 +154,17 @@
                             <div id="listInventaris" class="space-y-3">
 
                                 <div id="emptyInventaris"
-                                    class="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-10 text-center">
+                                    class="rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-6 text-center">
 
-                                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-slate-200">
-                                        <i class="fa-solid fa-box-open text-2xl text-slate-500"></i>
+                                    <div class="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-200">
+                                        <i class="fa-solid fa-box-open text-slate-500"></i>
                                     </div>
 
-                                    <h5 class="mt-4 font-semibold text-slate-700">
+                                    <h5 class="mt-3 text-sm font-semibold text-slate-700">
                                         Belum ada inventaris dipilih
                                     </h5>
 
-                                    <p class="mt-1 text-sm text-slate-500">
+                                    <p class="mt-1 text-xs text-slate-500">
                                         Tekan tombol <b>+</b> untuk menambahkan inventaris.
                                     </p>
 
@@ -143,7 +175,7 @@
 
                         {{-- Foto --}}
                         <div>
-                            <label for="foto_pengambilan" class="mb-3 block font-semibold text-slate-800">
+                            <label for="foto_pengambilan" class="mb-2 block text-sm font-semibold text-slate-800">
                                 Foto Pengambilan
                                 <span class="text-red-500">*</span>
                             </label>
@@ -151,22 +183,22 @@
                             <label for="foto_pengambilan" class="block cursor-pointer">
 
                                 <div
-                                    class="relative flex h-64 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:border-primary hover:bg-primary/5 sm:h-72">
+                                    class="relative flex h-40 flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 transition hover:border-primary hover:bg-primary/5">
 
                                     <img id="previewFoto" alt="Preview foto pengambilan"
                                         class="hidden h-full w-full object-cover">
 
                                     <div id="placeholderFoto" class="text-center">
 
-                                        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 sm:h-20 sm:w-20">
-                                            <i class="fa-solid fa-camera text-2xl text-primary sm:text-3xl"></i>
+                                        <div class="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-primary/10">
+                                            <i class="fa-solid fa-camera text-primary"></i>
                                         </div>
 
-                                        <p class="mt-4 text-base font-semibold sm:mt-5 sm:text-lg">
+                                        <p class="mt-3 text-sm font-semibold">
                                             Tap untuk mengambil foto
                                         </p>
 
-                                        <p class="mt-1 text-sm text-slate-500">
+                                        <p class="mt-1 text-xs text-slate-500">
                                             Kamera akan langsung dibuka
                                         </p>
                                     </div>
@@ -192,10 +224,10 @@
                     </div>
 
                     {{-- Footer --}}
-                    <div class="sticky bottom-0 rounded-b-[28px] border-t border-slate-200 bg-white/95 p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] backdrop-blur sm:p-6 sm:pb-6">
+                    <div style="border-radius: 0 0 1rem 1rem" class="sticky bottom-0 border-t border-slate-200 bg-white/95 p-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] backdrop-blur">
 
                         <button type="submit" id="btnSubmit"
-                            class="flex h-14 w-full items-center justify-center rounded-2xl bg-primary text-lg font-semibold text-white shadow-md transition hover:bg-primary_hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70">
+                            class="flex h-11 w-full items-center justify-center rounded-xl bg-primary text-sm font-semibold text-white shadow-md transition hover:bg-primary_hover active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70">
 
                             <i class="fa-solid fa-paper-plane mr-2"></i>
 
@@ -203,7 +235,7 @@
 
                         </button>
 
-                        <p class="mt-3 text-center text-xs text-slate-400">
+                        <p class="mt-2 text-center text-xs text-slate-400">
                             Pengajuan akan diverifikasi oleh admin.
                         </p>
 
@@ -251,30 +283,7 @@
 
         $('#inventaris_select').select2({
             placeholder: 'Cari inventaris...',
-            width: '100%',
-            templateResult: function(item) {
-                if (!item.id) return item.text;
-
-                const kode = $(item.element).data('kode');
-                const sisa = $(item.element).data('tersedia');
-
-                let detail = '';
-
-                if (kode) {
-                    detail += '<span class="block text-[11px] text-slate-400">' + escapeHtml(kode) + '</span>';
-                }
-
-                if (sisa !== '' && sisa !== undefined) {
-                    detail += '<span class="block text-[11px] font-semibold ' +
-                        (Number(sisa) > 0 ? 'text-emerald-600' : 'text-red-500') + '">Sisa ' +
-                        escapeHtml(sisa) + ' unit</span>';
-                }
-
-                return $('<div>').html(
-                    '<span class="block truncate text-sm font-medium text-slate-700">' +
-                    escapeHtml(item.text.split(' — ')[0]) + '</span>' + detail
-                );
-            }
+            width: '100%'
         });
 
         // ==========================================
@@ -359,14 +368,14 @@
 
                 const html = `
                     <div id="inventaris_${id}" data-id="${id}"
-                        class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        class="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
 
                         <input type="hidden" name="inventaris[${index}][id]" value="${escapeHtml(id)}">
 
                         <div class="flex items-start justify-between gap-3">
 
                             <div class="min-w-0 flex-1">
-                                <p class="break-words font-semibold text-slate-800">
+                                <p class="break-words text-sm font-semibold text-slate-800">
                                     ${escapeHtml(nama)}
                                 </p>
 
@@ -376,30 +385,30 @@
                             </div>
 
                             <button type="button" title="Hapus dari daftar"
-                                class="hapusInventaris flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 transition hover:bg-red-100">
-                                <i class="fa fa-trash"></i>
+                                class="hapusInventaris flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600 transition hover:bg-red-100">
+                                <i class="fa fa-trash text-xs"></i>
                             </button>
                         </div>
 
-                        <div class="mt-4">
+                        <div class="mt-3">
                             <label class="mb-1.5 block text-xs font-semibold text-slate-600">
                                 Jumlah yang dipinjam
                             </label>
 
                             <div class="flex items-center gap-2">
 
-                                <button type="button" class="kurangiInventaris flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95">
+                                <button type="button" class="kurangiInventaris flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95">
                                     <i class="fa-solid fa-minus text-xs"></i>
                                 </button>
 
-                                <input type="number" inputmode="numeric" min="1"
+                                <input type="number" inputmode="numeric" min="1" placeholder="1"
                                     ${maks > 0 ? `max="${maks}"` : ''}
                                     value="1"
                                     name="inventaris[${index}][jumlah]"
-                                    class="h-12 w-full min-w-0 rounded-xl border border-slate-300 px-4 text-center font-semibold"
+                                    class="h-10 w-full min-w-0 rounded-xl border border-slate-300 px-4 text-center text-sm font-semibold"
                                     required>
 
-                                <button type="button" class="tambahJumlahInventaris flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95">
+                                <button type="button" class="tambahJumlahInventaris flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 active:scale-95">
                                     <i class="fa-solid fa-plus text-xs"></i>
                                 </button>
                             </div>

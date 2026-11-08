@@ -3,15 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bidang;
 use App\Models\Periode;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class PeriodeController extends Controller
 {
     public function index()
     {
-        return view('pages.admin.periode');
+        return view('pages.admin.periode', ['bidangDefault' => Bidang::DEFAULT_NAMA]);
     }
 
     public function getData(Request $request)
@@ -19,7 +22,7 @@ class PeriodeController extends Controller
         $search = trim((string) $request->input('search', ''));
 
         $paginator = Periode::query()
-            ->withCount('users')
+            ->withCount(['users', 'bidangs', 'pengurus'])
             ->when($search !== '', fn ($q) => $q->where(fn ($w) => $w
                 ->where('tahun_mulai', 'like', '%' . $search . '%')
                 ->orWhere('tahun_selesai', 'like', '%' . $search . '%')))
@@ -63,7 +66,22 @@ class PeriodeController extends Controller
 
     public function store(Request $request)
     {
-        Periode::create($this->validated($request));
+        $bidangs = $request->validate([
+            'bidangs' => ['required', 'array', 'min:1'],
+            'bidangs.*' => ['required', 'string', 'distinct', Rule::in(Bidang::DEFAULT_NAMA)],
+        ], [
+            'bidangs.required' => 'Pilih minimal satu bidang.',
+            'bidangs.min' => 'Pilih minimal satu bidang.',
+            'bidangs.*.in' => 'Bidang yang dipilih tidak valid.',
+            'bidangs.*.distinct' => 'Bidang yang dipilih tidak boleh sama.',
+        ])['bidangs'];
+        $data = $this->validated($request);
+
+        DB::transaction(function () use ($data, $bidangs) {
+            Periode::create($data)->bidangs()->createMany(
+                array_map(fn ($nama) => ['nama' => $nama], $bidangs)
+            );
+        });
 
         return response()->json(['status' => true, 'message' => 'Periode berhasil ditambahkan.']);
     }

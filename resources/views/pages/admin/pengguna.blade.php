@@ -10,58 +10,71 @@
 
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="text-xl font-bold text-slate-800 md:text-2xl">Master Pengguna</h2>
+                <h2 class="text-xl font-bold text-slate-800">Master Pengguna</h2>
                 <p class="mt-1 text-sm text-slate-500">Kelola akun pengguna, role, dan periodenya.</p>
             </div>
-
-            <button type="button" onclick="tambahPengguna()"
-                class="inline-flex items-center justify-center gap-2 rounded-xl
-            bg-primary px-5 py-3 text-sm font-semibold text-white
-            transition hover:bg-primary_hover active:scale-[0.98]">
-                <i class="fa-solid fa-plus"></i>
+            <button type="button" onclick="tambahPengguna()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
+                <i class="fas fa-plus"></i>
                 Tambah Pengguna
             </button>
         </div>
 
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="searchPengguna" placeholder="Cari nama atau email..."
-                    class="w-full rounded-xl border border-slate-300 py-3 pl-11 pr-4
-                text-sm focus:border-primary focus:ring-primary">
-            </div>
-        </div>
-
         <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 bg-white p-5">
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                            <i class="fas fa-users-gear"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">Daftar Pengguna</h3>
+                            <p class="mt-0.5 text-xs text-slate-500">Akun yang dapat masuk ke sistem.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:flex xl:items-center">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+                            <input type="text" id="searchPengguna" placeholder="Cari nama atau email..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[800px]">
-                    <thead class="bg-slate-50">
-                        <tr class="text-left text-sm text-slate-600">
-                            <th class="px-6 py-4">Nama</th>
-                            <th class="px-6 py-4">Email</th>
-                            <th class="px-6 py-4">Password</th>
-                            <th class="px-6 py-4">Role</th>
-                            <th class="px-6 py-4">Periode</th>
-                            <th class="px-6 py-4 text-center">Aksi</th>
-                        </tr>
+                <table class="w-full min-w-[900px] border-collapse text-left">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50/80">
+                            <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Pengguna</th>
+                            <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Password</th>
+                            <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Role</th>
+                            <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Periode / Jemaat</th>
+                            <th class="text-center px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Aksi</th>
+                            </tr>
                     </thead>
-                    <tbody id="tablePengguna" class="divide-y divide-slate-100 text-sm"></tbody>
+                    <tbody id="tablePengguna" class="divide-y divide-slate-100">
+                        <tr><td colspan="5" class="px-6 py-16 text-center text-sm text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data pengguna...</td></tr>
+                    </tbody>
                 </table>
             </div>
-        </div>
 
-        <div id="paginationPengguna" class="flex flex-wrap justify-end gap-2"></div>
+            <div id="paginationPengguna" class="flex flex-wrap justify-end gap-2 border-t border-slate-100 bg-white px-5 py-4 empty:hidden"></div>
+        </div>
     </div>
 
     {{-- Modal Tambah/Edit --}}
     <div id="modalPengguna"
-        class="fixed inset-0 z-[100] hidden items-center justify-center
-    overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm">
+        class="modal-overlay fixed inset-0 z-[1000] hidden overflow-y-auto bg-slate-950/50 p-4 opacity-0 transition-opacity duration-300">
 
-        <div class="my-auto w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div class="modal-content mx-auto my-6 w-full max-w-lg scale-95 -translate-y-6 rounded-2xl bg-white shadow-2xl transition-all duration-300">
 
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <h3 id="modalPenggunaTitle" class="text-lg font-bold text-slate-800">Tambah Pengguna</h3>
+            <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <i class="fas fa-users-gear text-lg"></i>
+                    </div>
+                    <h3 id="modalPenggunaTitle" class="text-lg font-bold text-slate-800">Tambah Pengguna</h3>
+                </div>
 
                 <button type="button" onclick="tutupModalPengguna()"
                     class="flex h-9 w-9 items-center justify-center rounded-lg
@@ -75,22 +88,22 @@
 
                 <div>
                     <label for="pengguna_name" class="mb-2 block text-sm font-semibold text-slate-700">Nama</label>
-                    <input type="text" id="pengguna_name" required maxlength="255"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3
+                    <input type="text" id="pengguna_name" placeholder="Masukkan nama pengguna" required maxlength="255"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3
                     text-sm focus:border-primary focus:ring-primary">
                 </div>
 
                 <div>
                     <label for="pengguna_email" class="mb-2 block text-sm font-semibold text-slate-700">Email</label>
-                    <input type="email" id="pengguna_email" required maxlength="255"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3
+                    <input type="email" id="pengguna_email" placeholder="Contoh: pengurus@gmail.com" required maxlength="255"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3
                     text-sm focus:border-primary focus:ring-primary">
                 </div>
 
                 <div>
                     <label for="pengguna_password" class="mb-2 block text-sm font-semibold text-slate-700">Password</label>
-                    <input type="text" id="pengguna_password" minlength="6" autocomplete="off"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3
+                    <input type="text" id="pengguna_password" placeholder="Minimal 6 karakter" minlength="6" autocomplete="off"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3
                     text-sm focus:border-primary focus:ring-primary">
                     <p id="hintPassword" class="mt-1 hidden text-xs text-slate-500">Kosongkan jika tidak ingin mengubah password.</p>
                 </div>
@@ -98,7 +111,7 @@
                 <div>
                     <label for="pengguna_role" class="mb-2 block text-sm font-semibold text-slate-700">Role</label>
                     <select id="pengguna_role" required
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3
                     text-sm focus:border-primary focus:ring-primary">
                         <option value="">Pilih role</option>
                         @foreach ($roles as $role)
@@ -110,11 +123,23 @@
                 <div id="wrapPeriode">
                     <label for="pengguna_periode" class="mb-2 block text-sm font-semibold text-slate-700">Periode</label>
                     <select id="pengguna_periode"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3
                     text-sm focus:border-primary focus:ring-primary">
                         <option value="">Pilih periode</option>
                         @foreach ($periodes as $periode)
                             <option value="{{ $periode->id }}">{{ $periode->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div id="wrapJemaat">
+                    <label for="pengguna_jemaat" class="mb-2 block text-sm font-semibold text-slate-700">Jemaat</label>
+                    <select id="pengguna_jemaat"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3
+                    text-sm focus:border-primary focus:ring-primary">
+                        <option value="">Pilih jemaat</option>
+                        @foreach ($jemaats as $jemaat)
+                            <option value="{{ $jemaat->id }}">{{ $jemaat->nama }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -144,6 +169,7 @@
         const penggunaDataUrl = @json(route('pengguna.getData'));
         // role id -> apakah memuat menu kepengurusan (periode wajib)
         const roleButuhPeriode = @json($butuhPeriode);
+        const roleButuhJemaat = @json($butuhJemaat);
 
         let penggunaPage = 1;
         let penggunaTimer = null;
@@ -163,13 +189,11 @@
         }
 
         function bukaModalPengguna() {
-            $('#modalPengguna').removeClass('hidden').addClass('flex');
-            document.body.classList.add('overflow-hidden');
+            showModal('modalPengguna');
         }
 
         function tutupModalPengguna() {
-            $('#modalPengguna').addClass('hidden').removeClass('flex');
-            document.body.classList.remove('overflow-hidden');
+            closeModal('modalPengguna');
         }
 
         function aturPeriode() {
@@ -177,6 +201,11 @@
             $('#wrapPeriode').toggle(butuh);
             $('#pengguna_periode').prop('required', butuh);
             if (!butuh) $('#pengguna_periode').val('');
+
+            const butuhJemaat = roleButuhJemaat[$('#pengguna_role').val()] === true;
+            $('#wrapJemaat').toggle(butuhJemaat);
+            $('#pengguna_jemaat').prop('required', butuhJemaat);
+            if (!butuhJemaat) $('#pengguna_jemaat').val('');
         }
 
         $('#pengguna_role').on('change', aturPeriode);
@@ -184,7 +213,7 @@
         function tambahPengguna() {
             $('#formPengguna')[0].reset();
             $('#pengguna_id').val('');
-            $('#pengguna_password').prop('required', true);
+            $('#pengguna_password').prop('required', true).attr('placeholder', 'Minimal 6 karakter');
             $('#hintPassword').addClass('hidden');
             $('#modalPenggunaTitle').text('Tambah Pengguna');
             aturPeriode();
@@ -197,10 +226,11 @@
                 $('#pengguna_id').val(item.id);
                 $('#pengguna_name').val(item.name);
                 $('#pengguna_email').val(item.email);
-                $('#pengguna_password').val('').prop('required', false);
+                $('#pengguna_password').val('').prop('required', false).attr('placeholder', 'Kosongkan jika tidak diubah');
                 $('#hintPassword').removeClass('hidden');
                 $('#pengguna_role').val(item.role_id);
                 $('#pengguna_periode').val(item.periode_id ?? '');
+                $('#pengguna_jemaat').val(item.jemaat_id ?? '');
                 $('#modalPenggunaTitle').text('Edit Pengguna');
                 aturPeriode();
                 bukaModalPengguna();
@@ -225,7 +255,8 @@
                     email: $('#pengguna_email').val(),
                     password: $('#pengguna_password').val(),
                     role_id: $('#pengguna_role').val(),
-                    periode_id: $('#pengguna_periode').val()
+                    periode_id: $('#pengguna_periode').val(),
+                    jemaat_id: $('#pengguna_jemaat').val()
                 },
                 beforeSend: () => btn.prop('disabled', true),
                 success: function(res) {
@@ -263,7 +294,7 @@
 
                 if (data.length === 0) {
                     $('#tablePengguna').html(
-                        '<tr><td colspan="6" class="px-6 py-12 text-center text-slate-500">Pengguna tidak ditemukan.</td></tr>'
+                        '<tr><td colspan="5" class="px-6 py-16 text-center text-sm text-slate-500">Pengguna tidak ditemukan.</td></tr>'
                     );
                     $('#paginationPengguna').html('');
                     return;
@@ -273,33 +304,33 @@
                     const periode = item.periode ?
                         `${escapePengguna(item.periode.tahun_mulai)} - ${escapePengguna(item.periode.tahun_selesai)}` :
                         '<span class="text-slate-400">-</span>';
+                    const inisial = String(item.name).trim().charAt(0).toUpperCase();
 
                     return `
-                    <tr class="transition hover:bg-slate-50">
-                        <td class="px-6 py-4 font-semibold text-slate-800">${escapePengguna(item.name)}</td>
-                        <td class="px-6 py-4">${escapePengguna(item.email)}</td>
-                        <td class="px-6 py-4 font-mono">${escapePengguna(item.password_view)}</td>
-                        <td class="px-6 py-4">${escapePengguna(item.role?.nama)}</td>
-                        <td class="px-6 py-4">${periode}</td>
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex justify-center gap-2">
-                                <button onclick="editPengguna(${Number(item.id)})" title="Edit"
-                                    class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="hapusPengguna(${Number(item.id)})" title="Hapus"
-                                    class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                    <tr class="group transition duration-150 hover:bg-primary/[0.035]">
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-2.5">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">${escapePengguna(inisial)}</span>
+                                <div>
+                                    <div class="font-semibold text-slate-800">${escapePengguna(item.name)}</div>
+                                    <div class="text-xs text-slate-500">${escapePengguna(item.email)}</div>
+                                </div>
                             </div>
                         </td>
+                        <td class="px-5 py-4"><span class="rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs text-slate-700">${escapePengguna(item.password_view)}</span></td>
+                        <td class="whitespace-nowrap px-5 py-4"><span class="inline-flex items-center rounded-lg bg-primary/5 px-3 py-1.5 text-xs font-bold text-primary">${escapePengguna(item.role?.nama)}</span></td>
+                        <td class="whitespace-nowrap px-5 py-4 text-sm text-slate-600">${item.jemaat ? escapePengguna(item.jemaat.nama) : periode}</td>
+                        <td class="px-5 py-4"><div class="flex items-center justify-center gap-2">
+                                <button onclick="editPengguna(${item.id})" title="Edit" class="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600 transition hover:border-amber-200 hover:bg-amber-500 hover:text-white"><i class="fas fa-pen text-xs"></i></button>
+                                <button onclick="hapusPengguna(${item.id})" title="Hapus" class="flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white"><i class="fas fa-trash text-xs"></i></button>
+                            </div></td>
                     </tr>`;
                 }).join(''));
 
                 renderPaginationPengguna(res);
             }).fail(function() {
                 $('#tablePengguna').html(
-                    '<tr><td colspan="6" class="px-6 py-10 text-center text-red-600">Gagal memuat data pengguna.</td></tr>'
+                    '<tr><td colspan="5" class="px-6 py-10 text-center text-sm text-red-600">Gagal memuat data pengguna.</td></tr>'
                 );
             });
         }
@@ -348,14 +379,6 @@
                 });
             });
         }
-
-        document.getElementById('modalPengguna').addEventListener('click', function(e) {
-            if (e.target === this) tutupModalPengguna();
-        });
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') tutupModalPengguna();
-        });
 
         $('#searchPengguna').on('input', function() {
             clearTimeout(penggunaTimer);

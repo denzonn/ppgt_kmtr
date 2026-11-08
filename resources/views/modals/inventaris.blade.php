@@ -162,7 +162,7 @@
                     </div>
 
                     <p class="-mt-2 mb-4 text-xs text-slate-500">
-                        Masukkan jumlah barang untuk setiap kondisi. Isi 0 jika tidak ada.
+                        Isi jumlah barang kondisi Baik. Klik tombol di bawah untuk mengisi kondisi lainnya.
                     </p>
 
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -174,47 +174,66 @@
                                 Baik
                             </label>
 
-                            <input type="number" id="kondisiBaik" name="kondisi[Baik]" value="0"
-                                min="0" required
+                            <input type="number" id="kondisiBaik" placeholder="Masukkan jumlah" name="kondisi[Baik]"
+                                min="0"
                                 class="w-full rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10">
                         </div>
 
                         {{-- Kurang Baik --}}
-                        <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-4">
+                        <div id="boxKondisiKurangBaik" class="hidden rounded-xl border border-amber-100 bg-amber-50/50 p-4">
                             <label for="kondisiKurangBaik" class="mb-2 block text-sm font-semibold text-amber-700">
                                 <i class="fa-solid fa-circle-exclamation mr-1"></i>
                                 Kurang Baik
                             </label>
 
-                            <input type="number" id="kondisiKurangBaik" name="kondisi[Kurang Baik]" value="0"
-                                min="0" required
+                            <input type="number" id="kondisiKurangBaik" placeholder="Masukkan jumlah" name="kondisi[Kurang Baik]"
+                                min="0"
                                 class="w-full rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10">
                         </div>
 
                         {{-- Rusak --}}
-                        <div class="rounded-xl border border-red-100 bg-red-50/50 p-4">
+                        <div id="boxKondisiRusak" class="hidden rounded-xl border border-red-100 bg-red-50/50 p-4">
                             <label for="kondisiRusak" class="mb-2 block text-sm font-semibold text-red-700">
                                 <i class="fa-solid fa-circle-xmark mr-1"></i>
                                 Rusak
                             </label>
 
-                            <input type="number" id="kondisiRusak" name="kondisi[Rusak]" value="0"
-                                min="0" required
+                            <input type="number" id="kondisiRusak" placeholder="Masukkan jumlah" name="kondisi[Rusak]"
+                                min="0"
                                 class="w-full rounded-lg border border-red-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-red-500 focus:ring-4 focus:ring-red-500/10">
                         </div>
 
                         {{-- Hilang --}}
-                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <div id="boxKondisiHilang" class="hidden rounded-xl border border-slate-200 bg-slate-50 p-4">
                             <label for="kondisiHilang" class="mb-2 block text-sm font-semibold text-slate-700">
                                 <i class="fa-solid fa-box-open mr-1"></i>
                                 Hilang
                             </label>
 
-                            <input type="number" id="kondisiHilang" name="kondisi[Hilang]" value="0"
-                                min="0" required
+                            <input type="number" id="kondisiHilang" placeholder="Masukkan jumlah" name="kondisi[Hilang]"
+                                min="0"
                                 class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10">
                         </div>
 
+                    </div>
+
+                    {{-- Tombol untuk menampilkan input kondisi lainnya --}}
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <button type="button" aria-controls="boxKondisiKurangBaik" aria-expanded="false"
+                            class="btnKondisi inline-flex items-center rounded-lg border border-amber-200 text-amber-700 hover:bg-amber-50 px-3 py-2 text-xs font-semibold transition">
+                            <i class="fas fa-plus mr-2"></i>
+                            Kurang Baik
+                        </button>
+                        <button type="button" aria-controls="boxKondisiRusak" aria-expanded="false"
+                            class="btnKondisi inline-flex items-center rounded-lg border border-red-200 text-red-700 hover:bg-red-50 px-3 py-2 text-xs font-semibold transition">
+                            <i class="fas fa-plus mr-2"></i>
+                            Rusak
+                        </button>
+                        <button type="button" aria-controls="boxKondisiHilang" aria-expanded="false"
+                            class="btnKondisi inline-flex items-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 px-3 py-2 text-xs font-semibold transition">
+                            <i class="fas fa-plus mr-2"></i>
+                            Hilang
+                        </button>
                     </div>
                 </div>
             </div>

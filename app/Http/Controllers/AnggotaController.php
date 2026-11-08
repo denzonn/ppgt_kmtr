@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Imports\AnggotaImport;
 use App\Models\DataAnggota;
 use App\Models\Jemaat;
+use App\Models\Kelompok;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -14,14 +15,37 @@ class AnggotaController extends Controller
 {
     public function index()
     {
-        $jemaat = Jemaat::orderBy('nama')->get(['id', 'nama']);
+        $jemaat = $this->daftarJemaat();
 
-        return view('pages.admin.anggota', compact('jemaat'));
+        $kelompok = Kelompok::whereIn('jemaat_id', $jemaat->pluck('id'))->orderBy('nama')->get(['id', 'jemaat_id', 'nama']);
+
+        return view('pages.admin.anggota', compact('jemaat', 'kelompok'));
+    }
+
+    /** Pengurus Jemaat hanya boleh menyentuh anggota jemaatnya sendiri. */
+    private function anggota()
+    {
+        return DataAnggota::query()->when(auth()->user()->jemaat_id, fn ($q, $jemaatId) => $q->where('jemaat_id', $jemaatId));
+    }
+
+    private function daftarJemaat()
+    {
+        return Jemaat::query()
+            ->when(auth()->user()->jemaat_id, fn ($q, $jemaatId) => $q->whereKey($jemaatId))
+            ->orderBy('nama')
+            ->get(['id', 'nama']);
+    }
+
+    private function kunciJemaat(Request $request): void
+    {
+        if ($request->user()->jemaat_id) {
+            $request->merge(['jemaat_id' => $request->user()->jemaat_id]);
+        }
     }
 
     public function getData(Request $request)
     {
-        $query = DataAnggota::with('jemaat:id,nama');
+        $query = $this->anggota()->with(['jemaat:id,nama', 'kelompok:id,nama']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -45,31 +69,45 @@ class AnggotaController extends Controller
             $query->where('jemaat_id', $request->jemaat);
         }
 
+        if ($request->input('kelompok') === 'kosong') {
+            $query->whereNull('kelompok_id');
+        } elseif ($request->filled('kelompok')) {
+            $query->where('kelompok_id', $request->kelompok);
+        }
+
         if ($request->filled('status_wilayah')) {
             $query->where('status_wilayah', $request->status_wilayah);
         }
 
-        $totalAnggota = DataAnggota::count();
+        $totalAnggota = $this->anggota()->count();
 
-        $totalLakiLaki = DataAnggota::where(function ($q) {
+        $totalLakiLaki = $this->anggota()->where(function ($q) {
             $q->whereRaw("LOWER(TRIM(jenis_kelamin)) LIKE ?", ['%laki%'])
                 ->orWhereRaw("LOWER(TRIM(jenis_kelamin)) = ?", ['l']);
         })->count();
 
-        $totalPerempuan = DataAnggota::where(function ($q) {
+        $totalPerempuan = $this->anggota()->where(function ($q) {
             $q->whereRaw("LOWER(TRIM(jenis_kelamin)) LIKE ?", ['%perempuan%'])
                 ->orWhereRaw("LOWER(TRIM(jenis_kelamin)) = ?", ['p']);
         })->count();
 
-        $totalJemaat = Jemaat::count();
+        $totalAktif = $this->anggota()->whereRaw("LOWER(TRIM(status_anggota)) = ?", ['aktif'])->count();
 
-        $jemaatList = Jemaat::orderBy('nama')->get(['id', 'nama']);
+        $jemaatList = $this->daftarJemaat();
 
-        $statusList = DataAnggota::whereNotNull('status_anggota')
+        $totalJemaat = $jemaatList->count();
+
+        $statusList = $this->anggota()->whereNotNull('status_anggota')
             ->where('status_anggota', '!=', '')
             ->distinct()
             ->orderBy('status_anggota')
             ->pluck('status_anggota');
+
+        // Pilihan kelompok baru berarti setelah jemaatnya jelas.
+        $jemaatKelompok = $request->user()->jemaat_id ?: $request->integer('jemaat');
+        $kelompokList = $jemaatKelompok
+            ? Kelompok::where('jemaat_id', $jemaatKelompok)->orderBy('nama')->get(['id', 'nama'])
+            : [];
 
         $statusWilayahList = [
             'Dalam Wilayah Pelayanan',
@@ -86,6 +124,7 @@ class AnggotaController extends Controller
             ->select([
                 'id',
                 'jemaat_id',
+                'kelompok_id',
                 'no_anggota',
                 'nama',
                 'jenis_kelamin',
@@ -104,9 +143,11 @@ class AnggotaController extends Controller
                 'total_laki_laki' => $totalLakiLaki,
                 'total_perempuan' => $totalPerempuan,
                 'total_jemaat' => $totalJemaat,
+                'total_aktif' => $totalAktif,
             ],
             'filters' => [
                 'jemaat' => $jemaatList,
+                'kelompok' => $kelompokList,
                 'status' => $statusList,
                 'status_wilayah' => $statusWilayahList,
             ],
@@ -132,6 +173,13 @@ class AnggotaController extends Controller
     {
         return [
             'jemaat_id' => ['required', 'exists:jemaat,id'],
+            // Jemaat yang belum membuat kelompok tetap bisa mendata anggota.
+            'kelompok_id' => [
+                Rule::requiredIf(fn () => Kelompok::where('jemaat_id', request()->integer('jemaat_id'))->exists()),
+                'nullable',
+                'integer',
+                Rule::exists('kelompok', 'id')->where('jemaat_id', request()->integer('jemaat_id')),
+            ],
             'nik' => [
                 'nullable',
                 'digits:16',
@@ -160,6 +208,8 @@ class AnggotaController extends Controller
         return [
             'jemaat_id.required' => 'Jemaat wajib dipilih.',
             'jemaat_id.exists' => 'Jemaat yang dipilih tidak ditemukan.',
+            'kelompok_id.required' => 'Kelompok wajib dipilih.',
+            'kelompok_id.exists' => 'Kelompok tidak ditemukan di jemaat ini.',
             'nik.digits' => 'NIK harus terdiri dari 16 digit.',
             'nik.unique' => 'NIK sudah terdaftar.',
             'nama.required' => 'Nama anggota wajib diisi.',
@@ -174,6 +224,8 @@ class AnggotaController extends Controller
 
     public function store(Request $request)
     {
+        $this->kunciJemaat($request);
+
         $validated = $request->validate(
             $this->validationRules(),
             $this->validationMessages()
@@ -199,7 +251,7 @@ class AnggotaController extends Controller
 
     public function edit($id)
     {
-        $anggota = DataAnggota::findOrFail($id);
+        $anggota = $this->anggota()->findOrFail($id);
 
         return response()->json([
             'success' => true,
@@ -209,14 +261,17 @@ class AnggotaController extends Controller
 
     public function update(Request $request, $id)
     {
-        $anggota = DataAnggota::findOrFail($id);
+        $anggota = $this->anggota()->findOrFail($id);
+
+        $this->kunciJemaat($request);
 
         $validated = $request->validate(
             $this->validationRules($id),
             $this->validationMessages()
         );
 
-        $anggota->update($validated);
+        // Kelompok lama tidak boleh terbawa saat anggota pindah ke jemaat lain.
+        $anggota->update($validated + ['kelompok_id' => null]);
 
         return response()->json([
             'success' => true,
@@ -227,7 +282,7 @@ class AnggotaController extends Controller
 
     public function show($id)
     {
-        $anggota = DataAnggota::with('jemaat:id,nama')->findOrFail($id);
+        $anggota = $this->anggota()->with(['jemaat:id,nama', 'kelompok:id,nama'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
@@ -237,12 +292,19 @@ class AnggotaController extends Controller
 
     public function destroy($id)
     {
-        $anggota = DataAnggota::findOrFail($id);
+        $anggota = $this->anggota()->findOrFail($id);
 
         if (\App\Models\Pengurus::where('data_anggota_id', $anggota->id)->exists()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Anggota tidak bisa dihapus karena tercatat sebagai pengurus.',
+            ], 422);
+        }
+
+        if (\App\Models\JemaatPengurus::where('data_anggota_id', $anggota->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anggota tidak bisa dihapus karena tercatat sebagai pengurus jemaat.',
             ], 422);
         }
 
@@ -257,6 +319,8 @@ class AnggotaController extends Controller
 
     public function import(Request $request)
     {
+        abort_if($request->user()->jemaat_id, 403);
+
         $request->validate([
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
         ], [
@@ -278,6 +342,7 @@ class AnggotaController extends Controller
                     'berhasil' => $import->berhasil,
                     'dilewati' => $import->dilewati,
                     'gagal' => count($import->gagal),
+                    'catatan' => array_slice($import->catatan, 0, 100),
                     'detail_gagal' => array_slice($import->gagal, 0, 100),
                 ],
             ]);

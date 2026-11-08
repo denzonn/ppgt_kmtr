@@ -8,114 +8,63 @@
 
     <div class="space-y-6">
 
-        {{-- Header --}}
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="text-xl font-bold text-slate-800 md:text-2xl">
-                    Generator QR Code
-                </h2>
-                <p class="mt-1 text-sm text-slate-500">
-                    Buat QR Code dari link dan unduh dalam format PNG.
-                </p>
+                <h2 class="text-xl font-bold text-slate-800">Generator QR Code</h2>
+                <p class="mt-1 text-sm text-slate-500">Buat QR Code dari link dan unduh dalam format PNG.</p>
             </div>
-
             <button type="button" onclick="tambahQR()"
-                class="inline-flex items-center justify-center gap-2 rounded-xl
-            bg-primary px-5 py-3 text-sm font-semibold text-white
-            transition hover:bg-primary_hover active:scale-[0.98]">
-                <i class="fa-solid fa-plus"></i>
+                class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
+                <i class="fas fa-plus"></i>
                 Buat QR Code
             </button>
         </div>
 
-        {{-- Search --}}
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div class="relative">
-                <i
-                    class="fa-solid fa-magnifying-glass absolute left-4 top-1/2
-                -translate-y-1/2 text-slate-400"></i>
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-                <input type="text" id="searchQR" placeholder="Cari nama QR Code atau link..."
-                    class="w-full rounded-xl border border-slate-300 py-3 pl-11 pr-4
-                text-sm focus:border-primary focus:ring-primary">
-            </div>
-        </div>
-
-        {{-- Tabel Desktop --}}
-        <div id="qrTableContainer"
-            class="hidden overflow-hidden rounded-2xl border border-slate-200
-        bg-white shadow-sm md:block">
-
-            <div class="overflow-x-auto">
-                <table class="w-full min-w-[800px]">
-                    <thead class="bg-slate-50">
-                        <tr class="text-left text-sm text-slate-600">
-                            <th class="px-6 py-4">QR Code</th>
-                            <th class="px-6 py-4">Nama</th>
-                            <th class="px-6 py-4">Link Tujuan</th>
-                            <th class="px-6 py-4 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="tableQR" class="divide-y divide-slate-100 text-sm">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {{-- Mobile Cards --}}
-        <div id="mobileQR" class="space-y-4 md:hidden"></div>
-
-        {{-- Pagination --}}
-        <div id="paginationQR" class="flex flex-wrap justify-end gap-2"></div>
-
-        {{-- Empty State --}}
-        <div id="emptyQR"
-            class="hidden rounded-2xl border border-slate-200 bg-white px-5 py-14
-        text-center shadow-sm">
-
-            <div class="mx-auto flex h-20 w-20 items-center justify-center
-            rounded-2xl bg-blue-50 text-primary">
-                <i class="fa-solid fa-qrcode text-4xl"></i>
+            <div class="border-b border-slate-100 bg-white p-5">
+                <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">Daftar QR Code</h3>
+                            <p class="mt-0.5 text-xs text-slate-500">QR Code yang telah dibuat.</p>
+                        </div>
+                    </div>
+                    <div class="relative md:w-80">
+                        <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+                        <input type="text" id="searchQR" placeholder="Cari nama atau link..."
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                    </div>
+                </div>
             </div>
 
-            <h3 class="mt-5 text-lg font-bold text-slate-800">
-                Belum Ada QR Code
-            </h3>
+            <div id="gridQR" class="grid gap-4 bg-slate-50/60 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
 
-            <p class="mx-auto mt-2 max-w-md text-sm text-slate-500">
-                Masukkan nama dan link tujuan untuk membuat QR Code pertamamu.
-            </p>
-
-            <button type="button" onclick="tambahQR()"
-                class="mt-6 rounded-xl bg-primary px-5 py-3
-            text-sm font-semibold text-white transition hover:bg-primary_hover">
-                <i class="fa-solid fa-plus mr-2"></i>
-                Buat QR Code
-            </button>
+            <div id="paginationQR" class="flex flex-wrap justify-end gap-2 border-t border-slate-100 bg-white px-5 py-4 empty:hidden"></div>
         </div>
-
     </div>
 
-    {{-- Modal Tambah/Edit --}}
+{{-- Modal Tambah/Edit --}}
     <div id="modalQR"
-        class="fixed inset-0 z-[100] hidden items-center justify-center
-    overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm">
+        class="modal-overlay fixed inset-0 z-[1000] hidden overflow-y-auto bg-slate-950/50 p-4 opacity-0 transition-opacity duration-300">
 
-        <div class="my-auto w-full max-w-lg overflow-hidden rounded-2xl
-        bg-white shadow-2xl">
+        <div class="modal-content mx-auto my-6 w-full max-w-lg scale-95 -translate-y-6 rounded-2xl bg-white shadow-2xl transition-all duration-300">
 
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <div>
-                    <h3 id="modalQRTitle" class="text-lg font-bold text-slate-800">
-                        Buat QR Code
-                    </h3>
-                    <p class="mt-1 text-sm text-slate-500">
-                        Masukkan nama dan link tujuan.
-                    </p>
+            <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <i class="fas fa-qrcode text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 id="modalQRTitle" class="text-lg font-bold text-slate-800">Buat QR Code</h3>
+                        <p class="text-sm text-slate-500">Masukkan nama dan link tujuan.</p>
+                    </div>
                 </div>
 
-                <button type="button" onclick="tutupModalQR()"
+<button type="button" onclick="tutupModalQR()"
                     class="flex h-9 w-9 items-center justify-center rounded-lg
                 text-slate-500 transition hover:bg-slate-100">
                     <i class="fa-solid fa-xmark text-lg"></i>
@@ -135,7 +84,7 @@
 
                     <input type="text" id="qr_nama" name="nama" placeholder="Contoh: Website PPGT KMTr" required
                         maxlength="150"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3
                     text-sm focus:border-primary focus:ring-primary">
 
                     <p class="mt-1 text-xs text-slate-500">
@@ -154,14 +103,14 @@
                         -translate-y-1/2 text-slate-400"></i>
 
                         <input type="url" id="qr_link" name="link" placeholder="https://contoh.com" required
-                            maxlength="2048"
-                            class="w-full rounded-xl border border-slate-300
+                            maxlength="1200"
+                            class="w-full rounded-xl border border-slate-200
                         py-3 pl-11 pr-4 text-sm
                         focus:border-primary focus:ring-primary">
                     </div>
 
                     <p class="mt-1 text-xs text-slate-500">
-                        Pastikan link dapat dibuka dan diawali https:// atau http://.
+                        Diawali https:// atau http://, maksimal 1.200 karakter.
                     </p>
                 </div>
 
@@ -190,8 +139,7 @@
         const qrBaseUrl = @json(route('generate_qr.index'));
         const qrDataUrl = @json(route('generate_qr.getData'));
         const qrStoreUrl = @json(route('generate_qr.store'));
-        const qrDownloadUrl = @json(url('/'));
-
+        
         let qrPage = 1;
         let qrSearchTimer = null;
         let qrRequest = null;
@@ -212,27 +160,20 @@
             return `${qrBaseUrl.replace(/\/$/, '')}/${encodeURIComponent(id)}`;
         }
 
-        function gambarQR(item, ukuran = 'h-24 w-24') {
+        function gambarQR(item, ukuran = 'h-40 w-40') {
             if (!item.qr_code) {
                 return `
-            <div class="${ukuran} flex items-center justify-center
-                rounded-xl bg-slate-100 text-slate-400">
+            <div class="${ukuran} flex items-center justify-center rounded-xl bg-slate-100 text-slate-400">
                 <i class="fa-solid fa-qrcode text-3xl"></i>
-            </div>
-        `;
+            </div>`;
             }
 
-            // qr_code sudah berisi URL lengkap dari database.
-            const src = escapeQR(item.qr_code);
-
             return `
-        <img src="${src}" alt="QR Code ${escapeQR(item.nama)}"
-            class="${ukuran} rounded-xl border border-slate-200 bg-white
-            object-contain p-1" loading="lazy">
-    `;
+            <img src="${escapeQR(item.qr_code)}" alt="QR Code ${escapeQR(item.nama)}"
+                class="${ukuran} rounded-xl bg-white object-contain" loading="lazy">`;
         }
 
-        function tambahQR() {
+function tambahQR() {
             document.getElementById('formQR').reset();
             document.getElementById('qr_id').value = '';
             document.getElementById('qr_method').value = 'POST';
@@ -245,28 +186,13 @@
         }
 
         function bukaModalQR() {
-            const modal = document.getElementById('modalQR');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            document.body.classList.add('overflow-hidden');
-
+            showModal('modalQR');
             setTimeout(() => document.getElementById('qr_nama').focus(), 100);
         }
 
         function tutupModalQR() {
-            const modal = document.getElementById('modalQR');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.classList.remove('overflow-hidden');
+            closeModal('modalQR');
         }
-
-        document.getElementById('modalQR').addEventListener('click', function(e) {
-            if (e.target === this) tutupModalQR();
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') tutupModalQR();
-        });
 
         // Simpan dan edit
         $('#formQR').on('submit', function(e) {
@@ -277,7 +203,7 @@
             const url = method === 'POST' ? qrStoreUrl : urlQR(id);
 
             const btn = $('#btnSimpanQR');
-            const originalText = method === 'POST' ? 'Buat QR Code' : 'Simpan Perubahan';
+            const tombolAwal = btn.html();
 
             $.ajax({
                 url: url,
@@ -306,11 +232,12 @@
                     }
                 },
                 error: function(xhr) {
-                    let message = xhr.responseJSON?.message || 'QR Code gagal disimpan.';
+                    let message = escapeQR(xhr.responseJSON?.message || 'QR Code gagal disimpan.');
 
                     if (xhr.status === 422 && xhr.responseJSON?.errors) {
                         message = Object.values(xhr.responseJSON.errors)
                             .flat()
+                            .map(escapeQR)
                             .join('<br>');
                     }
 
@@ -321,185 +248,86 @@
                     });
                 },
                 complete: function() {
-                    btn.prop('disabled', false).html(
-                        `<i class="fa-solid fa-floppy-disk mr-2"></i>${originalText}`
-                    );
+                    btn.prop('disabled', false).html(tombolAwal);
                 }
             });
         });
 
-        // Ambil data dan render tabel
+        // Ambil data dan render kartu
+        function pesanQR(isi) {
+            return `<div class="col-span-full py-12 text-center">${isi}</div>`;
+        }
+
         function loadQR(page = 1) {
             qrPage = page;
 
             if (qrRequest) qrRequest.abort();
 
-            $('#tableQR').html(`
-            <tr>
-                <td colspan="4" class="py-12 text-center text-slate-500">
-                    <i class="fa-solid fa-spinner fa-spin mr-2"></i>
-                    Memuat data...
-                </td>
-            </tr>
-        `);
+            $('#gridQR').html(pesanQR('<span class="text-sm text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data...</span>'));
 
             qrRequest = $.get(qrDataUrl, {
                 page: page,
                 search: $('#searchQR').val()
             }).done(function(res) {
                 const data = res.data || [];
-                const searching = $('#searchQR').val().trim() !== '';
 
-                if (res.total === 0 && !searching) {
-                    $('#qrTableContainer, #mobileQR, #paginationQR').addClass('hidden');
-                    $('#emptyQR').removeClass('hidden');
+                // Halaman terakhir bisa kosong setelah isinya dihapus.
+                if (data.length === 0 && res.total > 0) {
+                    loadQR(res.last_page);
                     return;
                 }
-
-                $('#emptyQR').addClass('hidden');
-                $('#qrTableContainer, #mobileQR, #paginationQR').removeClass('hidden');
 
                 if (data.length === 0) {
-                    $('#tableQR').html(`
-                    <tr>
-                        <td colspan="4" class="px-6 py-12 text-center text-slate-500">
-                            <i class="fa-solid fa-magnifying-glass mb-3 text-2xl"></i>
-                            <p>QR Code tidak ditemukan.</p>
-                        </td>
-                    </tr>
-                `);
+                    const mencari = $('#searchQR').val().trim() !== '';
 
-                    $('#mobileQR').html(`
-                    <div class="rounded-2xl border border-slate-200 bg-white
-                        p-8 text-center text-sm text-slate-500">
-                        QR Code tidak ditemukan.
-                    </div>
-                `);
-
-                    renderPaginationQR(res);
+                    $('#gridQR').html(pesanQR(mencari ?
+                        '<span class="text-sm text-slate-500">QR Code tidak ditemukan.</span>' :
+                        `<div class="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary"><i class="fas fa-qrcode text-2xl"></i></div>
+                        <h3 class="mt-4 font-bold text-slate-800">Belum Ada QR Code</h3>
+                        <p class="mt-1 text-sm text-slate-500">Buat QR Code pertama dari nama dan link tujuan.</p>
+                        <button type="button" onclick="tambahQR()" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"><i class="fas fa-plus"></i>Buat QR Code</button>`));
+                    $('#paginationQR').html('');
                     return;
                 }
 
-                let desktop = '';
-                let mobile = '';
-
-                data.forEach(function(item) {
+                $('#gridQR').html(data.map(function(item) {
                     const nama = escapeQR(item.nama);
                     const link = escapeQR(item.link);
 
-                    desktop += `
-                    <tr class="transition hover:bg-slate-50">
-                        <td class="px-6 py-4">
-                            ${gambarQR(item, 'h-24 w-24')}
-                        </td>
-
-                        <td class="px-6 py-4 font-semibold text-slate-800">
-                            ${nama}
-                        </td>
-
-                        <td class="max-w-xs px-6 py-4">
-                            <a href="${link}" target="_blank" rel="noopener noreferrer"
-                                class="block truncate text-primary hover:underline"
-                                title="${link}">
-                                ${link}
-                            </a>
-                        </td>
-
-                        <td class="px-6 py-4">
-                            <div class="flex justify-center gap-2">
-                                <button onclick="downloadQR(${item.id})"
-                                    title="Download PNG"
-                                    class="flex h-9 w-9 items-center justify-center
-                                    rounded-lg bg-emerald-50 text-emerald-700
-                                    transition hover:bg-emerald-100">
-                                    <i class="fa-solid fa-download"></i>
-                                </button>
-
-                                <button onclick="editQR(${item.id})"
-                                    title="Edit"
-                                    class="flex h-9 w-9 items-center justify-center
-                                    rounded-lg bg-blue-50 text-blue-600
-                                    transition hover:bg-blue-100">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-
-                                <button onclick="hapusQR(${item.id})"
-                                    title="Hapus"
-                                    class="flex h-9 w-9 items-center justify-center
-                                    rounded-lg bg-red-50 text-red-600
-                                    transition hover:bg-red-100">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-
-                    mobile += `
-                    <div class="rounded-2xl border border-slate-200 bg-white
-                        p-4 shadow-sm">
-                        <div class="flex items-start gap-4">
-                            ${gambarQR(item, 'h-24 w-24 shrink-0')}
-
-                            <div class="min-w-0 flex-1">
-                                <h3 class="break-words font-bold text-slate-800">
-                                    ${nama}
-                                </h3>
-
-                                <a href="${link}" target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="mt-2 block break-all text-xs text-primary">
-                                    ${link}
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 flex gap-2 border-t border-slate-100 pt-3">
+                    return `
+                    <div class="flex flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+                        <div class="flex justify-center rounded-xl border border-slate-100 p-2">${gambarQR(item)}</div>
+                        <h4 class="mt-3 break-words font-bold text-slate-800">${nama}</h4>
+                        <a href="${link}" target="_blank" rel="noopener noreferrer" title="${link}"
+                            class="mt-0.5 mb-3 block truncate text-xs text-slate-500 hover:text-primary">
+                            <i class="fas fa-link mr-1 text-[10px]"></i>${link}
+                        </a>
+                        <div class="mt-auto flex items-center gap-2">
                             <button onclick="downloadQR(${item.id})"
-                                class="flex flex-1 items-center justify-center gap-2
-                                rounded-lg bg-emerald-50 px-3 py-2.5
-                                text-sm font-semibold text-emerald-700
-                                transition hover:bg-emerald-100">
-                                <i class="fa-solid fa-download"></i>
-                                Download PNG
+                                class="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-xl bg-primary/10 text-sm font-semibold text-primary transition hover:bg-primary hover:text-white">
+                                <i class="fas fa-download text-xs"></i> Unduh PNG
                             </button>
-
-                            <button onclick="editQR(${item.id})"
-                                class="flex h-10 w-10 items-center justify-center
-                                rounded-lg bg-blue-50 text-blue-600">
-                                <i class="fa-solid fa-pen"></i>
+                            <button onclick="editQR(${item.id})" title="Edit"
+                                class="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600 transition hover:border-amber-200 hover:bg-amber-500 hover:text-white">
+                                <i class="fas fa-pen text-xs"></i>
                             </button>
-
-                            <button onclick="hapusQR(${item.id})"
-                                class="flex h-10 w-10 items-center justify-center
-                                rounded-lg bg-red-50 text-red-600">
-                                <i class="fa-solid fa-trash"></i>
+                            <button onclick="hapusQR(${item.id})" title="Hapus"
+                                class="flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white">
+                                <i class="fas fa-trash text-xs"></i>
                             </button>
                         </div>
-                    </div>
-                `;
-                });
+                    </div>`;
+                }).join(''));
 
-                $('#tableQR').html(desktop);
-                $('#mobileQR').html(mobile);
                 renderPaginationQR(res);
             }).fail(function(xhr, status) {
                 if (status === 'abort') return;
 
-                $('#tableQR').html(`
-                <tr>
-                    <td colspan="4" class="px-6 py-10 text-center text-red-600">
-                        Gagal memuat data QR Code.
-                        <button onclick="loadQR(qrPage)" class="ml-1 underline">
-                            Coba lagi
-                        </button>
-                    </td>
-                </tr>
-            `);
+                $('#gridQR').html(pesanQR('<span class="text-sm text-red-600">Gagal memuat data QR Code. <button onclick="loadQR(qrPage)" class="underline">Coba lagi</button></span>'));
             });
         }
 
-        // Pagination
+// Pagination
         function renderPaginationQR(res) {
             if (res.last_page <= 1) {
                 $('#paginationQR').html('');
@@ -752,11 +580,7 @@
                     success: function(res) {
                         Swal.fire('Berhasil', res.message, 'success');
 
-                        if (qrPage > 1) {
-                            loadQR(qrPage);
-                        } else {
-                            loadQR(1);
-                        }
+                        loadQR(qrPage);
                     },
                     error: function() {
                         Swal.fire('Gagal', 'QR Code gagal dihapus.', 'error');

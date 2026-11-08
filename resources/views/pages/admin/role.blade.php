@@ -10,56 +10,70 @@
 
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="text-xl font-bold text-slate-800 md:text-2xl">Manajemen Role</h2>
+                <h2 class="text-xl font-bold text-slate-800">Manajemen Role</h2>
                 <p class="mt-1 text-sm text-slate-500">Atur menu yang dapat diakses setiap role.</p>
             </div>
-
-            <button type="button" onclick="tambahRole()"
-                class="inline-flex items-center justify-center gap-2 rounded-xl
-            bg-primary px-5 py-3 text-sm font-semibold text-white
-            transition hover:bg-primary_hover active:scale-[0.98]">
-                <i class="fa-solid fa-plus"></i>
+            <button type="button" onclick="tambahRole()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
+                <i class="fas fa-plus"></i>
                 Tambah Role
             </button>
         </div>
 
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="searchRole" placeholder="Cari nama role..."
-                    class="w-full rounded-xl border border-slate-300 py-3 pl-11 pr-4
-                text-sm focus:border-primary focus:ring-primary">
-            </div>
-        </div>
-
         <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+            <div class="border-b border-slate-100 bg-white p-5">
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">Daftar Role</h3>
+                            <p class="mt-0.5 text-xs text-slate-500">Role beserta menu yang diizinkan.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:flex xl:items-center">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+                            <input type="text" id="searchRole" placeholder="Cari nama role..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[700px]">
-                    <thead class="bg-slate-50">
-                        <tr class="text-left text-sm text-slate-600">
-                            <th class="px-6 py-4">Nama Role</th>
-                            <th class="px-6 py-4">Menu</th>
-                            <th class="px-6 py-4 text-center">Pengguna</th>
-                            <th class="px-6 py-4 text-center">Aksi</th>
-                        </tr>
+                <table class="w-full min-w-[820px] border-collapse text-left">
+                    <thead>
+                        <tr class="border-b border-slate-100 bg-slate-50/80">
+                            <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Nama Role</th>
+                            <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Menu</th>
+                            <th class="text-center px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Pengguna</th>
+                            <th class="text-center px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Aksi</th>
+                            </tr>
                     </thead>
-                    <tbody id="tableRole" class="divide-y divide-slate-100 text-sm"></tbody>
+                    <tbody id="tableRole" class="divide-y divide-slate-100">
+                        <tr><td colspan="4" class="px-6 py-16 text-center text-sm text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data role...</td></tr>
+                    </tbody>
                 </table>
             </div>
-        </div>
 
-        <div id="paginationRole" class="flex flex-wrap justify-end gap-2"></div>
+            <div id="paginationRole" class="flex flex-wrap justify-end gap-2 border-t border-slate-100 bg-white px-5 py-4 empty:hidden"></div>
+        </div>
     </div>
 
     {{-- Modal Tambah/Edit --}}
     <div id="modalRole"
-        class="fixed inset-0 z-[100] hidden items-center justify-center
-    overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm">
+        class="modal-overlay fixed inset-0 z-[1000] hidden overflow-y-auto bg-slate-950/50 p-4 opacity-0 transition-opacity duration-300">
 
-        <div class="my-auto w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div class="modal-content mx-auto my-6 w-full max-w-lg scale-95 -translate-y-6 rounded-2xl bg-white shadow-2xl transition-all duration-300">
 
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <h3 id="modalRoleTitle" class="text-lg font-bold text-slate-800">Tambah Role</h3>
+            <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <i class="fas fa-user-shield text-lg"></i>
+                    </div>
+                    <h3 id="modalRoleTitle" class="text-lg font-bold text-slate-800">Tambah Role</h3>
+                </div>
 
                 <button type="button" onclick="tutupModalRole()"
                     class="flex h-9 w-9 items-center justify-center rounded-lg
@@ -73,12 +87,12 @@
 
                 <div>
                     <label for="role_nama" class="mb-2 block text-sm font-semibold text-slate-700">Nama Role</label>
-                    <input type="text" id="role_nama" required maxlength="100"
-                        class="w-full rounded-xl border border-slate-300 px-4 py-3
+                    <input type="text" id="role_nama" placeholder="Contoh: Bendahara" required maxlength="100"
+                        class="w-full rounded-xl border border-slate-200 px-4 py-3
                     text-sm focus:border-primary focus:ring-primary">
                 </div>
 
-                @foreach (['Umum' => $menuUmum, 'Kepengurusan' => $menuKepengurusan] as $kelompok => $menus)
+                @foreach (['Umum' => $menuUmum, 'Kepengurusan' => $menuKepengurusan, 'Jemaat' => $menuJemaat] as $kelompok => $menus)
                     <fieldset>
                         <legend class="mb-2 text-sm font-semibold text-slate-700">Menu {{ $kelompok }}</legend>
                         <div class="grid gap-2 sm:grid-cols-2">
@@ -116,7 +130,7 @@
     <script>
         const roleBaseUrl = @json(route('role.index'));
         const roleDataUrl = @json(route('role.getData'));
-        const roleLabels = @json($menuUmum + $menuKepengurusan);
+        const roleLabels = @json($menuUmum + $menuKepengurusan + $menuJemaat);
 
         let rolePage = 1;
         let roleTimer = null;
@@ -136,13 +150,11 @@
         }
 
         function bukaModalRole() {
-            $('#modalRole').removeClass('hidden').addClass('flex');
-            document.body.classList.add('overflow-hidden');
+            showModal('modalRole');
         }
 
         function tutupModalRole() {
-            $('#modalRole').addClass('hidden').removeClass('flex');
-            document.body.classList.remove('overflow-hidden');
+            closeModal('modalRole');
         }
 
         function tambahRole() {
@@ -220,7 +232,7 @@
 
                 if (data.length === 0) {
                     $('#tableRole').html(
-                        '<tr><td colspan="4" class="px-6 py-12 text-center text-slate-500">Role tidak ditemukan.</td></tr>'
+                        '<tr><td colspan="4" class="px-6 py-16 text-center text-sm text-slate-500">Role tidak ditemukan.</td></tr>'
                     );
                     $('#paginationRole').html('');
                     return;
@@ -228,36 +240,30 @@
 
                 $('#tableRole').html(data.map(function(item) {
                     const menus = item.is_admin ?
-                        '<span class="text-slate-500">Semua menu</span>' :
+                        '<span class="inline-flex items-center rounded-lg bg-primary/5 px-3 py-1.5 text-xs font-bold text-primary">Semua menu</span>' :
                         (item.menus || []).map(k =>
-                            `<span class="mr-1 inline-block rounded-md bg-slate-100 px-2 py-0.5 text-xs">${escapeRole(roleLabels[k] ?? k)}</span>`
-                        ).join('') || '<span class="text-slate-400">-</span>';
-
-                    const aksi = item.is_admin ? '<span class="text-xs text-slate-400">Terkunci</span>' : `
-                        <div class="flex justify-center gap-2">
-                            <button onclick="editRole(${item.id})" title="Edit"
-                                class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="hapusRole(${item.id})" title="Hapus"
-                                class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>`;
+                            `<span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">${escapeRole(roleLabels[k] ?? k)}</span>`
+                        ).join('') || '<span class="text-sm text-slate-400">-</span>';
+                    const aksi = item.is_admin ?
+                        '<div class="text-center text-xs text-slate-400"><i class="fas fa-lock mr-1"></i>Terkunci</div>' :
+                        `<div class="flex items-center justify-center gap-2">
+                                <button onclick="editRole(${item.id})" title="Edit" class="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600 transition hover:border-amber-200 hover:bg-amber-500 hover:text-white"><i class="fas fa-pen text-xs"></i></button>
+                                <button onclick="hapusRole(${item.id})" title="Hapus" class="flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white"><i class="fas fa-trash text-xs"></i></button>
+                            </div>`;
 
                     return `
-                    <tr class="transition hover:bg-slate-50">
-                        <td class="px-6 py-4 font-semibold text-slate-800">${escapeRole(item.nama)}</td>
-                        <td class="px-6 py-4">${menus}</td>
-                        <td class="px-6 py-4 text-center">${Number(item.users_count)}</td>
-                        <td class="px-6 py-4 text-center">${aksi}</td>
+                    <tr class="group transition duration-150 hover:bg-primary/[0.035]">
+                        <td class="px-5 py-4 font-semibold text-slate-800">${escapeRole(item.nama)}</td>
+                        <td class="px-5 py-4"><div class="flex max-w-xl flex-wrap gap-1.5">${menus}</div></td>
+                        <td class="px-5 py-4 text-center text-sm text-slate-600">${Number(item.users_count)}</td>
+                        <td class="px-5 py-4">${aksi}</td>
                     </tr>`;
                 }).join(''));
 
                 renderPaginationRole(res);
             }).fail(function() {
                 $('#tableRole').html(
-                    '<tr><td colspan="4" class="px-6 py-10 text-center text-red-600">Gagal memuat data role.</td></tr>'
+                    '<tr><td colspan="4" class="px-6 py-10 text-center text-sm text-red-600">Gagal memuat data role.</td></tr>'
                 );
             });
         }
@@ -306,14 +312,6 @@
                 });
             });
         }
-
-        document.getElementById('modalRole').addEventListener('click', function(e) {
-            if (e.target === this) tutupModalRole();
-        });
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') tutupModalRole();
-        });
 
         $('#searchRole').on('input', function() {
             clearTimeout(roleTimer);

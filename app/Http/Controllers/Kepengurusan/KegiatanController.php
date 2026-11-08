@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Kepengurusan;
 
+use App\Support\FileUpload;
 use App\Http\Controllers\Controller;
 use App\Models\Kegiatan;
 use App\Models\Periode;
 use App\Models\ProgramKerja;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class KegiatanController extends Controller
 {
@@ -74,7 +74,7 @@ class KegiatanController extends Controller
         $fotoLama = $kegiatan->foto;
 
         if ($request->hasFile('foto')) {
-            $kegiatan->foto = $request->file('foto')->store('kegiatan', 'public');
+            $kegiatan->foto = FileUpload::simpan($request->file('foto'), 'kegiatan');
         } elseif ($request->boolean('hapus_foto')) {
             $kegiatan->foto = null;
         }
@@ -85,7 +85,7 @@ class KegiatanController extends Controller
         $kegiatan->save();
 
         if ($fotoLama && $fotoLama !== $kegiatan->foto) {
-            Storage::disk('public')->delete($fotoLama);
+            FileUpload::hapus($fotoLama);
         }
 
         return response()->json(['status' => true, 'message' => 'Dokumentasi berhasil disimpan.']);
@@ -98,7 +98,7 @@ class KegiatanController extends Controller
         $kegiatan->delete();
 
         if ($foto) {
-            Storage::disk('public')->delete($foto);
+            FileUpload::hapus($foto);
         }
 
         return response()->json(['status' => true, 'message' => 'Kegiatan berhasil dihapus.']);

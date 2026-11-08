@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password_view',
         'role_id',
         'periode_id',
+        'jemaat_id',
     ];
 
     /**
@@ -47,6 +48,11 @@ class User extends Authenticatable
         return $this->belongsTo(Periode::class);
     }
 
+    public function jemaat()
+    {
+        return $this->belongsTo(Jemaat::class);
+    }
+
     public function isAdmin(): bool
     {
         return (bool) $this->role?->is_admin;
@@ -54,13 +60,21 @@ class User extends Authenticatable
 
     public function bisaMenu(string $menu): bool
     {
+        if (isset(Role::MENU_JEMAAT[$menu]) && ! $this->jemaat_id) {
+            return false;
+        }
+
+        // Persetujuan artikel hanya untuk pengurus periode yang sedang berjalan.
+        if ($menu === 'persetujuan_artikel' && ! $this->isAdmin() && ! $this->periode?->isBerjalan()) {
+            return false;
+        }
+
         return $this->isAdmin() || in_array($menu, $this->role?->menus ?? [], true);
     }
 
     public function butuhPeriode(): bool
     {
-        return ! $this->isAdmin()
-            && array_intersect(array_keys(Role::MENU_KEPENGURUSAN), $this->role?->menus ?? []) !== [];
+        return ! $this->isAdmin() && (bool) $this->role?->butuhPeriode();
     }
 
     public function homeUrl(): string
@@ -83,6 +97,15 @@ class User extends Authenticatable
             'peminjaman' => 'peminjaman-admin',
             'data_anggota' => 'data_anggota.index',
             'generator_qr' => 'generate_qr.index',
+            'absen' => 'absen.index',
+            'linktree' => 'linktree.index',
+            'jemaat_kelompok' => 'jemaat.kelompok.index',
+            'jemaat_bidang' => 'jemaat.bidang.index',
+            'jemaat_pengurus' => 'jemaat.pengurus.index',
+            'artikel' => 'jemaat.artikel.index',
+            'jemaat_pemilihan' => 'jemaat.pemilihan.index',
+            'persetujuan_artikel' => 'persetujuan_artikel.index',
+            'tim_tanggap' => 'tim_tanggap.index',
         ];
         foreach ($rute as $menu => $nama) {
             if ($this->bisaMenu($menu)) {

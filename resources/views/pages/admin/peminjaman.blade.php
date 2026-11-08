@@ -98,7 +98,7 @@
                         </div>
 
                         <select id="filterStatus"
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-3.5 pr-9 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
                             <option value="">Semua Status</option>
                             <option value="dipinjam">Dipinjam</option>
                             <option value="dikembalikan">Dikembalikan</option>
@@ -185,7 +185,6 @@
 @push('addon-script')
     <script>
         const peminjamanDataUrl = @json(route('peminjaman-admin.getData'));
-        const storageUrl = @json(asset('storage'));
 
         let page = 1;
         let searchTimer = null;
@@ -220,19 +219,6 @@
 
         function formatAngka(value) {
             return Number(value || 0).toLocaleString('id-ID');
-        }
-
-        // Foto lama disimpan di folder publik, foto baru di storage publik.
-        function fotoUrl(path, folder) {
-            if (!path) return '';
-
-            const value = String(path);
-
-            if (!value.includes('/')) {
-                return `/images/${folder}/${value}`;
-            }
-
-            return storageUrl + '/' + value;
         }
 
         function statusPeminjaman(status) {
@@ -659,7 +645,7 @@
                 '<span class="text-slate-400">-</span>';
 
             const fotoPengambilan = data.foto_pengambilan ?
-                `<img src="${escapeHtml(fotoUrl(data.foto_pengambilan, 'peminjaman'))}"
+                `<img src="${escapeHtml(data.foto_pengambilan)}"
                         alt="Foto pengambilan"
                         class="h-32 w-full rounded-xl border border-slate-200 object-cover md:h-48">`
                 : `<div class="flex h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-xs text-slate-400 md:h-48">
@@ -667,7 +653,7 @@
                    </div>`;
 
             const fotoPengembalian = data.foto_pengembalian ?
-                `<img src="${escapeHtml(fotoUrl(data.foto_pengembalian, 'pengembalian'))}"
+                `<img src="${escapeHtml(data.foto_pengembalian)}"
                         alt="Foto pengembalian"
                         class="h-32 w-full rounded-xl border border-slate-200 object-cover md:h-48">`
                 : `<div class="flex h-32 items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50 text-xs text-slate-400 md:h-48">

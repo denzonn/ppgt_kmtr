@@ -16,11 +16,13 @@
             </div>
 
             <div class="flex flex-wrap gap-2">
-                <button type="button" id="btnImportAnggota"
-                    class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
-                    <i class="fas fa-file-excel text-primary"></i>
-                    Import Excel
-                </button>
+                @unless (auth()->user()->jemaat_id)
+                    <button type="button" id="btnImportAnggota"
+                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+                        <i class="fas fa-file-excel text-primary"></i>
+                        Import Excel
+                    </button>
+                @endunless
 
                 <button type="button" id="btnTambahAnggota"
                     class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
@@ -70,6 +72,20 @@
                 <p class="mt-3 text-xs text-slate-400">Jumlah anggota perempuan</p>
             </div>
 
+            @if (auth()->user()->jemaat_id)
+            <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Anggota Aktif</p>
+                        <h3 id="totalAktif" class="mt-2 text-2xl font-bold text-slate-800">0</h3>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                        <i class="fas fa-user-check text-xl"></i>
+                    </div>
+                </div>
+                <p class="mt-3 text-xs text-slate-400">Anggota berstatus aktif di jemaat ini</p>
+            </div>
+            @else
             <div class="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                 <div class="flex items-center justify-between">
                     <div>
@@ -82,11 +98,12 @@
                 </div>
                 <p class="mt-3 text-xs text-slate-400">Jemaat terdaftar</p>
             </div>
+            @endif
         </div>
 
         <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
             <div class="border-b border-slate-100 bg-white p-5">
-                <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                <div class="flex flex-col gap-5">
                     <div class="flex items-center gap-2">
                         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                             <i class="fas fa-users"></i>
@@ -100,22 +117,28 @@
                     </div>
 
                     <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:flex xl:items-center">
-                        <div class="relative sm:col-span-2 xl:col-span-1">
+                        <div class="relative sm:col-span-2 xl:flex-1">
                             <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
                             <input type="text" id="search" placeholder="Cari nama / nomor anggota..."
-                                class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 xl:w-64">
+                                class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
                         </div>
 
                         <select id="filterWilayah"
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                            class="w-full xl:w-52 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
                             <option value="">Semua Wilayah</option>
                             <option value="dalam_wilayah">Dalam Wilayah Pelayanan</option>
                             <option value="luar_wilayah">Luar Wilayah</option>
                         </select>
 
                         <select id="filterJemaat"
-                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                            class="w-full xl:w-44 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
                             <option value="">Semua Jemaat</option>
+                        </select>
+
+                        <select id="filterKelompok" aria-label="Filter kelompok"
+                            class="w-full xl:w-48 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                            <option value="">Semua Kelompok</option>
+                            <option value="kosong">Belum ada kelompok</option>
                         </select>
 
                         <button type="button" id="btnReset"
@@ -140,7 +163,7 @@
                             </th>
                             <th class="w-36 px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Jenis
                                 Kelamin</th>
-                            <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Jemaat</th>
+                            <th class="px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Jemaat &amp; Kelompok</th>
                             <th class="min-w-52 px-5 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">
                                 Status Wilayah</th>
                             <th
@@ -183,7 +206,9 @@
 
     @include('modals.anggota')
     @include('modals.detail-anggota')
-    @include('modals.import-anggota')
+    @unless (auth()->user()->jemaat_id)
+        @include('modals.import-anggota')
+    @endunless
 @endsection
 
 @push('addon-script')
@@ -253,6 +278,7 @@
                     search: $('#search').val(),
                     status_wilayah: $('#filterWilayah').val(),
                     jemaat: $('#filterJemaat').val(),
+                    kelompok: $('#filterKelompok').val(),
                     per_page: $('#perPage').val()
                 };
 
@@ -292,6 +318,7 @@
                 $('#totalLakiLaki').text(formatNumber(data.total_laki_laki));
                 $('#totalPerempuan').text(formatNumber(data.total_perempuan));
                 $('#totalJemaat').text(formatNumber(data.total_jemaat));
+                $('#totalAktif').text(formatNumber(data.total_aktif));
             }
 
             function renderFilters(filters) {
@@ -308,6 +335,14 @@
             <option value="">Semua Jemaat</option>
             ${jemaatOptions}
         `);
+
+                const selectedKelompok = $('#filterKelompok').val();
+
+                $('#filterKelompok').html(`
+            <option value="">Semua Kelompok</option>
+            <option value="kosong">Belum ada kelompok</option>
+            ${(filters.kelompok || []).map(item => `<option value="${item.id}">${escapeHtml(item.nama)}</option>`).join('')}
+        `).val(selectedKelompok);
             }
 
             function renderTable(pagination) {
@@ -381,7 +416,10 @@
                     </td>
 
                     <td class="px-5 py-5">
-                        <span class="text-sm font-medium text-slate-600">${escapeHtml(namaJemaat)}</span>
+                        <span class="block text-sm font-medium text-slate-600">${escapeHtml(namaJemaat)}</span>
+                        ${item.kelompok
+                            ? `<span class="mt-0.5 block text-xs text-slate-500">${escapeHtml(item.kelompok.nama)}</span>`
+                            : '<span class="mt-0.5 block text-xs font-medium text-amber-700">Belum ada kelompok</span>'}
                     </td>
 
                     <td class="px-5 py-5">
@@ -482,7 +520,12 @@
                 searchTimer = setTimeout(() => getData(1), 400);
             });
 
-            $('#filterWilayah, #filterJemaat, #perPage').on('change', function() {
+            // Kelompok milik jemaat sebelumnya tidak berlaku lagi setelah jemaat diganti.
+            $('#filterJemaat').on('change', function() {
+                $('#filterKelompok').val('');
+            });
+
+            $('#filterWilayah, #filterJemaat, #filterKelompok, #perPage').on('change', function() {
                 getData(1);
             });
 
@@ -498,10 +541,37 @@
                 $('#search').val('');
                 $('#filterWilayah').val('');
                 $('#filterJemaat').val('');
+                $('#filterKelompok').val('');
                 $('#perPage').val('10');
 
                 getData(1);
             });
+
+            const kelompokDariTautan = new URLSearchParams(location.search).get('kelompok');
+
+            if (kelompokDariTautan) {
+                // Nama aslinya terisi begitu daftar filter selesai dimuat.
+                $('#filterKelompok').append(new Option('', kelompokDariTautan)).val(kelompokDariTautan);
+            }
+
+            const daftarKelompok = @json($kelompok);
+
+            // Pilihan kelompok mengikuti jemaat yang sedang dipilih di form.
+            function isiPilihanKelompok(terpilih = '') {
+                const form = $('#formAnggota');
+                const jemaatId = form.find('[name="jemaat_id"]').val();
+                const pilihan = daftarKelompok.filter(k => String(k.jemaat_id) === String(jemaatId));
+
+                form.find('[name="kelompok_id"]')
+                    .html(`<option value="">Pilih Kelompok</option>${pilihan.map(k => `<option value="${k.id}">${escapeHtml(k.nama)}</option>`).join('')}`)
+                    .val(terpilih ?? '')
+                    .prop('required', pilihan.length > 0);
+
+                $('#kelompokWajib').toggleClass('hidden', pilihan.length === 0);
+                $('#kelompokKosong').toggleClass('hidden', !jemaatId || pilihan.length > 0);
+            }
+
+            $('#formAnggota').find('[name="jemaat_id"]').on('change', () => isiPilihanKelompok());
 
             function resetFormAnggota() {
                 const form = $('#formAnggota');
@@ -521,6 +591,7 @@
 
                 // Nomor anggota dibuat otomatis oleh server saat tambah data.
                 $('#nomorAnggotaInfo').removeClass('hidden');
+                isiPilihanKelompok();
             }
 
             $('#btnTambahAnggota').on('click', function() {
@@ -562,6 +633,8 @@
                         if (data.jemaat_id) {
                             $('#formAnggota').find('[name="jemaat_id"]').val(data.jemaat_id);
                         }
+
+                        isiPilihanKelompok(data.kelompok_id);
 
                         $('#judulModalAnggota').text('Edit Data Anggota');
                         $('#deskripsiModalAnggota').text(
@@ -827,6 +900,7 @@
 
                         // Informasi keanggotaan
                         setDetail('detailJemaat', data.jemaat?.nama);
+                        setDetail('detailKelompok', data.kelompok?.nama);
                         setDetail('detailWilayahText', statusWilayah);
 
                         // Informasi kontak
@@ -1005,6 +1079,21 @@
                                                         </p>
                                                     </div>
                                                 `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+
+                        if ((hasil.catatan || []).length > 0) {
+                            html += `
+                                <div class="mt-4">
+                                    <p class="mb-2 text-sm font-semibold text-slate-700">Masuk tanpa kelompok</p>
+                                    <div class="max-h-52 space-y-2 overflow-y-auto">
+                                        ${hasil.catatan.map(item => `
+                                            <div class="rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
+                                                <p class="font-semibold">Baris ${escapeHtml(item.baris)} - ${escapeHtml(item.nama)}</p>
+                                                <p class="mt-1">${escapeHtml(item.alasan)}</p>
+                                            </div>`).join('')}
                                     </div>
                                 </div>
                             `;

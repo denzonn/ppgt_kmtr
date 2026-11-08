@@ -2,220 +2,92 @@
 
 @section('title', 'Login - PPGT KMTr')
 
+@push('prepend-style')
+    @include('includes.publik.gaya')
+@endpush
+
 @section('content')
-    <div class="min-h-screen grid lg:grid-cols-2 bg-slate-100">
+    @php
+        $isian = 'h-12 w-full rounded-xl border-slate-200 px-4 text-sm text-slate-800 transition placeholder:text-slate-400 focus:border-blue-700 focus:ring-2 focus:ring-blue-700/20';
+    @endphp
 
-        {{-- ===================== --}}
-        {{-- LEFT SIDE --}}
-        {{-- ===================== --}}
-        <div class="hidden lg:flex relative overflow-hidden bg-gradient-to-br from-primary via-primary to-primary">
+    <div class="beranda grid min-h-screen bg-[#f5f7fd] text-slate-800 lg:grid-cols-12">
 
-            {{-- Background Decoration --}}
-            <div class="absolute inset-0">
+        <section class="beranda-gelap flex flex-col justify-between gap-10 px-5 py-8 text-white sm:px-8 lg:col-span-7 lg:px-12 lg:py-12 xl:px-16">
+            <a href="{{ url('/') }}" class="flex items-center gap-4">
+                <span class="flex-none rounded-full bg-white p-1 shadow-[0_0_30px_rgba(147,197,253,.45)]">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo PPGT" class="h-12 w-12 rounded-full lg:h-14 lg:w-14">
+                </span>
+                <span class="leading-tight">
+                    <span class="block text-lg font-bold">PPGT KMTr</span>
+                    <span class="mt-0.5 block text-xs text-blue-100 sm:text-sm">Persekutuan Pemuda Gereja Toraja Klasis Makassar Timur</span>
+                </span>
+            </a>
 
-                <div class="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-white/10"></div>
-
-                <div class="absolute -bottom-52 -right-52 w-[500px] h-[500px] rounded-full bg-white/5"></div>
-
-                <div class="absolute inset-0 opacity-[0.05]"
-                    style="background-image: radial-gradient(circle, #ffffff 1px, transparent 1px); background-size:24px 24px;">
-                </div>
-
+            <div class="hidden lg:block">
+                <p class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-semibold text-blue-50">
+                    <span class="h-1.5 w-1.5 rounded-full bg-amber-400" aria-hidden="true"></span>
+                    Sistem administrasi pelayanan
+                </p>
+                <p class="mt-6 text-5xl font-extrabold leading-[1.12] tracking-tight xl:text-[4rem]">
+                    Bersekutu, bersaksi,<br>
+                    <span class="beranda-gradasi">dan melayani.</span>
+                </p>
+                <p class="mt-6 max-w-xl text-lg leading-8 text-blue-100">
+                    Pusat pengelolaan data anggota, inventaris organisasi, peminjaman barang, dan kegiatan pelayanan PPGT Klasis Makassar Timur.
+                </p>
             </div>
 
-            <div class="relative z-10 flex flex-col justify-between h-full px-16 py-14">
+            <figure class="hidden items-center justify-between gap-6 rounded-2xl border border-blue-300/20 bg-[#10245a]/60 p-5 lg:flex">
+                <blockquote class="beranda-ayat text-lg italic">"Kader Siap Utus, Teguh dalam Kristus."</blockquote>
+                <figcaption class="flex-none text-right text-xs font-bold uppercase tracking-wider text-amber-300">
+                    <i class="fa-solid fa-bookmark mr-1" aria-hidden="true"></i> {{ date('Y') }}
+                </figcaption>
+            </figure>
+        </section>
 
-                {{-- Header --}}
-                <div>
-
-                    <div class="flex items-center gap-5">
-                        <img src="{{ asset('images/logo.png') }}" class="w-16 h-16 object-contain" alt="Logo">
-                        <div>
-
-                            <h1 class="text-4xl font-bold text-white">
-                                PPGT KMTr
-                            </h1>
-
-                            <p class="text-white/75 mt-1">
-                                Persekutuan Pemuda Gereja Toraja
-                            </p>
-
-                            <p class="text-white/60 text-sm">
-                                Klasis Makassar Timur
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                    <div class="mt-14">
-
-                        <span
-                            class="inline-flex items-center rounded-full bg-white/10 text-white px-4 py-2 text-sm backdrop-blur">
-                            ✨ Official Website
-                        </span>
-
-                        <h2 class="mt-8 text-5xl font-bold leading-tight text-white">
-                            Bertumbuh dalam
-                            <br>
-                            Iman, Pelayanan,
-                            <br>
-                            dan Persekutuan.
-                        </h2>
-
-                        <p class="mt-8 max-w-xl text-lg leading-8 text-white/80">
-                            Website ini menjadi pusat informasi dan pengelolaan administrasi
-                            PPGT Klasis Makassar Timur, mulai dari data anggota,
-                            inventaris organisasi, peminjaman barang,
-                            hingga berbagai kegiatan pelayanan.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                {{-- Footer --}}
-                <div class="flex items-center justify-between border-t border-white/10 pt-8">
-
-                    <div>
-
-                        <p class="text-white font-semibold">
-                            "Kader Siap Utus,
-                            Teguh dalam Kristus."
-                        </p>
-
-                        <p class="text-white/60 text-sm mt-2">
-                            PPGT Klasis Makassar Timur
-                        </p>
-
-                    </div>
-
-                    <div class="text-right">
-
-                        <div class="text-3xl font-bold text-white">
-                            {{ date('Y') }}
-                        </div>
-
-                        <div class="text-sm text-white/60">
-                            Official Website
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        {{-- ===================== --}}
-        {{-- RIGHT SIDE --}}
-        {{-- ===================== --}}
-        <div class="flex items-center justify-center min-h-screen lg:min-h-0 px-5 py-8 sm:px-8 bg-slate-100">
-
+        <main class="flex items-center justify-center px-5 py-10 sm:px-8 lg:col-span-5">
             <div class="w-full max-w-md">
+                <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-blue-950/10 sm:p-8 lg:p-10">
+                    <p class="pil-publik"><i class="fa-solid fa-lock" aria-hidden="true"></i> Khusus pengurus</p>
+                    <h1 class="judul-publik mt-4">Selamat datang</h1>
+                    <p class="mt-2 text-sm text-slate-500">Silakan login untuk melanjutkan.</p>
 
-                {{-- Mobile Logo --}}
-                <div class="lg:hidden text-center mb-4 md:mb-8">
-
-                    <img src="{{ asset('images/logo.png') }}" class="w-14 h-14 md:w-20 md:h-20 mx-auto mb-4 object-contain">
-
-                    <h2 class="text-2xl md:text-3xl font-bold text-slate-800">
-                        PPGT KMTr
-                    </h2>
-
-                    <p class="text-slate-500 text-xs md:text-sm mt-2">
-                        Persekutuan Pemuda Gereja Toraja
-                    </p>
-
-                    <p class="text-slate-400 text-xs">
-                        Klasis Makassar Timur
-                    </p>
-
-                </div>
-
-                <div class="bg-white rounded-2xl lg:rounded-3xl shadow-xl border border-slate-200 p-6 sm:p-8 lg:p-10">
-
-                    <h2 class="text-xl lg:text-3xl font-bold text-gray-800">
-                        Selamat Datang
-                    </h2>
-
-                    <p class="text-xs lg:text-base text-gray-500 md:mt-2">
-                        Silakan login untuk melanjutkan.
-                    </p>
-
-                    <form method="POST" action="{{ route('login') }}" class="mt-6 lg:mt-8">
-
+                    <form method="POST" action="{{ route('login') }}" class="mt-7 space-y-5">
                         @csrf
 
-                        {{-- Email --}}
-                        <div class="mb-5">
-
-                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
-                                Email
-                            </label>
-
-                            <input type="email" name="email" id="email" value="{{ old('email') }}"
-                                placeholder="Masukkan email"
-                                class="w-full h-12 rounded-xl border border-gray-300 px-4  text-sm md:text-base
-                        focus:border-primary
-                        focus:ring-2
-                        focus:ring-primary/20
-                        outline-none transition">
-
-                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-
-                        </div>
-
-                        {{-- Password --}}
                         <div>
+                            <label for="email" class="mb-2 block text-sm font-semibold text-slate-700">Email</label>
+                            <input type="email" name="email" id="email" value="{{ old('email') }}" autocomplete="username" autofocus
+                                placeholder="Masukkan email" class="{{ $isian }}">
+                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                        </div>
 
-                            <label class="block text-xs md:text-sm font-semibold text-gray-700 mb-2">
-                                Password
-                            </label>
-
-                            <input type="password" name="password" id="password" placeholder="Masukkan password"
-                                class="w-full h-12 rounded-xl border border-gray-300 px-4 text-sm md:text-base
-                        focus:border-primary
-                        focus:ring-2
-                        focus:ring-primary/20
-                        outline-none transition">
-
+                        <div>
+                            <label for="password" class="mb-2 block text-sm font-semibold text-slate-700">Password</label>
+                            <input type="password" name="password" id="password" autocomplete="current-password"
+                                placeholder="Masukkan password" class="{{ $isian }}">
                             <x-input-error :messages="$errors->get('password')" class="mt-2" />
-
                         </div>
 
-                        <div class="flex items-center mt-6">
+                        <label class="flex items-center gap-2 text-sm text-slate-600">
+                            <input type="checkbox" name="remember" class="rounded border-slate-300 text-blue-700 focus:ring-blue-700">
+                            Ingat saya
+                        </label>
 
-                            <label class="flex items-center gap-2 text-xs md:text-sm text-gray-600">
-
-                                <input type="checkbox" name="remember"
-                                    class="rounded border-gray-300 text-primary focus:ring-primary">
-
-                                Ingat saya
-
-                            </label>
-
-                        </div>
-
-                        <button type="submit"
-                            class="mt-7 lg:mt-8 w-full h-12 rounded-xl bg-primary text-white text-sm md:text-base font-semibold hover:brightness-95 transition">
-
+                        <button type="submit" class="h-12 w-full rounded-xl bg-blue-700 text-sm font-semibold text-white shadow-lg shadow-blue-700/25 transition hover:bg-blue-800">
                             Login
-
                         </button>
-
                     </form>
-
                 </div>
 
-                <p class="text-center text-[10px] md:text-sm text-gray-500 mt-6 lg:mt-8">
-                    © {{ date('Y') }} PPGT KMTr. All Rights Reserved.
+                <p class="mt-6 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                    <a href="{{ url('/') }}" class="font-semibold text-primary transition hover:text-blue-600">
+                        <i class="fa-solid fa-arrow-left mr-1" aria-hidden="true"></i> Kembali ke beranda
+                    </a>
+                    <span>&copy; {{ date('Y') }} PPGT KMTr</span>
                 </p>
-
             </div>
-
-        </div>
-
+        </main>
     </div>
 @endsection

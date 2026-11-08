@@ -117,6 +117,11 @@
                     </div>
 
                     <div>
+                        <p class="text-xs text-slate-400">Kelompok</p>
+                        <p id="detailKelompok" class="mt-1 text-sm font-semibold text-slate-700">-</p>
+                    </div>
+
+                    <div>
                         <p class="text-xs text-slate-400">Status Wilayah</p>
                         <p id="detailWilayahText" class="mt-1 text-sm font-semibold text-slate-700">-</p>
                     </div>

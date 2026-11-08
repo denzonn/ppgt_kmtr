@@ -28,6 +28,13 @@ return [
         'key' => env('RESEND_KEY'),
     ],
 
+    // Bot rekap pendampingan. pengirim: ID Telegram yang boleh menyimpan rekap, dipisah koma.
+    'telegram' => [
+        'token' => env('TELEGRAM_BOT_TOKEN'),
+        'rahasia_webhook' => env('TELEGRAM_WEBHOOK_SECRET'),
+        'pengirim' => env('TELEGRAM_PENGIRIM', ''),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

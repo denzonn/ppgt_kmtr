@@ -88,11 +88,24 @@
                             </label>
                             <select name="jemaat_id" required
                                 class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10">
-                                <option value="">Pilih Jemaat</option>
+                                {{-- Pengurus Jemaat hanya punya satu pilihan, yaitu jemaatnya sendiri. --}}
+                                @unless (auth()->user()->jemaat_id)
+                                    <option value="">Pilih Jemaat</option>
+                                @endunless
                                 @foreach ($jemaat as $item)
                                     <option value="{{ $item->id }}">{{ $item->nama }}</option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        <div>
+                            <label class="mb-1.5 block text-sm font-semibold text-slate-700">
+                                Kelompok <span id="kelompokWajib" class="text-red-500">*</span>
+                            </label>
+                            <select name="kelompok_id"
+                                class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10">
+                            </select>
+                            <p id="kelompokKosong" class="mt-1 hidden text-xs text-amber-700">Jemaat ini belum punya kelompok. Pengurus Jemaat bisa menambahkannya di menu Kelompok.</p>
                         </div>
 
                         <div>

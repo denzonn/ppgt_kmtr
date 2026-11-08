@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Support\FileUpload;
 use App\Http\Controllers\Controller;
 use App\Models\PeminjamanDetail;
 use App\Models\PeminjamanInventaris;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class PeminjamanController extends Controller
 {
@@ -85,12 +85,11 @@ class PeminjamanController extends Controller
 
         // Hapus foto lama jika ada
         if ($peminjaman->foto_pengembalian) {
-            Storage::disk('public')->delete($peminjaman->foto_pengembalian);
+            FileUpload::hapus($peminjaman->foto_pengembalian);
         }
 
 
-        $filename = $request->file('foto_pengembalian')
-            ->store('pengembalian', 'public');
+        $filename = FileUpload::simpan($request->file('foto_pengembalian'), 'pengembalian');
 
         $peminjaman->update([
             'foto_pengembalian'   => $filename,

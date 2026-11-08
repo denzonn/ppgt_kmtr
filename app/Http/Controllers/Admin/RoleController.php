@@ -14,6 +14,7 @@ class RoleController extends Controller
         return view('pages.admin.role', [
             'menuUmum' => Role::MENU_UMUM,
             'menuKepengurusan' => Role::MENU_KEPENGURUSAN,
+            'menuJemaat' => Role::MENU_JEMAAT,
         ]);
     }
 
@@ -43,7 +44,7 @@ class RoleController extends Controller
         return [
             'nama' => ['required', 'string', 'max:100', Rule::unique('roles', 'nama')->ignore($ignoreId)],
             'menus' => ['nullable', 'array'],
-            'menus.*' => ['string', Rule::in(array_keys(Role::MENU_UMUM + Role::MENU_KEPENGURUSAN))],
+            'menus.*' => ['string', Rule::in(array_keys(Role::MENU_UMUM + Role::MENU_KEPENGURUSAN + Role::MENU_JEMAAT))],
         ];
     }
 

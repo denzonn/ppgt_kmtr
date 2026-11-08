@@ -10,55 +10,58 @@
 
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-                <h2 class="text-xl font-bold text-slate-800 md:text-2xl">Master Periode</h2>
-                <p class="mt-1 text-sm text-slate-500">Kelola periode kepengurusan.</p>
+                <h2 class="text-xl font-bold text-slate-800">Master Periode</h2>
+                <p class="mt-1 text-sm text-slate-500">Kelola periode kepengurusan beserta bidang dan penggunanya.</p>
             </div>
-
-            <button type="button" onclick="tambahPeriode()"
-                class="inline-flex items-center justify-center gap-2 rounded-xl
-            bg-primary px-5 py-3 text-sm font-semibold text-white
-            transition hover:bg-primary_hover active:scale-[0.98]">
-                <i class="fa-solid fa-plus"></i>
+            <button type="button" onclick="tambahPeriode()" class="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
+                <i class="fas fa-plus"></i>
                 Tambah Periode
             </button>
         </div>
 
-        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="searchPeriode" placeholder="Cari tahun..."
-                    class="w-full rounded-xl border border-slate-300 py-3 pl-11 pr-4
-                text-sm focus:border-primary focus:ring-primary">
-            </div>
-        </div>
-
         <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-            <div class="overflow-x-auto">
-                <table class="w-full min-w-[600px]">
-                    <thead class="bg-slate-50">
-                        <tr class="text-left text-sm text-slate-600">
-                            <th class="px-6 py-4">Periode</th>
-                            <th class="px-6 py-4 text-center">Pengguna</th>
-                            <th class="px-6 py-4 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablePeriode" class="divide-y divide-slate-100 text-sm"></tbody>
-                </table>
-            </div>
-        </div>
 
-        <div id="paginationPeriode" class="flex flex-wrap justify-end gap-2"></div>
+            <div class="border-b border-slate-100 bg-white p-5">
+                <div class="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                            <i class="fas fa-calendar-days"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800">Daftar Periode</h3>
+                            <p class="mt-0.5 text-xs text-slate-500">Periode kepengurusan yang telah terdaftar.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:flex xl:items-center">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+                            <input type="text" id="searchPeriode" placeholder="Cari tahun..." class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="gridPeriode" class="p-5">
+                <div class="col-span-full py-12 text-center text-sm text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data periode...</div>
+            </div>
+
+<div id="paginationPeriode" class="flex flex-wrap justify-end gap-2 border-t border-slate-100 bg-white px-5 py-4 empty:hidden"></div>
+        </div>
     </div>
 
     {{-- Modal Tambah/Edit --}}
     <div id="modalPeriode"
-        class="fixed inset-0 z-[100] hidden items-center justify-center
-    overflow-y-auto bg-slate-950/50 p-4 backdrop-blur-sm">
+        class="modal-overlay fixed inset-0 z-[1000] hidden overflow-y-auto bg-slate-950/50 p-4 opacity-0 transition-opacity duration-300">
 
-        <div class="my-auto w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div class="modal-content mx-auto my-6 w-full max-w-md scale-95 -translate-y-6 rounded-2xl bg-white shadow-2xl transition-all duration-300">
 
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <h3 id="modalPeriodeTitle" class="text-lg font-bold text-slate-800">Tambah Periode</h3>
+            <div class="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <i class="fas fa-calendar-days text-lg"></i>
+                    </div>
+                    <h3 id="modalPeriodeTitle" class="text-lg font-bold text-slate-800">Tambah Periode</h3>
+                </div>
 
                 <button type="button" onclick="tutupModalPeriode()"
                     class="flex h-9 w-9 items-center justify-center rounded-lg
@@ -73,17 +76,31 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="tahun_mulai" class="mb-2 block text-sm font-semibold text-slate-700">Tahun Mulai</label>
-                        <input type="number" id="tahun_mulai" required min="1900" max="2100"
-                            class="w-full rounded-xl border border-slate-300 px-4 py-3
+                        <input type="number" id="tahun_mulai" placeholder="Contoh: 2020" required min="1900" max="2100"
+                            class="w-full rounded-xl border border-slate-200 px-4 py-3
                         text-sm focus:border-primary focus:ring-primary">
                     </div>
                     <div>
                         <label for="tahun_selesai" class="mb-2 block text-sm font-semibold text-slate-700">Tahun Selesai</label>
-                        <input type="number" id="tahun_selesai" required min="1900" max="2100"
-                            class="w-full rounded-xl border border-slate-300 px-4 py-3
+                        <input type="number" id="tahun_selesai" placeholder="Contoh: 2022" required min="1900" max="2100"
+                            class="w-full rounded-xl border border-slate-200 px-4 py-3
                         text-sm focus:border-primary focus:ring-primary">
                     </div>
                 </div>
+
+                <fieldset id="periode_bidang_wrap">
+                    <legend class="mb-1 text-sm font-semibold text-slate-700">Bidang pada periode ini</legend>
+                    <p class="mb-3 text-xs text-slate-500">Bidang yang dicentang langsung dibuat. Pilih minimal satu.</p>
+                    <div class="space-y-2">
+                        @foreach ($bidangDefault as $nama)
+                            <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-700 transition hover:border-primary hover:bg-blue-50 has-[:checked]:border-primary has-[:checked]:bg-blue-50 has-[:checked]:font-semibold">
+                                <input type="checkbox" name="periode_bidang" value="{{ $nama }}" checked
+                                    class="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary">
+                                {{ $nama }}
+                            </label>
+                        @endforeach
+                    </div>
+                </fieldset>
 
                 <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
                     <button type="button" onclick="tutupModalPeriode()"
@@ -128,18 +145,17 @@
         }
 
         function bukaModalPeriode() {
-            $('#modalPeriode').removeClass('hidden').addClass('flex');
-            document.body.classList.add('overflow-hidden');
+            showModal('modalPeriode');
         }
 
         function tutupModalPeriode() {
-            $('#modalPeriode').addClass('hidden').removeClass('flex');
-            document.body.classList.remove('overflow-hidden');
+            closeModal('modalPeriode');
         }
 
         function tambahPeriode() {
             $('#formPeriode')[0].reset();
             $('#periode_id').val('');
+            $('#periode_bidang_wrap').removeClass('hidden');
             $('#modalPeriodeTitle').text('Tambah Periode');
             bukaModalPeriode();
         }
@@ -150,6 +166,8 @@
                 $('#periode_id').val(item.id);
                 $('#tahun_mulai').val(item.tahun_mulai);
                 $('#tahun_selesai').val(item.tahun_selesai);
+                // Bidang periode yang sudah ada diatur di menu Bidang.
+                $('#periode_bidang_wrap').addClass('hidden');
                 $('#modalPeriodeTitle').text('Edit Periode');
                 bukaModalPeriode();
             }).fail(function() {
@@ -162,6 +180,12 @@
 
             const id = $('#periode_id').val();
             const btn = $('#btnSimpanPeriode');
+            const bidangs = $('input[name=periode_bidang]:checked').map((_, el) => el.value).get();
+
+            if (!id && bidangs.length === 0) {
+                Swal.fire('Gagal', 'Pilih minimal satu bidang.', 'error');
+                return;
+            }
 
             $.ajax({
                 url: id ? urlPeriode(id) : periodeBaseUrl,
@@ -170,7 +194,8 @@
                     _token: '{{ csrf_token() }}',
                     _method: id ? 'PUT' : 'POST',
                     tahun_mulai: $('#tahun_mulai').val(),
-                    tahun_selesai: $('#tahun_selesai').val()
+                    tahun_selesai: $('#tahun_selesai').val(),
+                    ...(id ? {} : { bidangs })
                 },
                 beforeSend: () => btn.prop('disabled', true),
                 success: function(res) {
@@ -207,48 +232,78 @@
                 const data = res.data || [];
 
                 if (data.length === 0) {
-                    $('#tablePeriode').html(
-                        '<tr><td colspan="3" class="px-6 py-12 text-center text-slate-500">Periode tidak ditemukan.</td></tr>'
+                    $('#gridPeriode').html(
+                        '<div class="col-span-full py-12 text-center text-sm text-slate-500">Periode tidak ditemukan.</div>'
                     );
                     $('#paginationPeriode').html('');
                     return;
                 }
 
-                $('#tablePeriode').html(data.map(function(item) {
+                const tahunIni = new Date().getFullYear();
+                const angka = (nilai, label, ikon) => `
+                    <div class="flex items-center gap-1.5 text-sm text-slate-500">
+                        <i class="fas ${ikon} text-xs text-primary"></i>
+                        <b class="font-semibold text-slate-800">${Number(nilai)}</b> ${label}
+                    </div>`;
+
+                $('#gridPeriode').html(data.map(function(item, i) {
                     const kelola = `${kepengurusanBaseUrl}/${encodeURIComponent(item.id)}/program-kerja`;
+                    const berjalan = tahunIni >= item.tahun_mulai && tahunIni <= item.tahun_selesai;
+                    const akanDatang = tahunIni < item.tahun_mulai;
+                    const pertama = i === 0;
+                    const terakhir = i === data.length - 1;
+
+                    const status = berjalan ?
+                        '<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700"><i class="fas fa-circle text-[6px]"></i>Berjalan</span>' :
+                        `<span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-500">${akanDatang ? 'Akan datang' : 'Selesai'}</span>`;
+
+                    const penanda = berjalan ?
+                        'bg-primary text-white ring-4 ring-primary/15' :
+                        (akanDatang ? 'border border-primary/30 bg-white text-primary' : 'bg-slate-100 text-slate-400');
+                    const ikon = berjalan ? 'fa-flag' : (akanDatang ? 'fa-clock' : 'fa-check');
 
                     return `
-                    <tr class="transition hover:bg-slate-50">
-                        <td class="px-6 py-4 font-semibold text-slate-800">${escapePeriode(item.tahun_mulai)} - ${escapePeriode(item.tahun_selesai)}</td>
-                        <td class="px-6 py-4 text-center">${Number(item.users_count)}</td>
-                        <td class="px-6 py-4 text-center">
-                            <div class="flex justify-center gap-2">
-                                <a href="${kelola}" title="Kelola"
-                                    class="inline-flex h-9 items-center justify-center rounded-lg bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100">
-                                    Kelola
-                                </a>
-                                <button onclick="editPeriode(${Number(item.id)})" title="Edit"
-                                    class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="hapusPeriode(${Number(item.id)})" title="Hapus"
-                                    class="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                    <div class="flex gap-3 sm:gap-4">
+                        <div class="relative flex w-9 shrink-0 justify-center">
+                            ${data.length > 1 ? `<span class="absolute w-0.5 bg-slate-200 ${pertama ? 'bottom-0 top-7' : (terakhir ? 'top-0 h-7' : 'inset-y-0')}"></span>` : ''}
+                            <span class="relative mt-3 flex h-9 w-9 items-center justify-center rounded-full text-xs ${penanda}">
+                                <i class="fas ${ikon}"></i>
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1 ${terakhir ? '' : 'pb-4'}">
+                            <div class="flex flex-col gap-3 rounded-2xl border p-4 transition hover:shadow-md lg:flex-row lg:items-center lg:justify-between ${berjalan ? 'border-primary/40 bg-primary/[0.02]' : 'border-slate-200 bg-white'}">
+                                <div class="lg:w-56">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="font-bold text-slate-800">${escapePeriode(item.tahun_mulai)} - ${escapePeriode(item.tahun_selesai)}</span>
+                                        ${status}
+                                    </div>
+                                </div>
+                                <div class="flex flex-1 flex-wrap gap-x-5 gap-y-1">
+                                    ${angka(item.bidangs_count, 'bidang', 'fa-sitemap')}
+                                    ${angka(item.pengurus_count, 'pengurus', 'fa-user-tie')}
+                                    ${angka(item.users_count, 'pengguna', 'fa-users')}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <a href="${kelola}" class="inline-flex h-9 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition ${berjalan ? 'bg-primary text-white hover:opacity-90' : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'}">
+                                        Kelola <i class="fas fa-arrow-right text-xs"></i>
+                                    </a>
+                                    <button onclick="editPeriode(${Number(item.id)})" title="Edit" class="flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600 transition hover:border-amber-200 hover:bg-amber-500 hover:text-white"><i class="fas fa-pen text-xs"></i></button>
+                                    <button onclick="hapusPeriode(${Number(item.id)})" title="Hapus" class="flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white"><i class="fas fa-trash text-xs"></i></button>
+                                </div>
                             </div>
-                        </td>
-                    </tr>`;
+                        </div>
+                    </div>`;
                 }).join(''));
 
-                renderPaginationPeriode(res);
+renderPaginationPeriode(res);
             }).fail(function() {
-                $('#tablePeriode').html(
-                    '<tr><td colspan="3" class="px-6 py-10 text-center text-red-600">Gagal memuat data periode.</td></tr>'
+                $('#gridPeriode').html(
+                    '<div class="col-span-full py-10 text-center text-sm text-red-600">Gagal memuat data periode.</div>'
                 );
             });
         }
 
-        function renderPaginationPeriode(res) {
+function renderPaginationPeriode(res) {
             if (res.last_page <= 1) {
                 $('#paginationPeriode').html('');
                 return;
@@ -292,14 +347,6 @@
                 });
             });
         }
-
-        document.getElementById('modalPeriode').addEventListener('click', function(e) {
-            if (e.target === this) tutupModalPeriode();
-        });
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') tutupModalPeriode();
-        });
 
         $('#searchPeriode').on('input', function() {
             clearTimeout(periodeTimer);
