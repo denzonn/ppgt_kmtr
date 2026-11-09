@@ -8,7 +8,6 @@ class Role extends Model
 {
     const MENU_UMUM = [
         'dashboard' => 'Dashboard',
-        'inventaris' => 'Inventaris',
         'peminjaman' => 'Peminjaman',
         'data_anggota' => 'Data Anggota',
         'generator_qr' => 'Generator QR',
@@ -24,6 +23,7 @@ class Role extends Model
         'jabatan' => 'Jabatan',
         'pengurus' => 'Pengurus',
         'pendampingan' => 'Rekap Pendampingan',
+        'inventaris' => 'Inventaris',
     ];
 
     /** Menu yang hanya berfungsi untuk akun yang terikat ke satu jemaat. */

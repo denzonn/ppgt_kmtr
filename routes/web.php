@@ -4,7 +4,6 @@ use App\Http\Controllers\AbsenController;
 use App\Http\Controllers\Admin\AbsenController as AdminAbsenController;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\InventarisController;
 use App\Http\Controllers\Admin\LinktreeController as AdminLinktreeController;
 use App\Http\Controllers\Admin\PeminjamanController as AdminPeminjamanController;
 use App\Http\Controllers\Admin\PenggunaController;
@@ -22,6 +21,7 @@ use App\Http\Controllers\Jemaat\BidangController as JemaatBidangController;
 use App\Http\Controllers\Jemaat\KelompokController as JemaatKelompokController;
 use App\Http\Controllers\Jemaat\PengurusController as JemaatPengurusController;
 use App\Http\Controllers\Kepengurusan\BidangController;
+use App\Http\Controllers\Kepengurusan\InventarisController;
 use App\Http\Controllers\Kepengurusan\JabatanController;
 use App\Http\Controllers\Kepengurusan\KegiatanController;
 use App\Http\Controllers\Kepengurusan\PendampinganController;
@@ -147,16 +147,17 @@ Route::middleware(['auth'])->group(
             }
         );
 
-        Route::prefix('inventaris')->name('inventaris.')->middleware('menu:inventaris')->group(
-            function () {
-                Route::get('/', [InventarisController::class, 'index'])->name('index');
-                Route::get('/data', [InventarisController::class, 'getData'])->name('getData');
-                Route::post('/', [InventarisController::class, 'store'])->name('store');
-                Route::get('/{id}', [InventarisController::class, 'show'])->name('show');
-                Route::put('/{id}', [InventarisController::class, 'update'])->name('update');
-                Route::delete('/{id}', [InventarisController::class, 'destroy'])->name('destroy');
-            }
-        );
+        Route::get('/inventaris', [InventarisController::class, 'buka'])->middleware('menu:inventaris')->name('inventaris.index');
+
+        Route::prefix('kepengurusan/{periode}/inventaris')->name('kepengurusan.inventaris.')->middleware(['periode', 'menu:inventaris'])->controller(InventarisController::class)->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/data', 'getData')->name('getData');
+            Route::get('/riwayat', 'riwayat')->name('riwayat');
+            Route::post('/', 'store')->name('store');
+            Route::get('/{id}', 'show')->name('show');
+            Route::put('/{id}', 'update')->name('update');
+            Route::delete('/{id}', 'destroy')->name('destroy');
+        });
 
         Route::prefix('data-anggota')->name('data_anggota.')->middleware('menu:data_anggota')->group(function () {
             Route::get('/', [AnggotaController::class, 'index'])->name('index');

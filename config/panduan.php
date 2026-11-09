@@ -400,7 +400,7 @@ return [
         'judul' => 'Inventaris',
         'grup' => 'Layanan',
         'izin' => 'inventaris',
-        'pengantar' => 'Inventaris mencatat barang organisasi, nilainya, dan kondisinya.',
+        'pengantar' => 'Inventaris mencatat barang organisasi, nilainya, dan kondisinya. Barang dicatat per periode kepengurusan dan otomatis lanjut ke periode berikutnya.',
         'bagian' => [
             [
                 'judul' => 'Melihat inventaris',
@@ -422,6 +422,16 @@ return [
                     'Simpan data.',
                 ],
                 'teks' => 'Kode inventaris dibuat otomatis berdasarkan jenis yang dipilih.',
+            ],
+            [
+                'judul' => 'Mencatat barang rusak, hilang, atau dihapus',
+                'langkah' => [
+                    'Klik tombol edit pada barang, ubah jumlah per kondisi, lalu isi **Keterangan** (misalnya "2 kursi patah waktu retreat").',
+                    'Untuk menghapus, klik tombol hapus dan tulis alasannya. Barang yang dihapus tetap bisa dilihat lewat filter **Barang Dihapus**.',
+                    'Klik tombol riwayat pada barang untuk melihat semua perubahannya dari periode ke periode.',
+                ],
+                'teks' => 'Bagian **Laporan Periode** merangkum barang yang ditambah, dihapus, dan perubahan kondisi selama periode itu.',
+                'catatan' => 'Setelah admin membuat periode baru, inventaris periode lama hanya bisa dilihat. Semua barang langsung lanjut ke periode baru.',
             ],
         ],
     ],

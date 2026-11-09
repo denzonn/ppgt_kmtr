@@ -12,10 +12,11 @@
             <div>
                 <h2 class="text-xl font-bold text-slate-800">Data Inventaris</h2>
                 <p class="mt-1 text-sm text-slate-500">
-                    Kelola seluruh aset, kondisi, dan nilai perolehan inventaris organisasi.
+                    Periode {{ $periode->nama }}. Barang otomatis lanjut ke periode berikutnya beserta riwayatnya.
                 </p>
             </div>
 
+            @unless ($hanyaLihat)
             <div class="flex flex-wrap items-center gap-2">
                 <button type="button" id="btnTambahInventaris"
                     class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:opacity-90">
@@ -23,7 +24,15 @@
                     Tambah Inventaris
                 </button>
             </div>
+            @endunless
         </div>
+
+        @if ($hanyaLihat)
+            <div class="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                <i class="fas fa-lock mt-0.5 text-slate-400"></i>
+                <p>Periode ini sudah serah terima ke periode berikutnya. Data inventaris hanya bisa dilihat.</p>
+            </div>
+        @endif
 
         {{-- Statistik --}}
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -80,6 +89,38 @@
             </div>
         </div>
 
+        {{-- Laporan periode --}}
+        <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h3 class="font-bold text-slate-800">Laporan Periode {{ $periode->nama }}</h3>
+                    <p class="mt-0.5 text-xs text-slate-500">Yang terjadi pada inventaris selama kepengurusan periode ini.</p>
+                </div>
+                <button type="button" id="btnRiwayatPeriode"
+                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-primary/30 hover:bg-primary/5 hover:text-primary">
+                    <i class="fas fa-clock-rotate-left text-xs"></i>
+                    Lihat Riwayat
+                </button>
+            </div>
+
+            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div class="rounded-xl bg-slate-50 p-4">
+                    <p class="text-xs font-medium text-slate-500"><i class="fas fa-plus mr-1"></i> Barang ditambah</p>
+                    <p id="laporanDitambah" class="mt-1 text-xl font-bold text-slate-800">0</p>
+                </div>
+                <div class="rounded-xl bg-slate-50 p-4">
+                    <p class="text-xs font-medium text-slate-500"><i class="fas fa-trash mr-1"></i> Barang dihapus</p>
+                    <p id="laporanDihapus" class="mt-1 text-xl font-bold text-slate-800">0</p>
+                </div>
+                <div class="rounded-xl bg-slate-50 p-4">
+                    <p class="text-xs font-medium text-slate-500"><i class="fas fa-right-left mr-1"></i> Perubahan kondisi (unit)</p>
+                    <div id="laporanPerubahan" class="mt-2 flex flex-wrap gap-1.5">
+                        <span class="text-xs text-slate-400">Belum ada</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- Panel Data --}}
         <div id="panelData" class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
@@ -111,6 +152,12 @@
                             <option value="PAK">PAK - Kesekretariatan</option>
                             <option value="PDP">PDP - Dapur Perkakas</option>
                             <option value="PPL">PPL - Penunjang Lainnya</option>
+                        </select>
+
+                        <select id="filterStatus"
+                            class="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-600 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                            <option value="">Barang Aktif</option>
+                            <option value="dihapus">Barang Dihapus</option>
                         </select>
 
                         <button type="button" id="btnReset"
@@ -185,11 +232,13 @@
                         mengelola aset organisasi.
                     </p>
 
+                    @unless ($hanyaLihat)
                     <button type="button" id="btnTambahInventarisKosong"
                         class="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90">
                         <i class="fa-solid fa-plus"></i>
                         Tambah Inventaris
                     </button>
+                    @endunless
                 </div>
             </div>
         </div>
@@ -197,6 +246,25 @@
     </div>
 
     @include('modals.inventaris')
+
+    {{-- Riwayat --}}
+    <div id="modalRiwayat"
+        class="modal-overlay fixed inset-0 z-[1000] hidden overflow-y-auto bg-slate-950/50 p-4 opacity-0 transition-opacity duration-300">
+        <div
+            class="modal-content mx-auto my-6 w-full max-w-2xl scale-95 -translate-y-6 rounded-2xl bg-white shadow-2xl transition-all duration-300">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-5">
+                <div class="min-w-0">
+                    <h2 id="riwayatJudul" class="break-words text-lg font-bold text-slate-800">Riwayat</h2>
+                    <p id="riwayatSub" class="mt-0.5 text-sm text-slate-500"></p>
+                </div>
+                <button type="button" onclick="closeModal('modalRiwayat')"
+                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="riwayatIsi" class="max-h-[70vh] space-y-3 overflow-y-auto p-6"></div>
+        </div>
+    </div>
 @endsection
 
 @push('addon-script')
@@ -204,9 +272,11 @@
         // Fungsi halaman dibuat lokal agar tidak tertimpa helper global dari app.js
         // (formatRupiah, renderPagination, formatTanggal).
         $(document).ready(function() {
-            const inventarisUrl = @json(route('inventaris.index'));
-            const inventarisStoreUrl = @json(route('inventaris.store'));
-            const inventarisDataUrl = @json(route('inventaris.getData'));
+            const inventarisUrl = @json(route('kepengurusan.inventaris.index', $periode));
+            const inventarisStoreUrl = @json(route('kepengurusan.inventaris.store', $periode));
+            const inventarisDataUrl = @json(route('kepengurusan.inventaris.getData', $periode));
+            const riwayatUrl = @json(route('kepengurusan.inventaris.riwayat', $periode));
+            const hanyaLihat = @json($hanyaLihat);
             const csrfToken = @json(csrf_token());
             const noImageUrl = @json(asset('images/no-image.svg'));
 
@@ -358,13 +428,14 @@
                 }, 400);
             });
 
-            $('#filterJenis').on('change', function() {
+            $('#filterJenis, #filterStatus').on('change', function() {
                 loadData(1);
             });
 
             $('#btnReset').on('click', function() {
                 $('#search').val('');
                 $('#filterJenis').val('');
+                $('#filterStatus').val('');
 
                 loadData(1);
             });
@@ -384,7 +455,7 @@
                     requestInventaris.abort();
                 }
 
-                const adaFilter = Boolean($('#search').val().trim() || $('#filterJenis').val());
+                const adaFilter = Boolean($('#search').val().trim() || $('#filterJenis').val() || $('#filterStatus').val());
 
                 $('#emptyState').addClass('hidden');
                 $('#panelData').removeClass('hidden');
@@ -413,11 +484,13 @@
                     data: {
                         page: page,
                         search: $('#search').val(),
-                        jenis: $('#filterJenis').val()
+                        jenis: $('#filterJenis').val(),
+                        status: $('#filterStatus').val()
                     },
 
                     success: function(res) {
                         renderStats(res.stats);
+                        renderLaporan(res.laporan);
 
                         if (res.total === 0 && !adaFilter) {
                             $('#panelData').addClass('hidden');
@@ -460,7 +533,8 @@
                                 const nama = escapeHtml(item.nama);
                                 const kode = escapeHtml(item.kode_inventaris);
                                 const jenis = renderJenis(item.jenis);
-                                const kondisi = renderKondisi(item.kondisi);
+                                const kondisi = (item.deleted_at ? '<span class="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-2.5 py-1 text-[11px] font-semibold text-white"><i class="fas fa-trash text-[9px]"></i> Dihapus</span>' : '') + renderKondisi(item.kondisi);
+                                const aksi = tombolAksi(item);
                                 const harga = formatRupiah(item.harga);
                                 const tanggal = escapeHtml(formatTanggal(item.tanggal_perolehan));
                                 const gambar = escapeHtml(fotoUrl(item.foto));
@@ -511,19 +585,7 @@
 
                                         <td class="px-5 py-4">
                                             <div class="flex items-center justify-center gap-2">
-                                                <button type="button"
-                                                    data-id="${id}"
-                                                    title="Edit Inventaris"
-                                                    class="btnEdit flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600 transition hover:border-amber-200 hover:bg-amber-500 hover:text-white">
-                                                    <i class="fas fa-pen text-xs"></i>
-                                                </button>
-
-                                                <button type="button"
-                                                    data-id="${id}"
-                                                    title="Hapus Inventaris"
-                                                    class="btnHapus flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white">
-                                                    <i class="fas fa-trash text-xs"></i>
-                                                </button>
+                                                ${aksi}
                                             </div>
                                         </td>
                                     </tr>
@@ -569,19 +631,7 @@
                                             </div>
 
                                             <div class="flex items-center gap-2">
-                                                <button type="button"
-                                                    data-id="${id}"
-                                                    title="Edit Inventaris"
-                                                    class="btnEdit flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600 transition hover:border-amber-200 hover:bg-amber-500 hover:text-white">
-                                                    <i class="fas fa-pen text-xs"></i>
-                                                </button>
-
-                                                <button type="button"
-                                                    data-id="${id}"
-                                                    title="Hapus Inventaris"
-                                                    class="btnHapus flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white">
-                                                    <i class="fas fa-trash text-xs"></i>
-                                                </button>
+                                                ${aksi}
                                             </div>
                                         </div>
                                     </div>
@@ -962,38 +1012,157 @@
             $(document).on('click', '.btnHapus', function() {
                 const id = $(this).data('id');
 
-                swalConfirm(
-                    'Hapus Inventaris?',
-                    'Data yang dihapus tidak dapat dikembalikan.',
-                    function() {
-                        $.ajax({
-                            url: inventarisUrl + '/' + id,
-                            method: 'POST',
-                            data: {
-                                _method: 'DELETE',
-                                _token: csrfToken
-                            },
-
-                            beforeSend: function() {
-                                Swal.showLoading();
-                            },
-
-                            success: function(res) {
-                                loadData(1);
-
-                                swalSuccess(
-                                    res.message || 'Inventaris berhasil dihapus.'
-                                );
-                            },
-
-                            error: function(xhr) {
-                                swalError(
-                                    xhr.responseJSON?.message ||
-                                    'Inventaris gagal dihapus.'
-                                );
-                            }
-                        });
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Hapus Inventaris?',
+                    text: 'Barang ditandai terhapus, riwayatnya tetap tersimpan. Tulis alasannya.',
+                    input: 'text',
+                    inputPlaceholder: 'Contoh: rusak total dan sudah dibuang',
+                    inputValidator: (value) => value.trim() ? undefined : 'Alasan penghapusan wajib diisi.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#64748b',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-2xl'
                     }
+                }).then(function(result) {
+                    if (!result.isConfirmed) return;
+
+                    $.ajax({
+                        url: inventarisUrl + '/' + id,
+                        method: 'POST',
+                        data: {
+                            _method: 'DELETE',
+                            _token: csrfToken,
+                            keterangan: result.value
+                        },
+
+                        success: function(res) {
+                            loadData(1);
+                            swalSuccess(res.message || 'Inventaris berhasil dihapus.');
+                        },
+
+                        error: function(xhr) {
+                            swalError(xhr.responseJSON?.message || 'Inventaris gagal dihapus.');
+                        }
+                    });
+                });
+            });
+
+            // ==========================================
+            // LAPORAN & RIWAYAT
+            // ==========================================
+
+            function tombolAksi(item) {
+                const id = Number(item.id);
+                const html = `
+                    <button type="button" data-id="${id}" data-nama="${escapeHtml(item.nama)}" title="Riwayat Inventaris"
+                        class="btnRiwayat flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:border-primary hover:text-primary">
+                        <i class="fas fa-clock-rotate-left text-xs"></i>
+                    </button>
+                `;
+
+                if (hanyaLihat || item.deleted_at) return html;
+
+                return html + `
+                    <button type="button" data-id="${id}" title="Edit Inventaris"
+                        class="btnEdit flex h-9 w-9 items-center justify-center rounded-xl border border-amber-100 bg-amber-50 text-amber-600 transition hover:border-amber-200 hover:bg-amber-500 hover:text-white">
+                        <i class="fas fa-pen text-xs"></i>
+                    </button>
+                    <button type="button" data-id="${id}" title="Hapus Inventaris"
+                        class="btnHapus flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:border-red-200 hover:bg-red-600 hover:text-white">
+                        <i class="fas fa-trash text-xs"></i>
+                    </button>
+                `;
+            }
+
+            function renderLaporan(laporan) {
+                if (!laporan) return;
+
+                $('#laporanDitambah').text(formatRupiah(laporan.ditambah));
+                $('#laporanDihapus').text(formatRupiah(laporan.dihapus));
+
+                const chips = Object.entries(laporan.perubahan || {}).map(function([kondisi, jumlah]) {
+                    const style = kondisiStyle[kondisi] || { badge: 'bg-slate-100 text-slate-600' };
+
+                    return `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold ${style.badge}">
+                        ${escapeHtml(kondisi)} ${jumlah > 0 ? '+' : ''}${jumlah}
+                    </span>`;
+                }).join('');
+
+                $('#laporanPerubahan').html(chips || '<span class="text-xs text-slate-400">Belum ada</span>');
+            }
+
+            function teksKondisi(peta) {
+                const isi = Object.entries(peta || {});
+
+                return isi.length ? isi.map(([k, v]) => `${k} ${v}`).join(', ') : 'kosong';
+            }
+
+            const labelAksi = {
+                ditambah: { teks: 'Ditambah', ikon: 'fa-plus' },
+                diubah: { teks: 'Kondisi diubah', ikon: 'fa-pen' },
+                dihapus: { teks: 'Dihapus', ikon: 'fa-trash' }
+            };
+
+            function bukaRiwayat(params, judul, sub, kosong) {
+                $('#riwayatJudul').text(judul);
+                $('#riwayatSub').text(sub);
+                $('#riwayatIsi').html('<p class="py-10 text-center text-sm text-slate-400"><i class="fas fa-spinner fa-spin mr-2"></i> Memuat riwayat...</p>');
+                showModal('modalRiwayat');
+
+                $.getJSON(riwayatUrl, params).done(function(rows) {
+                    if (!rows.length) {
+                        $('#riwayatIsi').html(`<p class="py-10 text-center text-sm text-slate-400">${escapeHtml(kosong)}</p>`);
+                        return;
+                    }
+
+                    $('#riwayatIsi').html(rows.map(function(r) {
+                        const aksi = labelAksi[r.aksi] || { teks: r.aksi, ikon: 'fa-circle' };
+                        const detail = {
+                            ditambah: 'Kondisi awal: ' + teksKondisi(r.kondisi_sesudah),
+                            diubah: teksKondisi(r.kondisi_sebelum) + ' → ' + teksKondisi(r.kondisi_sesudah),
+                            dihapus: 'Kondisi terakhir: ' + teksKondisi(r.kondisi_sebelum)
+                        } [r.aksi] || '';
+
+                        return `
+                            <div class="rounded-xl border border-slate-200 p-4">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <span class="inline-flex min-w-0 items-center gap-2 text-sm font-semibold text-slate-800">
+                                        <i class="fas ${aksi.ikon} text-xs text-primary"></i>
+                                        <span class="break-words">${escapeHtml(aksi.teks)}${params.inventaris ? '' : ': ' + escapeHtml(r.nama) + ' (' + escapeHtml(r.kode) + ')'}</span>
+                                    </span>
+                                    <span class="text-xs text-slate-400">${escapeHtml(r.tanggal)}</span>
+                                </div>
+                                <p class="mt-2 text-sm text-slate-600">${escapeHtml(detail)}</p>
+                                ${r.keterangan ? `<p class="mt-1 break-words text-sm italic text-slate-500">"${escapeHtml(r.keterangan)}"</p>` : ''}
+                                <p class="mt-2 text-xs text-slate-400">Periode ${escapeHtml(r.periode)} · ${escapeHtml(r.user || 'Pengguna terhapus')}</p>
+                            </div>
+                        `;
+                    }).join(''));
+                }).fail(function() {
+                    $('#riwayatIsi').html('<p class="py-10 text-center text-sm text-red-500">Riwayat gagal dimuat.</p>');
+                });
+            }
+
+            $(document).on('click', '.btnRiwayat', function() {
+                bukaRiwayat(
+                    { inventaris: $(this).data('id') },
+                    'Riwayat ' + $(this).data('nama'),
+                    'Semua periode',
+                    'Belum ada riwayat. Barang ini dicatat sebelum fitur riwayat ada.'
+                );
+            });
+
+            $('#btnRiwayatPeriode').on('click', function() {
+                bukaRiwayat(
+                    {},
+                    @json('Riwayat Periode ' . $periode->nama),
+                    'Semua perubahan inventaris selama periode ini',
+                    'Belum ada perubahan inventaris pada periode ini.'
                 );
             });
         });

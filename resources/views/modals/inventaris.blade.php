@@ -236,6 +236,18 @@
                         </button>
                     </div>
                 </div>
+
+                {{-- Keterangan masuk ke riwayat barang --}}
+                <div>
+                    <label for="keterangan" class="mb-2 block text-sm font-semibold text-slate-700">
+                        Keterangan
+                        <span class="text-slate-400">(opsional)</span>
+                    </label>
+                    <input type="text" id="keterangan" name="keterangan" maxlength="255"
+                        placeholder="Contoh: 2 kursi patah waktu retreat"
+                        class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-700 outline-none transition focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10">
+                    <p class="mt-1.5 text-xs text-slate-400">Dicatat di riwayat barang saat kondisinya berubah.</p>
+                </div>
             </div>
 
             {{-- Footer --}}

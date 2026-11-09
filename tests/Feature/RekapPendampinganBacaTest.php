@@ -101,3 +101,39 @@ TEKS;
         ->and($hasil['kegiatan'][1]['sambutan'])->toBe([])
         ->and($hasil['kegiatan'][2]['hadir'])->toBe(['Fila (PF)', 'Igun']);
 });
+
+test('tanggal tanpa kata tanggal dan format tebal whatsapp tetap terbaca', function () {
+    $teks = <<<'TEKS'
+*Absensi kegiatan :*
+
+> 26 Oktober 2026 :
+• Rapat Panitia Natal PPGT KMTr
+*Hadir :* Kak mikel, denson, silvy
+
+> 27 Oktober 2026 :
+• Rapat Evaluasi Tahunan Tim Kreatif
+*Hadir :* Dita, Grace, Cici
+
+• Rapat Evaluasi Tim SnC 
+*Hadir :* Kak rahel, Yuan
+
+Senin, 2 November 2026
+• 17 Agustus Kenangan
+Hadir : Rocky
+
+3 November (Selasa)
+* Ibadah
+Hadir : Cici
+TEKS;
+
+    $hasil = RekapPendampingan::baca($teks, 2020);
+
+    expect($hasil['abaikan'])->toBe([])
+        ->and(array_map(fn ($k) => [$k['tanggal'], $k['nama'], $k['hadir']], $hasil['kegiatan']))->toBe([
+            ['2026-10-26', 'Rapat Panitia Natal PPGT KMTr', ['Kak mikel', 'denson', 'silvy']],
+            ['2026-10-27', 'Rapat Evaluasi Tahunan Tim Kreatif', ['Dita', 'Grace', 'Cici']],
+            ['2026-10-27', 'Rapat Evaluasi Tim SnC', ['Kak rahel', 'Yuan']],
+            ['2026-11-02', '17 Agustus Kenangan', ['Rocky']],
+            ['2026-11-03', 'Ibadah', ['Cici']],
+        ]);
+});

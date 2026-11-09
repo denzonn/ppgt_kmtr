@@ -35,6 +35,8 @@ class RekapPendampingan
         'desember' => 12, 'des' => 12, 'dec' => 12, 'december' => 12,
     ];
 
+    private const HARI = "senin|selasa|rabu|kamis|jumat|jum'at|sabtu|minggu";
+
     /**
      * @return array{kegiatan: list<array{tanggal: string, nama: string, hadir: list<string>, sambutan: list<string>}>, abaikan: list<string>}
      */
@@ -57,8 +59,10 @@ class RekapPendampingan
                 continue;
             }
 
-            // TANGGAL 02 NOVEMBER (SENIN), Tgl 2 Nov 2026, dan sejenisnya.
-            if (preg_match('/^\P{L}*(?:tanggal|tgl)\.?\s*(\d{1,2})\s+('.$namaBulan.')\.?(?:\s+(\d{4}))?/iu', $bersih, $m)) {
+            // TANGGAL 02 NOVEMBER (SENIN), Tgl 2 Nov 2026, atau tanpa kata tanggal: "> 26 Oktober 2026 :".
+            // Tanpa kata tanggal, barisnya harus hanya berisi tanggal, supaya "• 17 Agustus ..." tetap terbaca sebagai kegiatan.
+            if (preg_match('/^\P{L}*(?:tanggal|tgl)\.?\s*(\d{1,2})\s+('.$namaBulan.')\.?(?:\s+(\d{4}))?/iu', $bersih, $m)
+                || preg_match('/^[^\p{L}\d*•\-–]*(?:'.self::HARI.')?,?\s*(\d{1,2})\s+('.$namaBulan.')\.?(?:\s+(\d{4}))?[^\p{L}]*(?:\(\s*\p{L}+\s*\)[^\p{L}]*)?$/iu', $bersih, $m)) {
                 $bulan = self::BULAN[mb_strtolower($m[2])];
                 $tahun = isset($m[3]) ? (int) $m[3] : $tahun;
                 $tanggal = checkdate($bulan, (int) $m[1], $tahun) ? CarbonImmutable::create($tahun, $bulan, (int) $m[1])->toDateString() : null;
@@ -72,8 +76,8 @@ class RekapPendampingan
                 continue;
             }
 
-            // Hadir : Denson, Bill, Rocky   atau   Sambutan : Fila
-            if (preg_match('/^\P{L}*(hadir|sambutan)\s*[:：]?\s*(.*)$/iu', $bersih, $m)) {
+            // Hadir : Denson, Bill, Rocky   atau   Sambutan : Fila   (juga tebal ala WhatsApp: *Hadir :* Denson)
+            if (preg_match('/^\P{L}*(hadir|sambutan)[\s:：*_]*(.*)$/iu', $bersih, $m)) {
                 if ($terakhir === null) {
                     $abaikan[] = $bersih;
 
@@ -83,6 +87,11 @@ class RekapPendampingan
                 $kegiatan[$terakhir][$kolom] = [...$kegiatan[$terakhir][$kolom], ...self::pisahNama($m[2])];
                 $lanjut = str_ends_with(rtrim($m[2]), ',') ? $kolom : null;
 
+                continue;
+            }
+
+            // Judul tebal seperti "*Absensi kegiatan :*" bukan kegiatan.
+            if (preg_match('/^\*[^*]*[:：]\s*\*$/u', $bersih)) {
                 continue;
             }
 

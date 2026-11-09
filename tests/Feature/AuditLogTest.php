@@ -7,6 +7,7 @@ use App\Models\InventarisKondisi;
 use App\Models\Jemaat;
 use App\Models\Linktree;
 use App\Models\DataAnggota;
+use App\Models\Periode;
 use App\Models\Role;
 use App\Models\User;
 
@@ -22,6 +23,7 @@ function isianInventaris(array $kondisi): array
 
 beforeEach(function () {
     $this->admin = User::factory()->admin()->create(['name' => 'Admin Utama']);
+    $this->inv = '/kepengurusan/'.Periode::create(['tahun_mulai' => 2025, 'tahun_selesai' => 2027])->id.'/inventaris';
     AuditLog::query()->delete();
 });
 
@@ -134,13 +136,13 @@ test('login, login gagal, dan logout dicatat', function () {
 
 test('perubahan jumlah kondisi inventaris dicatat hanya yang berubah', function () {
     $this->actingAs($this->admin)
-        ->postJson('/inventaris', isianInventaris(['Baik' => 5, 'Rusak' => 1, 'Hilang' => 0]))
+        ->postJson($this->inv, isianInventaris(['Baik' => 5, 'Rusak' => 1, 'Hilang' => 0]))
         ->assertOk();
     $item = Inventaris::first();
     AuditLog::query()->delete();
 
     $this->actingAs($this->admin)
-        ->putJson("/inventaris/{$item->id}", isianInventaris(['Baik' => 5, 'Rusak' => 3, 'Hilang' => 2]))
+        ->putJson("{$this->inv}/{$item->id}", isianInventaris(['Baik' => 5, 'Rusak' => 3, 'Hilang' => 2]))
         ->assertOk();
 
     expect(InventarisKondisi::where('id_inventaris', $item->id)->pluck('jumlah', 'kondisi')->map(fn ($j) => (int) $j)->all())
@@ -154,27 +156,28 @@ test('perubahan jumlah kondisi inventaris dicatat hanya yang berubah', function 
 
 test('kondisi yang dijadikan nol atau tidak dikirim terhapus dan dicatat', function () {
     $this->actingAs($this->admin)
-        ->postJson('/inventaris', isianInventaris(['Baik' => 5, 'Rusak' => 1, 'Hilang' => 2]))
+        ->postJson($this->inv, isianInventaris(['Baik' => 5, 'Rusak' => 1, 'Hilang' => 2]))
         ->assertOk();
     $item = Inventaris::first();
     AuditLog::query()->delete();
 
     $this->actingAs($this->admin)
-        ->putJson("/inventaris/{$item->id}", isianInventaris(['Baik' => 5, 'Rusak' => 0]))
+        ->putJson("{$this->inv}/{$item->id}", isianInventaris(['Baik' => 5, 'Rusak' => 0]))
         ->assertOk();
 
     expect(InventarisKondisi::where('id_inventaris', $item->id)->pluck('kondisi')->all())->toBe(['Baik']);
     expect(AuditLog::where('model', 'InventarisKondisi')->pluck('aksi')->all())->toBe(['dihapus', 'dihapus']);
 });
 
-test('menghapus inventaris mencatat kondisinya juga', function () {
-    $this->actingAs($this->admin)->postJson('/inventaris', isianInventaris(['Baik' => 5]))->assertOk();
+test('menghapus inventaris dicatat dan kondisinya tetap tersimpan', function () {
+    $this->actingAs($this->admin)->postJson($this->inv, isianInventaris(['Baik' => 5]))->assertOk();
     $item = Inventaris::first();
     AuditLog::query()->delete();
 
-    $this->actingAs($this->admin)->deleteJson("/inventaris/{$item->id}")->assertOk();
+    $this->actingAs($this->admin)->deleteJson("{$this->inv}/{$item->id}", ['keterangan' => 'Rusak total'])->assertOk();
 
-    expect(AuditLog::where('aksi', 'dihapus')->pluck('model')->all())->toContain('InventarisKondisi', 'Inventaris');
+    expect(AuditLog::where('aksi', 'dihapus')->pluck('model')->all())->toBe(['Inventaris']);
+    expect(InventarisKondisi::where('id_inventaris', $item->id)->exists())->toBeTrue();
 });
 
 test('mengatur urutan linktree mencatat item yang berpindah', function () {

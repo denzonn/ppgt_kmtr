@@ -9,6 +9,7 @@ use App\Models\PeminjamanDetail;
 use App\Models\PeminjamanInventaris;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class PeminjamanController extends Controller
 {
@@ -30,7 +31,7 @@ class PeminjamanController extends Controller
             'nama_peminjam'      => 'required|string|max:255',
             'foto_pengambilan'   => 'required|image|max:4096',
             'inventaris'         => 'required|array|min:1',
-            'inventaris.*.id'    => 'required|exists:inventaris,id',
+            'inventaris.*.id'    => ['required', Rule::exists('inventaris', 'id')->whereNull('deleted_at')],
             'inventaris.*.jumlah' => 'required|integer|min:1',
         ]);
 

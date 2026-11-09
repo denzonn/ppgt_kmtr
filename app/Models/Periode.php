@@ -45,6 +45,17 @@ class Periode extends Model
         return $this->hasManyThrough(ProgramKerja::class, Bidang::class);
     }
 
+    /** Periode lama sudah serah terima begitu ada periode yang lebih baru; datanya tinggal untuk dilihat. */
+    public function sudahSerahTerima(): bool
+    {
+        return static::where('tahun_mulai', '>', $this->tahun_mulai)->exists();
+    }
+
+    public function inventarisRiwayat()
+    {
+        return $this->hasMany(InventarisRiwayat::class);
+    }
+
     public function jabatans()
     {
         return $this->hasMany(Jabatan::class);

@@ -11,17 +11,30 @@ function roleDengan(array $menus): Role
 
 test('role admin bisa membuka semua menu', function () {
     $admin = User::factory()->admin()->create();
-    foreach (['/dashboard', '/inventaris', '/data-anggota', '/data-peminjaman', '/generator-qr-link'] as $url) {
+    foreach (['/dashboard', '/data-anggota', '/data-peminjaman', '/generator-qr-link'] as $url) {
         $this->actingAs($admin)->get($url)->assertOk();
     }
+});
+
+test('menu inventaris membuka periode pengguna, atau periode terbaru untuk admin', function () {
+    $admin = User::factory()->admin()->create();
+    $this->actingAs($admin)->get('/inventaris')->assertNotFound();
+
+    $lama = Periode::create(['tahun_mulai' => 2023, 'tahun_selesai' => 2025]);
+    $baru = Periode::create(['tahun_mulai' => 2025, 'tahun_selesai' => 2027]);
+    $this->actingAs($admin)->get('/inventaris')->assertRedirect(url("/kepengurusan/{$baru->id}/inventaris"));
+
+    $user = User::factory()->untukPeriode($lama)->create(['role_id' => roleDengan(['inventaris'])->id]);
+    $this->actingAs($user)->get('/inventaris')->assertRedirect(url("/kepengurusan/{$lama->id}/inventaris"));
+    $this->actingAs($user)->get("/kepengurusan/{$lama->id}/inventaris")->assertOk();
 });
 
 test('role tanpa centang ditolak dan diizinkan setelah dicentang', function () {
     $role = roleDengan([]);
     $user = User::factory()->create(['role_id' => $role->id]);
-    $this->actingAs($user)->get('/inventaris')->assertForbidden();
-    $role->update(['menus' => ['inventaris']]);
-    $this->actingAs($user->fresh())->get('/inventaris')->assertOk();
+    $this->actingAs($user)->get('/data-anggota')->assertForbidden();
+    $role->update(['menus' => ['data_anggota']]);
+    $this->actingAs($user->fresh())->get('/data-anggota')->assertOk();
 });
 
 test('pengguna periode dari dashboard diarahkan ke program kerja periodenya', function () {
@@ -58,8 +71,9 @@ test('peminjaman publik tetap terbuka tanpa login', function () {
 });
 
 test('sidebar hanya menampilkan menu yang dimiliki', function () {
-    $user = User::factory()->create(['role_id' => roleDengan(['inventaris'])->id]);
-    $this->actingAs($user)->get('/inventaris')->assertOk()
+    $p = Periode::create(['tahun_mulai' => 2025, 'tahun_selesai' => 2027]);
+    $user = User::factory()->untukPeriode($p)->create(['role_id' => roleDengan(['inventaris'])->id]);
+    $this->actingAs($user)->get("/kepengurusan/{$p->id}/inventaris")->assertOk()
         ->assertSee(route('inventaris.index'), false)
         ->assertDontSee(route('data_anggota.index'), false)
         ->assertDontSee(route('peminjaman-admin'), false)

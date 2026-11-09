@@ -19,6 +19,7 @@ class AuditLog extends Model
         'DataAnggota' => 'Data Anggota',
         'Inventaris' => 'Inventaris',
         'InventarisKondisi' => 'Kondisi Inventaris',
+        'InventarisRiwayat' => 'Riwayat Inventaris',
         'Jabatan' => 'Jabatan',
         'Jemaat' => 'Jemaat',
         'Kegiatan' => 'Kegiatan',

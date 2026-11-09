@@ -2,6 +2,7 @@
 
 use App\Models\Inventaris;
 use App\Models\PeminjamanInventaris;
+use App\Models\Periode;
 use App\Models\User;
 use App\Support\FileUpload;
 use Illuminate\Http\UploadedFile;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 beforeEach(function () {
     Storage::fake('public');
     $this->admin = User::factory()->admin()->create();
+    $this->inv = '/kepengurusan/'.Periode::create(['tahun_mulai' => 2025, 'tahun_selesai' => 2027])->id.'/inventaris';
 });
 
 function isianInventarisFoto(array $tambahan = []): array
@@ -64,12 +66,12 @@ test('menghapus nilai kosong atau file di luar storage tidak error', function ()
 });
 
 test('foto inventaris tersimpan sebagai URL dan file lama terhapus saat diganti', function () {
-    $this->actingAs($this->admin)->post('/inventaris', isianInventarisFoto(['foto' => UploadedFile::fake()->image('a.jpg')]), ['Accept' => 'application/json'])->assertOk();
+    $this->actingAs($this->admin)->post($this->inv, isianInventarisFoto(['foto' => UploadedFile::fake()->image('a.jpg')]), ['Accept' => 'application/json'])->assertOk();
     $item = Inventaris::first();
     $lama = $item->foto;
     expect($lama)->toStartWith(asset('storage/inventaris/'));
 
-    $this->actingAs($this->admin)->post("/inventaris/{$item->id}", isianInventarisFoto(['_method' => 'PUT', 'foto' => UploadedFile::fake()->image('b.jpg')]), ['Accept' => 'application/json'])->assertOk();
+    $this->actingAs($this->admin)->post("{$this->inv}/{$item->id}", isianInventarisFoto(['_method' => 'PUT', 'foto' => UploadedFile::fake()->image('b.jpg')]), ['Accept' => 'application/json'])->assertOk();
 
     expect($item->fresh()->foto)->toStartWith(asset('storage/inventaris/'))->not->toBe($lama);
     Storage::disk('public')->assertMissing(FileUpload::path($lama));
@@ -77,7 +79,7 @@ test('foto inventaris tersimpan sebagai URL dan file lama terhapus saat diganti'
 });
 
 test('foto peminjaman dan pengembalian tersimpan sebagai URL', function () {
-    $this->actingAs($this->admin)->postJson('/inventaris', isianInventarisFoto())->assertOk();
+    $this->actingAs($this->admin)->postJson($this->inv, isianInventarisFoto())->assertOk();
     $item = Inventaris::first();
 
     $this->post('/peminjaman', [
